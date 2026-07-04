@@ -3,6 +3,7 @@ import DashboardLayout from "../../../components/Layout/DashboardLayout";
 import Modal from "../../../components/modal";
 import { authService } from "../../../services/auth.service";
 import { useNavigate } from "react-router-dom";
+import "../../../styles/addeditdrop.css";
 
 type Student = {
   id: string;
