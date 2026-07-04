@@ -2,7 +2,7 @@ import DashboardLayout from "../../../components/Layout/DashboardLayout";
 import { authService } from "../../../services/auth.service";
 import { useNavigate } from "react-router-dom";
 
-export default function ManageStudents() {
+export default function StudentManagement() {
   const navigate = useNavigate();
   const user = authService.getSession();
 
@@ -14,7 +14,7 @@ export default function ManageStudents() {
   return (
     <DashboardLayout>
       <div className="admin-manage-management">
-        <h1>Student Records</h1>
+        <h1>Student List</h1>
         <p>This page is under construction.</p>
       </div>
     </DashboardLayout>

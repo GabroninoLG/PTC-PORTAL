@@ -6,7 +6,7 @@ export const adminNavGroups = [
     children: [
       { label: "Student List", path: "/admin/students/manage" },
       { label: "Student Record", path: "/admin/students/records" },
-      { label: "Modify Student", path: "/admin/students/addeditdrop" },
+      { label: "Student Management", path: "/admin/students/addeditdrop" },
     ],
   },
   {
