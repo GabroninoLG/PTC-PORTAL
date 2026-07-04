@@ -1,5 +1,6 @@
 import { useState } from "react";
 import DashboardLayout from "../../../components/Layout/DashboardLayout";
+import Modal from "../../../components/modal";
 import { authService } from "../../../services/auth.service";
 import { useNavigate } from "react-router-dom";
 import "../../../styles/studentmanage.css";
@@ -184,6 +185,19 @@ function SectionIcon() {
 export default function ManageStudents() {
   const navigate = useNavigate();
   const user = authService.getSession();
+  const [students, setStudents] = useState<Student[]>(initialStudents);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingStudent, setEditingStudent] = useState<Student | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<Student | null>(null);
+  const [formState, setFormState] = useState<Omit<Student, "id">>(emptyForm);
+
+  // Section options always derive from the currently selected course + year level.
+  // This must run before any early return so hook order stays stable across renders.
+  const sectionOptions = useMemo(
+    () => generateSectionOptions(formState.course, formState.yearLevel),
+    [formState.course, formState.yearLevel],
+  );
 
   // Only ONE year can be open at a time
   const [expandedYearId, setExpandedYearId] = useState<string | null>(null);

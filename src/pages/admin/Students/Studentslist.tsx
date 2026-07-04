@@ -2,7 +2,7 @@ import DashboardLayout from "../../../components/Layout/DashboardLayout";
 import { authService } from "../../../services/auth.service";
 import { useNavigate } from "react-router-dom";
 
-export default function AddEditDrop() {
+export default function Studentlist() {
   const navigate = useNavigate();
   const user = authService.getSession();
 
@@ -13,7 +13,7 @@ export default function AddEditDrop() {
 
   return (
     <DashboardLayout>
-      <div className="admin-addeditdrop-management">
+      <div className="admin-list-management">
         <h1>AddDropEdit</h1>
         <p>This page is under construction.</p>
       </div>

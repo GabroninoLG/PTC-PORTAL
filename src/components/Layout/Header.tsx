@@ -40,8 +40,6 @@ export default function Header() {
   return (
     <header className={`app-header ${visible ? "show" : "hide"}`}>
       <div className="header-left">
-        <h2 className="header-logo">PTC Portal</h2>
-      </div>
 
       <div className="header-right">
         <div className="user-info">
