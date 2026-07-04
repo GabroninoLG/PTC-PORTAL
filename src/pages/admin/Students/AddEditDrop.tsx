@@ -1,4 +1,10 @@
-import { useState, useMemo, type ChangeEvent, type FormEvent } from "react";
+import {
+  useState,
+  useMemo,
+  useEffect,
+  type ChangeEvent,
+  type FormEvent,
+} from "react";
 import DashboardLayout from "../../../components/Layout/DashboardLayout";
 import Modal from "../../../components/modal";
 import { authService } from "../../../services/auth.service";
@@ -14,6 +20,9 @@ type Student = {
   yearLevel: string;
   section: string;
 };
+
+// Point this at wherever your Node server actually runs.
+const API_BASE_URL = "http://localhost:3000/api/students";
 
 // --- Reusable option sources -------------------------------------------
 
@@ -42,38 +51,6 @@ const generateSectionOptions = (
   });
 };
 
-// --- Seed data ------------------------------------------------------------
-
-const initialStudents: Student[] = [
-  {
-    id: "23BSIT-0001",
-    firstName: "LG",
-    lastName: "Gabronino",
-    email: "lgabronino@ptc.edu.ph",
-    course: "BSIT",
-    yearLevel: "1st Year",
-    section: "BSIT-1A",
-  },
-  {
-    id: "23BSIT-0002",
-    firstName: "Andrew",
-    lastName: "Emnil",
-    email: "abemnil@ptc.edu.ph",
-    course: "BSIT",
-    yearLevel: "2nd Year",
-    section: "BSIT-2A",
-  },
-  {
-    id: "23BSIT-0003",
-    firstName: "Ryan Paul",
-    lastName: "Echon",
-    email: "rpechon@ptc.edu.ph",
-    course: "BSIT",
-    yearLevel: "3rd Year",
-    section: "BSIT-3A",
-  },
-];
-
 const emptyForm = {
   firstName: "",
   lastName: "",
@@ -86,7 +63,9 @@ const emptyForm = {
 export default function AddEditDrop() {
   const navigate = useNavigate();
   const user = authService.getSession();
-  const [students, setStudents] = useState<Student[]>(initialStudents);
+  const [students, setStudents] = useState<Student[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingStudent, setEditingStudent] = useState<Student | null>(null);
@@ -99,6 +78,28 @@ export default function AddEditDrop() {
     () => generateSectionOptions(formState.course, formState.yearLevel),
     [formState.course, formState.yearLevel],
   );
+
+  // Load students from the database once on mount.
+  useEffect(() => {
+    const loadStudents = async () => {
+      setIsLoading(true);
+      setErrorMessage(null);
+      try {
+        const response = await fetch(API_BASE_URL);
+        if (!response.ok) throw new Error("Failed to load students");
+        const data: Student[] = await response.json();
+        setStudents(data);
+      } catch (error) {
+        setErrorMessage(
+          error instanceof Error ? error.message : "Failed to load students",
+        );
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadStudents();
+  }, []);
 
   if (!user || user.role !== "admin") {
     navigate("/login");
@@ -165,7 +166,7 @@ export default function AddEditDrop() {
     });
   };
 
-  const handleSaveStudent = (event: FormEvent<HTMLFormElement>) => {
+  const handleSaveStudent = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     if (
@@ -179,23 +180,43 @@ export default function AddEditDrop() {
       return;
     }
 
-    if (editingStudent) {
-      setStudents((current) =>
-        current.map((student) =>
-          student.id === editingStudent.id
-            ? { ...student, ...formState }
-            : student,
-        ),
-      );
-    } else {
-      const newStudent: Student = {
-        id: `STU-${Math.floor(1000 + Math.random() * 9000)}`,
-        ...formState,
-      };
-      setStudents((current) => [newStudent, ...current]);
-    }
+    setErrorMessage(null);
 
-    closeModal();
+    try {
+      if (editingStudent) {
+        // Update existing student on the server, then update local state.
+        const response = await fetch(`${API_BASE_URL}/${editingStudent.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formState),
+        });
+        if (!response.ok) throw new Error("Failed to update student");
+        const updated: Student = await response.json();
+
+        setStudents((current) =>
+          current.map((student) =>
+            student.id === editingStudent.id ? updated : student,
+          ),
+        );
+      } else {
+        // Create a new student on the server, then add it to local state.
+        const response = await fetch(API_BASE_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formState),
+        });
+        if (!response.ok) throw new Error("Failed to add student");
+        const newStudent: Student = await response.json();
+
+        setStudents((current) => [newStudent, ...current]);
+      }
+
+      closeModal();
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error ? error.message : "Failed to save student",
+      );
+    }
   };
 
   const confirmDeleteStudent = (student: Student) => {
@@ -206,12 +227,26 @@ export default function AddEditDrop() {
     setDeleteTarget(null);
   };
 
-  const deleteStudent = () => {
+  const deleteStudent = async () => {
     if (!deleteTarget) return;
-    setStudents((current) =>
-      current.filter((student) => student.id !== deleteTarget.id),
-    );
-    setDeleteTarget(null);
+
+    setErrorMessage(null);
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/${deleteTarget.id}`, {
+        method: "DELETE",
+      });
+      if (!response.ok) throw new Error("Failed to delete student");
+
+      setStudents((current) =>
+        current.filter((student) => student.id !== deleteTarget.id),
+      );
+      setDeleteTarget(null);
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error ? error.message : "Failed to delete student",
+      );
+    }
   };
 
   return (
@@ -227,6 +262,10 @@ export default function AddEditDrop() {
             + Add Student
           </button>
         </div>
+
+        {errorMessage && (
+          <p className="admin-manage-students__error">{errorMessage}</p>
+        )}
 
         <input
           type="text"
@@ -250,7 +289,13 @@ export default function AddEditDrop() {
             </tr>
           </thead>
           <tbody>
-            {filteredStudents.length === 0 ? (
+            {isLoading ? (
+              <tr>
+                <td colSpan={8} style={{ textAlign: "center" }}>
+                  Loading students...
+                </td>
+              </tr>
+            ) : filteredStudents.length === 0 ? (
               <tr>
                 <td colSpan={8} style={{ textAlign: "center" }}>
                   No students found.

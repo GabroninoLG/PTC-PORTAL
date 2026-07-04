@@ -1,57 +1,48 @@
 import "dotenv/config";
 import express from "express";
 import cors from "cors";
-import mysql from "mysql2/promise";
-import { createClient } from "redis";
 import bcrypt from "bcrypt";
 import nodemailer from "nodemailer";
 import crypto from "crypto";
+import db from "./db.js"; // CHANGED: shared connection, moved out of this file
+import studentsRouter from "./routes/students.routes.js"; // ADDED
 
 const app = express();
 
-app.use(cors({ origin: "http://localhost:5173" }));
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URL || "http://localhost:5173",
+  }),
+);
+
 app.use(express.json());
 
-// ── MySQL ─────────────────────────────────────────────────────
-const db = await mysql.createConnection({
-  host: process.env.DB_HOST || "localhost",
-  port: process.env.DB_PORT || 3306,
-  user: process.env.DB_USER || "root",
-  password: process.env.DB_PASSWORD || "",
-  database: process.env.DB_NAME,
-});
-console.log("MySQL connected");
+// ADDED: mount the students CRUD routes
+app.use("/api/students", studentsRouter);
 
-// ── Redis ─────────────────────────────────────────────────────
-const redis = createClient({
-  username: "default",
-  password: "nOAslzeA1PonVzzcU8yY6UVlcYB8KBnb",
-  socket: {
-    host: "redis-10754.c299.asia-northeast1-1.gce.cloud.redislabs.com",
-    port: 10754,
-  },
-});
-
-redis.on("error", (err) => console.log("Redis Client Error", err));
-await redis.connect();
-console.log("Redis connected");
-
-// ── Nodemailer ────────────────────────────────────────────────
+// =======================
+// Nodemailer
+// =======================
 const transporter = nodemailer.createTransport({
   host: "smtp.ethereal.email",
   port: 587,
+  secure: false,
   auth: {
-    user: "maxie.dach47@ethereal.email",
-    pass: "a2xx45B7kzG2rspQzJ",
+    user: process.env.ETHEREAL_USER,
+    pass: process.env.ETHEREAL_PASS,
   },
 });
 
-// ── POST /auth/login ──────────────────────────────────────────
+// =======================
+// Login
+// =======================
 app.post("/auth/login", async (req, res) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
-    return res.status(400).json({ error: "Email and password required." });
+    return res.status(400).json({
+      error: "Email and password are required.",
+    });
   }
 
   try {
@@ -59,76 +50,134 @@ app.post("/auth/login", async (req, res) => {
       email,
     ]);
 
-    if (!rows.length) {
-      return res.status(401).json({ error: "Invalid credentials." });
+    if (rows.length === 0) {
+      return res.status(401).json({
+        error: "Invalid email or password.",
+      });
     }
 
     const user = rows[0];
+
     const match = await bcrypt.compare(password, user.password_hash);
 
     if (!match) {
-      return res.status(401).json({ error: "Invalid credentials." });
+      return res.status(401).json({
+        error: "Invalid email or password.",
+      });
     }
 
+    // Generate OTP
     const otp = crypto.randomInt(100000, 999999).toString();
-    await redis.setEx(`otp:${email}`, 300, otp);
 
+    // Remove previous OTP
+    await db.execute("DELETE FROM otp_codes WHERE email = ?", [email]);
+
+    // Expires in 5 minutes
+    const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
+
+    // Save OTP
+    await db.execute(
+      `INSERT INTO otp_codes
+      (email, otp, expires_at)
+      VALUES (?, ?, ?)`,
+      [email, otp, expiresAt],
+    );
+
+    // Send Email
     const info = await transporter.sendMail({
       from: '"PTC Portal" <noreply@ptc.edu.ph>',
       to: email,
-      subject: "Your PTC Portal OTP Code",
-      text: `Your OTP code is: ${otp}\n\nIt expires in 5 minutes.`,
+      subject: "PTC Portal OTP",
+
+      text: `Your OTP is ${otp}. It expires in 5 minutes.`,
+
       html: `
-        <div style="font-family:sans-serif;max-width:400px">
-          <h2 style="color:#1a1a2e">PTC Portal OTP</h2>
-          <p>Your one-time password is:</p>
-          <h1 style="letter-spacing:8px;color:#4f46e5">${otp}</h1>
-          <p style="color:#666">Expires in <strong>5 minutes</strong>.</p>
+        <div style="font-family:Arial">
+          <h2>PTC Portal</h2>
+
+          <p>Your One-Time Password is:</p>
+
+          <h1 style="letter-spacing:6px;color:#4f46e5;">
+            ${otp}
+          </h1>
+
+          <p>This code expires in <b>5 minutes</b>.</p>
         </div>
       `,
     });
 
-    console.log("OTP email preview:", nodemailer.getTestMessageUrl(info));
-    res.json({ message: "OTP sent successfully." });
+    console.log("Preview URL:", nodemailer.getTestMessageUrl(info));
+
+    res.json({
+      message: "OTP sent successfully.",
+    });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Server error." });
+
+    res.status(500).json({
+      error: "Server error.",
+    });
   }
 });
 
-// ── POST /auth/verify-otp ─────────────────────────────────────
+// =======================
+// Verify OTP
+// =======================
 app.post("/auth/verify-otp", async (req, res) => {
   const { email, otp } = req.body;
 
   if (!email || !otp) {
-    return res.status(400).json({ error: "Email and OTP required." });
+    return res.status(400).json({
+      error: "Email and OTP are required.",
+    });
   }
 
   try {
-    const stored = await redis.get(`otp:${email}`);
+    const [otpRows] = await db.execute(
+      `SELECT *
+       FROM otp_codes
+       WHERE email = ?
+       AND otp = ?
+       AND expires_at > NOW()`,
+      [email, otp],
+    );
 
-    if (!stored) {
-      return res
-        .status(401)
-        .json({ error: "OTP expired. Please login again." });
+    if (otpRows.length === 0) {
+      return res.status(401).json({
+        error: "Invalid or expired OTP.",
+      });
     }
 
-    if (stored !== otp) {
-      return res.status(401).json({ error: "Incorrect OTP." });
-    }
+    // Delete OTP after success
+    await db.execute("DELETE FROM otp_codes WHERE email = ?", [email]);
 
-    await redis.del(`otp:${email}`);
-
-    const [rows] = await db.execute(
+    const [userRows] = await db.execute(
       "SELECT email, role FROM users WHERE email = ?",
       [email],
     );
 
-    res.json({ email: rows[0].email, role: rows[0].role });
+    if (userRows.length === 0) {
+      return res.status(404).json({
+        error: "User not found.",
+      });
+    }
+
+    res.json({
+      email: userRows[0].email,
+      role: userRows[0].role,
+    });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Server error." });
+
+    res.status(500).json({
+      error: "Server error.",
+    });
   }
 });
 
-app.listen(3000, () => console.log("Backend running on http://localhost:3000"));
+// =======================
+// Start Server
+// =======================
+app.listen(3000, () => {
+  console.log("🚀 Backend running at http://localhost:3000");
+});
