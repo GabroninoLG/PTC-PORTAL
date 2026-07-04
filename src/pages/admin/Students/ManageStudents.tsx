@@ -3,6 +3,7 @@ import DashboardLayout from "../../../components/Layout/DashboardLayout";
 import Modal from "../../../components/modal";
 import { authService } from "../../../services/auth.service";
 import { useNavigate } from "react-router-dom";
+import "../../styles/admin.styles.css";
 
 type Student = {
   id: string;
@@ -28,7 +29,10 @@ const yearLevelToDigit = (yearLevel: string): string => {
 
 // Generates ["BSIT-1A", "BSIT-1B", ..., "BSIT-1Z"] for a given course + year level.
 // Returns [] if either course or yearLevel is not yet selected.
-const generateSectionOptions = (course: string, yearLevel: string): string[] => {
+const generateSectionOptions = (
+  course: string,
+  yearLevel: string,
+): string[] => {
   const yearDigit = yearLevelToDigit(yearLevel);
   if (!course || !yearDigit) return [];
 
@@ -89,16 +93,17 @@ export default function ManageStudents() {
   const [deleteTarget, setDeleteTarget] = useState<Student | null>(null);
   const [formState, setFormState] = useState<Omit<Student, "id">>(emptyForm);
 
+  // Section options always derive from the currently selected course + year level.
+  // This must run before any early return so hook order stays stable across renders.
+  const sectionOptions = useMemo(
+    () => generateSectionOptions(formState.course, formState.yearLevel),
+    [formState.course, formState.yearLevel],
+  );
+
   if (!user || user.role !== "admin") {
     navigate("/login");
     return null;
   }
-
-  // Section options always derive from the currently selected course + year level.
-  const sectionOptions = useMemo(
-    () => generateSectionOptions(formState.course, formState.yearLevel),
-    [formState.course, formState.yearLevel]
-  );
 
   const filteredStudents = students.filter((student) => {
     const query = searchTerm.trim().toLowerCase();
@@ -137,7 +142,7 @@ export default function ManageStudents() {
   };
 
   const handleInputChange = (
-    event: ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    event: ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
     const { name, value } = event.target;
 
@@ -149,7 +154,7 @@ export default function ManageStudents() {
       if (name === "course" || name === "yearLevel") {
         const validSections = generateSectionOptions(
           updated.course,
-          updated.yearLevel
+          updated.yearLevel,
         );
         if (!validSections.includes(updated.section)) {
           updated.section = "";
@@ -179,8 +184,8 @@ export default function ManageStudents() {
         current.map((student) =>
           student.id === editingStudent.id
             ? { ...student, ...formState }
-            : student
-        )
+            : student,
+        ),
       );
     } else {
       const newStudent: Student = {
@@ -204,7 +209,7 @@ export default function ManageStudents() {
   const deleteStudent = () => {
     if (!deleteTarget) return;
     setStudents((current) =>
-      current.filter((student) => student.id !== deleteTarget.id)
+      current.filter((student) => student.id !== deleteTarget.id),
     );
     setDeleteTarget(null);
   };
@@ -212,8 +217,203 @@ export default function ManageStudents() {
   return (
     <DashboardLayout>
       <div className="admin-manage-students">
-        <h1>Add / Edit Students</h1>
-        <p>This page is under construction.</p>
+        <div className="admin-manage-students__header">
+          <h1>Add / Edit Students</h1>
+          <button
+            type="button"
+            className="btn btn-primary"
+            onClick={openAddStudent}
+          >
+            + Add Student
+          </button>
+        </div>
+
+        <input
+          type="text"
+          placeholder="Search by ID or name..."
+          value={searchTerm}
+          onChange={(event) => setSearchTerm(event.target.value)}
+          className="admin-manage-students__search"
+        />
+
+        <table className="admin-manage-students__table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>First Name</th>
+              <th>Last Name</th>
+              <th>Email</th>
+              <th>Course</th>
+              <th>Year Level</th>
+              <th>Section</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredStudents.length === 0 ? (
+              <tr>
+                <td colSpan={8} style={{ textAlign: "center" }}>
+                  No students found.
+                </td>
+              </tr>
+            ) : (
+              filteredStudents.map((student) => (
+                <tr key={student.id}>
+                  <td>{student.id}</td>
+                  <td>{student.firstName}</td>
+                  <td>{student.lastName}</td>
+                  <td>{student.email}</td>
+                  <td>{student.course}</td>
+                  <td>{student.yearLevel}</td>
+                  <td>{student.section}</td>
+                  <td>
+                    <button
+                      type="button"
+                      className="btn btn-secondary"
+                      onClick={() => openEditStudent(student)}
+                    >
+                      Edit
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn-danger"
+                      onClick={() => confirmDeleteStudent(student)}
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+
+        {/* Add / Edit modal */}
+        {isModalOpen && (
+          <Modal isOpen={isModalOpen} onClose={closeModal}>
+            <h2>{editingStudent ? "Edit Student" : "Add Student"}</h2>
+            <form onSubmit={handleSaveStudent} className="admin-student-form">
+              <label>
+                First Name
+                <input
+                  type="text"
+                  name="firstName"
+                  value={formState.firstName}
+                  onChange={handleInputChange}
+                  required
+                />
+              </label>
+
+              <label>
+                Last Name
+                <input
+                  type="text"
+                  name="lastName"
+                  value={formState.lastName}
+                  onChange={handleInputChange}
+                  required
+                />
+              </label>
+
+              <label>
+                Email
+                <input
+                  type="email"
+                  name="email"
+                  value={formState.email}
+                  onChange={handleInputChange}
+                  required
+                />
+              </label>
+
+              <label>
+                Course
+                <select
+                  name="course"
+                  value={formState.course}
+                  onChange={handleInputChange}
+                  required
+                >
+                  <option value="">Select course</option>
+                  {COURSES.map((course) => (
+                    <option key={course} value={course}>
+                      {course}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <label>
+                Year Level
+                <select
+                  name="yearLevel"
+                  value={formState.yearLevel}
+                  onChange={handleInputChange}
+                  required
+                >
+                  {YEAR_LEVELS.map((year) => (
+                    <option key={year} value={year}>
+                      {year}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <label>
+                Section
+                <select
+                  name="section"
+                  value={formState.section}
+                  onChange={handleInputChange}
+                  required
+                  disabled={sectionOptions.length === 0}
+                >
+                  <option value="">Select section</option>
+                  {sectionOptions.map((section) => (
+                    <option key={section} value={section}>
+                      {section}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <div className="admin-student-form__actions">
+                <button type="button" className="btn" onClick={closeModal}>
+                  Cancel
+                </button>
+                <button type="submit" className="btn btn-primary">
+                  {editingStudent ? "Save Changes" : "Add Student"}
+                </button>
+              </div>
+            </form>
+          </Modal>
+        )}
+
+        {/* Delete confirmation modal */}
+        {deleteTarget && (
+          <Modal isOpen={Boolean(deleteTarget)} onClose={cancelDelete}>
+            <h2>Delete Student</h2>
+            <p>
+              Are you sure you want to delete{" "}
+              <strong>
+                {deleteTarget.firstName} {deleteTarget.lastName}
+              </strong>
+              ? This action cannot be undone.
+            </p>
+            <div className="admin-student-form__actions">
+              <button type="button" className="btn" onClick={cancelDelete}>
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="btn btn-danger"
+                onClick={deleteStudent}
+              >
+                Delete
+              </button>
+            </div>
+          </Modal>
+        )}
       </div>
     </DashboardLayout>
   );
