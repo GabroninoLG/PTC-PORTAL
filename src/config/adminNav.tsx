@@ -4,9 +4,9 @@ export const adminNavGroups = [
     label: "Student Management",
     icon: "",
     children: [
-      { label: "Student Management", path: "/admin/students/manage" },
+      { label: "Student List", path: "/admin/students/manage" },
       { label: "Student Record", path: "/admin/students/records" },
-      { label: "Student List", path: "/admin/students/list" },
+      { label: "Modify Student", path: "/admin/students/addeditdrop" },
     ],
   },
   {
