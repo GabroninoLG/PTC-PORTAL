@@ -2,22 +2,13 @@ import { useEffect, useMemo, useState } from "react";
 import DashboardLayout from "../../../components/Layout/DashboardLayout";
 import { authService } from "../../../services/auth.service";
 import { useNavigate } from "react-router-dom";
-
-type Student = {
-  id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  course: string;
-  yearLevel: string;
-  section: string;
-};
+import { fallbackStudents, type StudentRecord } from "../../../data/studentFallbackData";
 
 export default function StudentManagement() {
   const navigate = useNavigate();
   const user = authService.getSession();
-  const [students, setStudents] = useState<Student[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [students, setStudents] = useState<StudentRecord[]>(fallbackStudents);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -37,10 +28,13 @@ export default function StudentManagement() {
           throw new Error("Unable to load student list.");
         }
 
-        const data = (await response.json()) as Student[];
-        setStudents(data);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Something went wrong.");
+        const data = (await response.json()) as StudentRecord[];
+        if (data.length > 0) {
+          setStudents(data);
+        }
+      } catch {
+        setStudents(fallbackStudents);
+        setError("Using saved student data while the server is unavailable.");
       } finally {
         setLoading(false);
       }
@@ -97,9 +91,9 @@ export default function StudentManagement() {
         </div>
 
         {loading && <p>Loading student list...</p>}
-        {error && <p style={{ color: "#dc3545" }}>{error}</p>}
+        {error && <p style={{ color: "#6c757d" }}>{error}</p>}
 
-        {!loading && !error && (
+        {!loading && (
           <div style={{ overflowX: "auto", backgroundColor: "#fff", border: "1px solid #e9ecef", borderRadius: "8px" }}>
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead>

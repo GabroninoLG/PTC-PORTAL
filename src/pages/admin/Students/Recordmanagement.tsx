@@ -2,25 +2,16 @@ import { useEffect, useMemo, useState } from "react";
 import DashboardLayout from "../../../components/Layout/DashboardLayout";
 import { authService } from "../../../services/auth.service";
 import { useNavigate } from "react-router-dom";
-
-type Student = {
-  id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  course: string;
-  yearLevel: string;
-  section: string;
-};
+import { fallbackStudents, type StudentRecord } from "../../../data/studentFallbackData";
 
 export default function RecordsManagement() {
   const navigate = useNavigate();
   const user = authService.getSession();
-  const [students, setStudents] = useState<Student[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [students, setStudents] = useState<StudentRecord[]>(fallbackStudents);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedStudentId, setSelectedStudentId] = useState("");
+  const [selectedStudentId, setSelectedStudentId] = useState(fallbackStudents[0]?.id ?? "");
 
   useEffect(() => {
     if (!user || user.role !== "admin") {
@@ -38,21 +29,22 @@ export default function RecordsManagement() {
           throw new Error("Unable to load student records.");
         }
 
-        const data = (await response.json()) as Student[];
-        setStudents(data);
-
-        if (data.length > 0 && !selectedStudentId) {
-          setSelectedStudentId(data[0].id);
+        const data = (await response.json()) as StudentRecord[];
+        if (data.length > 0) {
+          setStudents(data);
+          setSelectedStudentId((current) => current || data[0].id);
         }
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Something went wrong.");
+      } catch {
+        setStudents(fallbackStudents);
+        setSelectedStudentId(fallbackStudents[0]?.id ?? "");
+        setError("Using saved student records while the server is unavailable.");
       } finally {
         setLoading(false);
       }
     };
 
     fetchStudents();
-  }, [navigate, selectedStudentId, user]);
+  }, [navigate, user]);
 
   const filteredStudents = useMemo(() => {
     const term = searchTerm.toLowerCase();
@@ -104,9 +96,9 @@ export default function RecordsManagement() {
             </div>
 
             {loading && <p>Loading records...</p>}
-            {error && <p style={{ color: "#dc3545" }}>{error}</p>}
+            {error && <p style={{ color: "#6c757d" }}>{error}</p>}
 
-            {!loading && !error && (
+            {!loading && (
               <div style={{ display: "grid", gap: "0.5rem" }}>
                 {filteredStudents.length === 0 ? (
                   <p style={{ color: "#6c757d", margin: 0 }}>No matching student records.</p>
