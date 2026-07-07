@@ -2,7 +2,7 @@ import DashboardLayout from "../../../components/Layout/DashboardLayout";
 import { authService } from "../../../services/auth.service";
 import { useNavigate } from "react-router-dom";
 
-export default function ClassScheduling() {
+export default function Sprofile() {
   const navigate = useNavigate();
   const user = authService.getSession();
 
@@ -13,8 +13,8 @@ export default function ClassScheduling() {
 
   return (
     <DashboardLayout>
-      <div className="admin-class-scheduling">
-        <h1>Class Scheduling</h1>
+      <div className="admin-profile-students">
+        <h1>Approve Enrollment</h1>
         <p>This page is under construction.</p>
       </div>
     </DashboardLayout>

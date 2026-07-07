@@ -1,6 +1,6 @@
 const API_BASE_URL = "http://localhost:3000";
 
-export type UserRole = "admin" | "student" | "faculty";
+export type UserRole = "admin" | "student" | "faculty" | "proghead";
 
 export type User = {
   username: string;

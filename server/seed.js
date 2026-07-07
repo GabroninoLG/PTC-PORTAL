@@ -26,6 +26,8 @@ const users = [
   { email: "admin@ptc.edu.ph", password: "12345", role: "admin" },
   { email: "student@ptc.edu.ph", password: "12345", role: "student" },
   { email: "faculty@ptc.edu.ph", password: "12345", role: "faculty" },
+  { email: "proghead@ptc.edu.ph", password: "12345", role: "proghead" },
+  { email: "registrar@ptc.edu.ph", password: "12345", role: "registrar" },
 ];
 
 for (const u of users) {

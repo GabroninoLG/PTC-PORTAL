@@ -59,9 +59,15 @@ import AdminDashboard from "../pages/admin/AdminDashboard";
 import ManageStudentsNew from "../pages/admin/Students/ManageStudents";
 import RecordsManagement from "../pages/admin/Students/Recordmanagement";
 import AddEditDrop from "../pages/admin/Students/AddEditDrop";
+import CreateStudent from "../pages/admin/Students/createstudent";
+import EditStudent from "../pages/admin/Students/editstudent";
+import Sprofile from "../pages/admin/Students/Sprofile";
+
 // ── Admin: Enrollment Management ──
 import ApproveEnrollment from "../pages/admin/Enrollment/ApproveEnrollment";
-import ClassScheduling from "../pages/admin/Enrollment/ClassScheduling";
+import EnrollmentRequests from "../pages/admin/Enrollment/EnrollmentRequests";
+import EnrollmentHistory from "../pages/admin/Enrollment/EnrollmentHistory";
+import EnrollmentAnalytics from "../pages/admin/Enrollment/EnrollmentAnalytics";
 // ── Admin: Financial Management ──
 import FeesSetup from "../pages/admin/FinancialManagement/FeesSetup";
 import PaymentMonitoring from "../pages/admin/FinancialManagement/PaymentMonitoring";
@@ -75,6 +81,7 @@ import FinancialReports from "../pages/admin/Reports/FinancialReport";
 import UsageAnalytics from "../pages/admin/Reports/UsageAnalytics";
 
 import type { ReactElement } from "react";
+import PendingGrades from "../pages/programhead/GradeApproval/PendingGrades";
 
 // ─── Role guard ───────────────────────────────────────────────
 
@@ -94,6 +101,7 @@ function ProtectedRoute({
       admin: "/admin/dashboard",
       faculty: "/faculty/dashboard",
       student: "/student/dashboard",
+      proghead: "/proghead/dashboard",
     };
     return <Navigate to={fallback[user.role]} replace />;
   }
@@ -111,6 +119,10 @@ function FacultyRoute({ element }: { element: ReactElement }) {
 }
 function AdminRoute({ element }: { element: ReactElement }) {
   return <ProtectedRoute allowedRole="admin">{element}</ProtectedRoute>;
+}
+
+function ProgRoute({ element }: { element: ReactElement }) {
+  return <ProtectedRoute allowedRole="proghead">{element}</ProtectedRoute>;
 }
 
 // ─── Routes ───────────────────────────────────────────────────
@@ -301,9 +313,21 @@ export default function AppRoutes() {
         path="/admin/students/records"
         element={<AdminRoute element={<RecordsManagement />} />}
       />
-       <Route
+      <Route
         path="/admin/students/addeditdrop"
         element={<AdminRoute element={<AddEditDrop />} />}
+      />
+      <Route
+        path="/admin/students/createstudents"
+        element={<AdminRoute element={<CreateStudent />} />}
+      />
+      <Route
+        path="/admin/students/editstudents"
+        element={<AdminRoute element={<EditStudent />} />}
+      />
+      <Route
+        path="/admin/students/profile"
+        element={<AdminRoute element={<Sprofile />} />}
       />
       {/* ── Admin: Enrollment Management ── */}
       <Route
@@ -311,8 +335,16 @@ export default function AppRoutes() {
         element={<AdminRoute element={<ApproveEnrollment />} />}
       />
       <Route
-        path="/admin/enrollment/scheduling"
-        element={<AdminRoute element={<ClassScheduling />} />}
+        path="/admin/enrollment/request"
+        element={<AdminRoute element={<EnrollmentRequests />} />}
+      />
+      <Route
+        path="/admin/enrollment/history"
+        element={<AdminRoute element={<EnrollmentHistory />} />}
+      />
+      <Route
+        path="/admin/enrollment/analytics"
+        element={<AdminRoute element={<EnrollmentAnalytics />} />}
       />
       {/* ── Admin: Financial Management ── */}
       <Route
@@ -348,6 +380,10 @@ export default function AppRoutes() {
       <Route
         path="/admin/reports/analytics"
         element={<AdminRoute element={<UsageAnalytics />} />}
+      />
+      <Route
+        path="/proghead/gradeapproval/pending"
+        element={<ProgRoute element={<PendingGrades />} />}
       />
       {/* Catch-all */}
       <Route path="*" element={<Navigate to="/" replace />} />
