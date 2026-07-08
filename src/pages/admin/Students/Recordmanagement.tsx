@@ -44,7 +44,8 @@ export default function RecordsManagement() {
     };
 
     fetchStudents();
-  }, [navigate, user]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [navigate, user?.role]);
 
   const filteredStudents = useMemo(() => {
     const term = searchTerm.toLowerCase();

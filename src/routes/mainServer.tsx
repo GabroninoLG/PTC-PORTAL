@@ -56,7 +56,7 @@ import SendNotice from "../pages/faculty/Communication/SendNotice";
 
 // ── Admin: Student Management ──
 import AdminDashboard from "../pages/admin/AdminDashboard";
-import ManageStudentsNew from "../pages/admin/Students/ManageStudents";
+import ManageStudentsNew from "../pages/admin/Students/StudentLists";
 import RecordsManagement from "../pages/admin/Students/Recordmanagement";
 import AddEditDrop from "../pages/admin/Students/AddEditDrop";
 import CreateStudent from "../pages/admin/Students/createstudent";
