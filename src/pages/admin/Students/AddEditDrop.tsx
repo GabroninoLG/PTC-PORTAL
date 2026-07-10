@@ -101,7 +101,7 @@ export default function AddEditDrop() {
     loadStudents();
   }, []);
 
-  if (!user || user.role !== "admin") {
+  if (!user || user.role !== "Admin") {
     navigate("/login");
     return null;
   }

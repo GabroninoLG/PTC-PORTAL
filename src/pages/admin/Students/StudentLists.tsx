@@ -6,7 +6,7 @@ import {
   fallbackStudents,
   type StudentRecord,
 } from "../../../data/studentFallbackData";
-
+import "../../../styles/Studentlist.css";
 
 // ---------- Folder tree types ----------
 type SectionMap = Record<string, StudentRecord[]>;
@@ -81,11 +81,11 @@ export default function StudentManagement() {
   const [expandedYear, setExpandedYear] = useState<string | null>(null);
   const [expandedCourse, setExpandedCourse] = useState<string | null>(null);
   const [selectedFolder, setSelectedFolder] = useState<FolderSelection | null>(
-    null
+    null,
   );
 
   useEffect(() => {
-    if (!user || user.role !== "admin") {
+    if (!user || user.role !== "Admin") {
       navigate("/login");
       return;
     }
@@ -190,7 +190,7 @@ export default function StudentManagement() {
     });
   }, [searchTerm, folderFilteredStudents]);
 
-  if (!user || user.role !== "admin") {
+  if (!user || user.role !== "Admin") {
     return null;
   }
 
@@ -198,7 +198,7 @@ export default function StudentManagement() {
     <DashboardLayout>
       <div className="admin-manage-students">
         <h1>Student List</h1>
-        <p style={{ marginTop: "-0.5rem", marginBottom: "1rem", color: "#6c757d" }}>
+        <p className="student-subtitle">
           Manage and review the students registered in the system.
         </p>
 
@@ -293,18 +293,9 @@ export default function StudentManagement() {
 
           {/* RIGHT: Search + Stats + Student table */}
           <div className="folder-content">
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                gap: "1rem",
-                marginBottom: "1rem",
-                flexWrap: "wrap",
-              }}
-            >
+            <div className="folder-content-header">
               <div>
-                <h2 style={{ margin: 0 }}>
+                <h2 className="folder-content-title">
                   {selectedFolder
                     ? [
                         selectedFolder.year,
@@ -316,164 +307,55 @@ export default function StudentManagement() {
                     : "All Students"}
                 </h2>
               </div>
-              <div style={{ minWidth: "260px" }}>
+              <div className="folder-search-wrap">
                 <input
                   type="text"
                   value={searchTerm}
                   onChange={(event) => setSearchTerm(event.target.value)}
                   placeholder="Search student"
-                  style={{
-                    width: "100%",
-                    padding: "0.65rem 0.75rem",
-                    borderRadius: "6px",
-                    border: "1px solid #ced4da",
-                  }}
+                  className="folder-search-input"
                 />
               </div>
             </div>
 
-            <div
-              style={{
-                backgroundColor: "#f8f9fa",
-                border: "1px solid #e9ecef",
-                borderRadius: "8px",
-                padding: "1rem",
-                marginBottom: "1rem",
-              }}
-            >
+            <div className="student-total-box">
               <strong>Total students:</strong> {filteredStudents.length}
             </div>
 
             {loading && <p>Loading student list...</p>}
-            {error && <p style={{ color: "#6c757d" }}>{error}</p>}
+            {error && <p className="student-error-text">{error}</p>}
 
             {!loading && !error && (
-              <div
-                style={{
-                  overflowX: "auto",
-                  backgroundColor: "#fff",
-                  border: "1px solid #e9ecef",
-                  borderRadius: "8px",
-                }}
-              >
-                <table style={{ width: "100%", borderCollapse: "collapse" }}>
+              <div className="student-table-wrap">
+                <table className="student-table">
                   <thead>
-                    <tr style={{ backgroundColor: "#f8f9fa", textAlign: "left" }}>
-                      <th
-                        style={{
-                          padding: "0.75rem",
-                          borderBottom: "1px solid #dee2e6",
-                        }}
-                      >
-                        Student ID
-                      </th>
-                      <th
-                        style={{
-                          padding: "0.75rem",
-                          borderBottom: "1px solid #dee2e6",
-                        }}
-                      >
-                        Name
-                      </th>
-                      <th
-                        style={{
-                          padding: "0.75rem",
-                          borderBottom: "1px solid #dee2e6",
-                        }}
-                      >
-                        Email
-                      </th>
-                      <th
-                        style={{
-                          padding: "0.75rem",
-                          borderBottom: "1px solid #dee2e6",
-                        }}
-                      >
-                        Course
-                      </th>
-                      <th
-                        style={{
-                          padding: "0.75rem",
-                          borderBottom: "1px solid #dee2e6",
-                        }}
-                      >
-                        Year
-                      </th>
-                      <th
-                        style={{
-                          padding: "0.75rem",
-                          borderBottom: "1px solid #dee2e6",
-                        }}
-                      >
-                        Section
-                      </th>
+                    <tr>
+                      <th>Student ID</th>
+                      <th>Name</th>
+                      <th>Email</th>
+                      <th>Course</th>
+                      <th>Year</th>
+                      <th>Section</th>
                     </tr>
                   </thead>
                   <tbody>
                     {filteredStudents.length === 0 ? (
                       <tr>
-                        <td
-                          colSpan={6}
-                          style={{
-                            padding: "1rem",
-                            textAlign: "center",
-                            color: "#6c757d",
-                          }}
-                        >
+                        <td colSpan={6} className="student-table-empty">
                           No students found.
                         </td>
                       </tr>
                     ) : (
                       filteredStudents.map((student) => (
                         <tr key={student.id}>
-                          <td
-                            style={{
-                              padding: "0.75rem",
-                              borderBottom: "1px solid #f1f3f5",
-                            }}
-                          >
-                            {student.id}
-                          </td>
-                          <td
-                            style={{
-                              padding: "0.75rem",
-                              borderBottom: "1px solid #f1f3f5",
-                            }}
-                          >
+                          <td>{student.id}</td>
+                          <td>
                             {student.firstName} {student.lastName}
                           </td>
-                          <td
-                            style={{
-                              padding: "0.75rem",
-                              borderBottom: "1px solid #f1f3f5",
-                            }}
-                          >
-                            {student.email}
-                          </td>
-                          <td
-                            style={{
-                              padding: "0.75rem",
-                              borderBottom: "1px solid #f1f3f5",
-                            }}
-                          >
-                            {student.course}
-                          </td>
-                          <td
-                            style={{
-                              padding: "0.75rem",
-                              borderBottom: "1px solid #f1f3f5",
-                            }}
-                          >
-                            {student.yearLevel}
-                          </td>
-                          <td
-                            style={{
-                              padding: "0.75rem",
-                              borderBottom: "1px solid #f1f3f5",
-                            }}
-                          >
-                            {student.section}
-                          </td>
+                          <td>{student.email}</td>
+                          <td>{student.course}</td>
+                          <td>{student.yearLevel}</td>
+                          <td>{student.section}</td>
                         </tr>
                       ))
                     )}

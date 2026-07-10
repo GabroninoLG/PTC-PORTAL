@@ -83,8 +83,11 @@ export default function LoginForm() {
             type="button"
             onClick={() => {
               authService.saveSession({
+                user_id: 1,
                 username: "admin",
-                role: "admin",
+                email: "admin@ptc.edu.ph",
+                role: "Admin",
+                role_id: 1,
               });
 
               navigate("/admin/dashboard");
@@ -97,8 +100,11 @@ export default function LoginForm() {
             type="button"
             onClick={() => {
               authService.saveSession({
+                user_id: 2,
                 username: "faculty",
-                role: "faculty",
+                email: "faculty@ptc.edu.ph",
+                role: "Faculty",
+                role_id: 2,
               });
 
               navigate("/faculty/dashboard");
@@ -112,8 +118,11 @@ export default function LoginForm() {
             type="button"
             onClick={() => {
               authService.saveSession({
+                user_id: 3,
                 username: "student",
-                role: "student",
+                email: "student@ptc.edu.ph",
+                role: "Student",
+                role_id: 3,
               });
 
               navigate("/student/dashboard");
@@ -121,6 +130,42 @@ export default function LoginForm() {
             style={{ marginLeft: "10px" }}
           >
             Login as Student
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              authService.saveSession({
+                user_id: 4,
+                username: "programhead",
+                email: "programhead@ptc.edu.ph",
+                role: "Program Head",
+                role_id: 4,
+              });
+
+              navigate("/programhead/dashboard");
+            }}
+            style={{ marginLeft: "10px" }}
+          >
+            Login as Program Head
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              authService.saveSession({
+                user_id: 5,
+                username: "registrar",
+                email: "registrar@ptc.edu.ph",
+                role: "Registrar",
+                role_id: 5,
+              });
+
+              navigate("/registrar/dashboard");
+            }}
+            style={{ marginLeft: "10px" }}
+          >
+            Login as Registrar
           </button>
         </div>
       </div>

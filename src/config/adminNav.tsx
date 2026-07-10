@@ -16,7 +16,6 @@ export const adminNavGroups = [
     children: [
       { label: "Approve Enrollment", path: "/admin/enrollment/approve" },
       { label: "EnrollmentRequest", path: "/admin/enrollment/request" },
-      { label: "Class Scheduling", path: "/admin/enrollment/scheduling" },
     ],
   },
   {

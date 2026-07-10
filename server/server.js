@@ -46,9 +46,28 @@ app.post("/auth/login", async (req, res) => {
   }
 
   try {
-    const [rows] = await db.execute("SELECT * FROM users WHERE email = ?", [
-      email,
-    ]);
+    const [rows] = await db.execute(
+      `
+SELECT
+
+u.user_id,
+u.username,
+u.email,
+u.password_hash,
+u.role_id,
+u.is_verified,
+u.is_active,
+r.role_name
+
+FROM users u
+
+INNER JOIN roles r
+ON u.role_id = r.role_id
+
+WHERE u.email = ?
+`,
+      [email],
+    );
 
     if (rows.length === 0) {
       return res.status(401).json({
@@ -57,6 +76,17 @@ app.post("/auth/login", async (req, res) => {
     }
 
     const user = rows[0];
+    if (!user.is_active) {
+      return res.status(403).json({
+        error: "Your account has been deactivated.",
+      });
+    }
+
+    if (!user.is_verified) {
+      return res.status(403).json({
+        error: "Please verify your account first.",
+      });
+    }
 
     const match = await bcrypt.compare(password, user.password_hash);
 
@@ -68,6 +98,17 @@ app.post("/auth/login", async (req, res) => {
 
     // Generate OTP
     const otp = crypto.randomInt(100000, 999999).toString();
+
+    await db.execute(
+      `
+UPDATE users
+
+SET last_login = NOW()
+
+WHERE user_id = ?
+`,
+      [user.user_id],
+    );
 
     // Remove previous OTP
     await db.execute("DELETE FROM otp_codes WHERE email = ?", [email]);
@@ -151,8 +192,33 @@ app.post("/auth/verify-otp", async (req, res) => {
     // Delete OTP after success
     await db.execute("DELETE FROM otp_codes WHERE email = ?", [email]);
 
+    // FIX: look up the user FIRST so we actually have an id/username
+    // to log — previously this code referenced an undefined `user`
+    // variable here (it only existed in the /auth/login handler above),
+    // which threw a ReferenceError and made verify-otp always fail with
+    // a 500 "Server error".
     const [userRows] = await db.execute(
-      "SELECT email, role FROM users WHERE email = ?",
+      `
+SELECT
+
+u.user_id,
+
+u.username,
+
+u.email,
+
+u.role_id,
+
+r.role_name
+
+FROM users u
+
+JOIN roles r
+
+ON u.role_id=r.role_id
+
+WHERE u.email=?
+`,
       [email],
     );
 
@@ -162,9 +228,39 @@ app.post("/auth/verify-otp", async (req, res) => {
       });
     }
 
+    const user = userRows[0];
+
+    await db.execute(
+      `
+INSERT INTO activity_logs
+(
+user_id,
+activity_type,
+module_name,
+description
+)
+
+VALUES
+(
+?,
+'LOGIN',
+'Authentication',
+?
+)
+`,
+      [user.user_id, `${user.username} logged into the system`],
+    );
+
     res.json({
+      user_id: userRows[0].user_id,
+
+      username: userRows[0].username,
+
       email: userRows[0].email,
-      role: userRows[0].role,
+
+      role: userRows[0].role_name,
+
+      role_id: userRows[0].role_id,
     });
   } catch (err) {
     console.error(err);

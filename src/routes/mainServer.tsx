@@ -80,11 +80,14 @@ import StudentReports from "../pages/admin/Reports/StudentReport";
 import FinancialReports from "../pages/admin/Reports/FinancialReport";
 import UsageAnalytics from "../pages/admin/Reports/UsageAnalytics";
 
+import ProgramHeadDashboard from "../pages/programhead/dashboard/Dashboard";
+import RegistrarDashboard from "../pages/registrar/Dashboard";
+
 import type { ReactElement } from "react";
 import PendingGrades from "../pages/programhead/GradeApproval/PendingGrades";
+import RStudentRecord from "../pages/registrar/GradeApproval/Studentrecord";
 
 // ─── Role guard ───────────────────────────────────────────────
-
 function ProtectedRoute({
   children,
   allowedRole,
@@ -98,33 +101,37 @@ function ProtectedRoute({
 
   if (user.role !== allowedRole) {
     const fallback: Record<UserRole, string> = {
-      admin: "/admin/dashboard",
-      faculty: "/faculty/dashboard",
-      student: "/student/dashboard",
-      proghead: "/proghead/dashboard",
+      Admin: "/admin/dashboard",
+      Registrar: "/registrar/dashboard",
+      Student: "/student/dashboard",
+      Faculty: "/faculty/dashboard",
+      "Program Head": "/programhead/dashboard",
     };
+
     return <Navigate to={fallback[user.role]} replace />;
   }
 
   return children;
 }
-
-// Helper to reduce boilerplate for protected student routes
 function StudentRoute({ element }: { element: ReactElement }) {
-  return <ProtectedRoute allowedRole="student">{element}</ProtectedRoute>;
+  return <ProtectedRoute allowedRole="Student">{element}</ProtectedRoute>;
 }
-// ── add a FacultyRoute helper beside StudentRoute ──
+
 function FacultyRoute({ element }: { element: ReactElement }) {
-  return <ProtectedRoute allowedRole="faculty">{element}</ProtectedRoute>;
+  return <ProtectedRoute allowedRole="Faculty">{element}</ProtectedRoute>;
 }
+
 function AdminRoute({ element }: { element: ReactElement }) {
-  return <ProtectedRoute allowedRole="admin">{element}</ProtectedRoute>;
+  return <ProtectedRoute allowedRole="Admin">{element}</ProtectedRoute>;
 }
 
-function ProgRoute({ element }: { element: ReactElement }) {
-  return <ProtectedRoute allowedRole="proghead">{element}</ProtectedRoute>;
+function ProgramHeadRoute({ element }: { element: ReactElement }) {
+  return <ProtectedRoute allowedRole="Program Head">{element}</ProtectedRoute>;
 }
 
+function RegistrarRoute({ element }: { element: ReactElement }) {
+  return <ProtectedRoute allowedRole="Registrar">{element}</ProtectedRoute>;
+}
 // ─── Routes ───────────────────────────────────────────────────
 export default function AppRoutes() {
   return (
@@ -215,16 +222,6 @@ export default function AppRoutes() {
         path="/student/financial/pay"
         element={<StudentRoute element={<OnlinePayment />} />}
       />
-      {/* ── Faculty ── */}
-      <Route
-        path="/faculty/dashboard"
-        element={
-          <ProtectedRoute allowedRole="faculty">
-            <FacultyDashboard />
-          </ProtectedRoute>
-        }
-      />
-      // ── replace the single faculty route block with these ──
       {/* ── Faculty: Solo links ── */}
       <Route
         path="/faculty/dashboard"
@@ -298,11 +295,7 @@ export default function AppRoutes() {
       {/* ── Admin ── */}
       <Route
         path="/admin/dashboard"
-        element={
-          <ProtectedRoute allowedRole="admin">
-            <AdminDashboard />
-          </ProtectedRoute>
-        }
+        element={<AdminRoute element={<AdminDashboard />} />}
       />
       {/* ── Admin: Student Management ── */}
       <Route
@@ -382,8 +375,22 @@ export default function AppRoutes() {
         element={<AdminRoute element={<UsageAnalytics />} />}
       />
       <Route
-        path="/proghead/gradeapproval/pending"
-        element={<ProgRoute element={<PendingGrades />} />}
+        path="/programhead/dashboard"
+        element={<ProgramHeadRoute element={<ProgramHeadDashboard />} />}
+      />
+      <Route
+        path="/programhead/gradeapproval/pending"
+        element={<ProgramHeadRoute element={<PendingGrades />} />}
+      />
+
+      <Route
+        path="/registrar/dashboard"
+        element={<RegistrarRoute element={<RegistrarDashboard />} />}
+      />
+
+      <Route
+        path="/registrar/student/records"
+        element={<RegistrarRoute element={<RStudentRecord />} />}
       />
       {/* Catch-all */}
       <Route path="*" element={<Navigate to="/" replace />} />

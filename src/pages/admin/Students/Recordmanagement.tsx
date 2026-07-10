@@ -2,7 +2,10 @@ import { useEffect, useMemo, useState } from "react";
 import DashboardLayout from "../../../components/Layout/DashboardLayout";
 import { authService } from "../../../services/auth.service";
 import { useNavigate } from "react-router-dom";
-import { fallbackStudents, type StudentRecord } from "../../../data/studentFallbackData";
+import {
+  fallbackStudents,
+  type StudentRecord,
+} from "../../../data/studentFallbackData";
 
 export default function RecordsManagement() {
   const navigate = useNavigate();
@@ -11,10 +14,12 @@ export default function RecordsManagement() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedStudentId, setSelectedStudentId] = useState(fallbackStudents[0]?.id ?? "");
+  const [selectedStudentId, setSelectedStudentId] = useState(
+    fallbackStudents[0]?.id ?? "",
+  );
 
   useEffect(() => {
-    if (!user || user.role !== "admin") {
+    if (!user || user.role !== "Admin") {
       navigate("/login");
       return;
     }
@@ -37,7 +42,9 @@ export default function RecordsManagement() {
       } catch {
         setStudents(fallbackStudents);
         setSelectedStudentId(fallbackStudents[0]?.id ?? "");
-        setError("Using saved student records while the server is unavailable.");
+        setError(
+          "Using saved student records while the server is unavailable.",
+        );
       } finally {
         setLoading(false);
       }
@@ -69,7 +76,7 @@ export default function RecordsManagement() {
     return students.find((student) => student.id === selectedStudentId) ?? null;
   }, [selectedStudentId, students]);
 
-  if (!user || user.role !== "admin") {
+  if (!user || user.role !== "Admin") {
     return null;
   }
 
@@ -79,20 +86,49 @@ export default function RecordsManagement() {
         <div style={{ marginBottom: "1rem" }}>
           <h1 style={{ marginBottom: "0.25rem" }}>Student Records</h1>
           <p style={{ margin: 0, color: "#6c757d" }}>
-            Review student profile details and academic information from one place.
+            Review student profile details and academic information from one
+            place.
           </p>
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "minmax(280px, 1.1fr) minmax(320px, 0.9fr)", gap: "1rem", alignItems: "start" }}>
-          <div style={{ backgroundColor: "#fff", border: "1px solid #e9ecef", borderRadius: "8px", padding: "1rem" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "1rem", marginBottom: "0.75rem", flexWrap: "wrap" }}>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "minmax(280px, 1.1fr) minmax(320px, 0.9fr)",
+            gap: "1rem",
+            alignItems: "start",
+          }}
+        >
+          <div
+            style={{
+              backgroundColor: "#fff",
+              border: "1px solid #e9ecef",
+              borderRadius: "8px",
+              padding: "1rem",
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                gap: "1rem",
+                marginBottom: "0.75rem",
+                flexWrap: "wrap",
+              }}
+            >
               <h3 style={{ margin: 0 }}>Student List</h3>
               <input
                 type="text"
                 value={searchTerm}
                 onChange={(event) => setSearchTerm(event.target.value)}
                 placeholder="Search student"
-                style={{ minWidth: "220px", padding: "0.55rem 0.7rem", borderRadius: "6px", border: "1px solid #ced4da" }}
+                style={{
+                  minWidth: "220px",
+                  padding: "0.55rem 0.7rem",
+                  borderRadius: "6px",
+                  border: "1px solid #ced4da",
+                }}
               />
             </div>
 
@@ -102,7 +138,9 @@ export default function RecordsManagement() {
             {!loading && (
               <div style={{ display: "grid", gap: "0.5rem" }}>
                 {filteredStudents.length === 0 ? (
-                  <p style={{ color: "#6c757d", margin: 0 }}>No matching student records.</p>
+                  <p style={{ color: "#6c757d", margin: 0 }}>
+                    No matching student records.
+                  </p>
                 ) : (
                   filteredStudents.map((student) => (
                     <button
@@ -114,17 +152,27 @@ export default function RecordsManagement() {
                         alignItems: "center",
                         padding: "0.75rem",
                         borderRadius: "6px",
-                        border: selectedStudentId === student.id ? "1px solid #0d6efd" : "1px solid #e9ecef",
-                        backgroundColor: selectedStudentId === student.id ? "#eef5ff" : "#fff",
+                        border:
+                          selectedStudentId === student.id
+                            ? "1px solid #0d6efd"
+                            : "1px solid #e9ecef",
+                        backgroundColor:
+                          selectedStudentId === student.id ? "#eef5ff" : "#fff",
                         textAlign: "left",
                         cursor: "pointer",
                       }}
                     >
                       <span>
-                        <strong>{student.firstName} {student.lastName}</strong>
-                        <div style={{ color: "#6c757d", fontSize: "0.9rem" }}>{student.course}</div>
+                        <strong>
+                          {student.firstName} {student.lastName}
+                        </strong>
+                        <div style={{ color: "#6c757d", fontSize: "0.9rem" }}>
+                          {student.course}
+                        </div>
                       </span>
-                      <span style={{ color: "#0d6efd", fontSize: "0.9rem" }}>{student.id}</span>
+                      <span style={{ color: "#0d6efd", fontSize: "0.9rem" }}>
+                        {student.id}
+                      </span>
                     </button>
                   ))
                 )}
@@ -132,41 +180,101 @@ export default function RecordsManagement() {
             )}
           </div>
 
-          <div style={{ backgroundColor: "#fff", border: "1px solid #e9ecef", borderRadius: "8px", padding: "1rem" }}>
+          <div
+            style={{
+              backgroundColor: "#fff",
+              border: "1px solid #e9ecef",
+              borderRadius: "8px",
+              padding: "1rem",
+            }}
+          >
             {selectedStudent ? (
               <>
                 <div style={{ marginBottom: "1rem" }}>
-                  <h3 style={{ marginBottom: "0.25rem" }}>{selectedStudent.firstName} {selectedStudent.lastName}</h3>
-                  <p style={{ margin: 0, color: "#6c757d" }}>Student ID: {selectedStudent.id}</p>
+                  <h3 style={{ marginBottom: "0.25rem" }}>
+                    {selectedStudent.firstName} {selectedStudent.lastName}
+                  </h3>
+                  <p style={{ margin: 0, color: "#6c757d" }}>
+                    Student ID: {selectedStudent.id}
+                  </p>
                 </div>
 
                 <div style={{ display: "grid", gap: "0.75rem" }}>
-                  <div style={{ backgroundColor: "#f8f9fa", borderRadius: "8px", padding: "0.85rem" }}>
+                  <div
+                    style={{
+                      backgroundColor: "#f8f9fa",
+                      borderRadius: "8px",
+                      padding: "0.85rem",
+                    }}
+                  >
                     <strong>Contact</strong>
-                    <div style={{ marginTop: "0.35rem" }}>{selectedStudent.email}</div>
+                    <div style={{ marginTop: "0.35rem" }}>
+                      {selectedStudent.email}
+                    </div>
                   </div>
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
-                    <div style={{ backgroundColor: "#f8f9fa", borderRadius: "8px", padding: "0.85rem" }}>
+                  <div
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "1fr 1fr",
+                      gap: "0.75rem",
+                    }}
+                  >
+                    <div
+                      style={{
+                        backgroundColor: "#f8f9fa",
+                        borderRadius: "8px",
+                        padding: "0.85rem",
+                      }}
+                    >
                       <strong>Course</strong>
-                      <div style={{ marginTop: "0.35rem" }}>{selectedStudent.course}</div>
+                      <div style={{ marginTop: "0.35rem" }}>
+                        {selectedStudent.course}
+                      </div>
                     </div>
-                    <div style={{ backgroundColor: "#f8f9fa", borderRadius: "8px", padding: "0.85rem" }}>
+                    <div
+                      style={{
+                        backgroundColor: "#f8f9fa",
+                        borderRadius: "8px",
+                        padding: "0.85rem",
+                      }}
+                    >
                       <strong>Year Level</strong>
-                      <div style={{ marginTop: "0.35rem" }}>{selectedStudent.yearLevel}</div>
+                      <div style={{ marginTop: "0.35rem" }}>
+                        {selectedStudent.yearLevel}
+                      </div>
                     </div>
                   </div>
-                  <div style={{ backgroundColor: "#f8f9fa", borderRadius: "8px", padding: "0.85rem" }}>
+                  <div
+                    style={{
+                      backgroundColor: "#f8f9fa",
+                      borderRadius: "8px",
+                      padding: "0.85rem",
+                    }}
+                  >
                     <strong>Section</strong>
-                    <div style={{ marginTop: "0.35rem" }}>{selectedStudent.section}</div>
+                    <div style={{ marginTop: "0.35rem" }}>
+                      {selectedStudent.section}
+                    </div>
                   </div>
-                  <div style={{ backgroundColor: "#eef5ff", border: "1px solid #d7e7ff", borderRadius: "8px", padding: "0.85rem" }}>
+                  <div
+                    style={{
+                      backgroundColor: "#eef5ff",
+                      border: "1px solid #d7e7ff",
+                      borderRadius: "8px",
+                      padding: "0.85rem",
+                    }}
+                  >
                     <strong>Record Status</strong>
-                    <div style={{ marginTop: "0.35rem" }}>Active enrollment record available for review.</div>
+                    <div style={{ marginTop: "0.35rem" }}>
+                      Active enrollment record available for review.
+                    </div>
                   </div>
                 </div>
               </>
             ) : (
-              <p style={{ color: "#6c757d", margin: 0 }}>Select a student to view their record.</p>
+              <p style={{ color: "#6c757d", margin: 0 }}>
+                Select a student to view their record.
+              </p>
             )}
           </div>
         </div>

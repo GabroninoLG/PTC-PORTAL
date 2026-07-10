@@ -6,7 +6,7 @@ export default function Sprofile() {
   const navigate = useNavigate();
   const user = authService.getSession();
 
-  if (!user || user.role !== "admin") {
+  if (!user || user.role !== "Admin") {
     navigate("/login");
     return null;
   }
@@ -14,7 +14,7 @@ export default function Sprofile() {
   return (
     <DashboardLayout>
       <div className="admin-profile-students">
-        <h1>Approve Enrollment</h1>
+        <h1>profile</h1>
         <p>This page is under construction.</p>
       </div>
     </DashboardLayout>

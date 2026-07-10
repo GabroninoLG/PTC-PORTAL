@@ -1,237 +1,83 @@
-/*
-programHead/
-│
-├── Dashboard/
-│   ├── Dashboard.tsx
-│   └── Dashboard.css
-│
-├── GradeApproval/
-│   ├── PendingGrades.tsx
-│   ├── GradeDetails.tsx
-│   ├── ApprovedGrades.tsx
-│   ├── RejectedGrades.tsx
-│   └── GradeApproval.
-│
-├── FacultyAvailability/
-│   ├── FacultyList.tsx
-│   ├── FacultyWorkload.tsx
-│   ├── FacultySchedule.tsx
-│   └── FacultyAvailability.
-│
-├── ScheduleVerification/
-│   ├── ScheduleList.tsx
-│   ├── ScheduleDetails.tsx
-│   ├── ConflictChecker.tsx
-│   ├── VerifiedSchedules.tsx
-│   └── ScheduleVerification.css
-│
-├── ProgramReports/
-│   ├── ReportDashboard.tsx
-│   ├── EnrollmentReport.tsx
-│   ├── FacultyLoadReport.tsx
-│   ├── GradeApprovalReport.tsx
-│   ├── ScheduleReport.tsx
-│   └── ProgramReports.css
-│
-└── Profile/
-    ├── Profile.tsx
-    ├── ChangePassword.tsx
-    └── Profile.
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import DashboardLayout from "../../../components/Layout/DashboardLayout";
+import { authService } from "../../../services/auth.service";
+import "../../../styles/ProgramHeadDashboard.css";
 
-------------------------------------------------------------------------------------------------
+export default function ProgramHeadDashboard() {
+  const navigate = useNavigate();
+  const user = authService.getSession();
 
-Dashboard
-Dashboard/
-│
-├── Dashboard.tsx
+  useEffect(() => {
+    if (!user || user.role !== "Program Head") {
+      navigate("/login");
+    }
+  }, [navigate, user]);
 
-Contains:
+  if (!user || user.role !== "Program Head") {
+    return null;
+  }
 
-Program Head overview
-Pending grade approvals
-Faculty workload summary
-Schedule conflicts
-Quick statistics
-Recent announcements
+  return (
+    <DashboardLayout>
+      <div className="programhead-dashboard">
+        <div className="dashboard-header">
+          <div>
+            <h1>Program Head Dashboard</h1>
+            <p>
+              Welcome back, <strong>{user.username}</strong>.
+            </p>
+          </div>
+        </div>
 
--------------------------------------------------------------------------------------------------------------
+        <div className="dashboard-cards">
+          <div className="dashboard-card">
+            <h3>Pending Grade Approvals</h3>
+            <span className="dashboard-number">12</span>
+            <p>Faculty grade submissions awaiting approval.</p>
+          </div>
 
+          <div className="dashboard-card">
+            <h3>Faculty Members</h3>
+            <span className="dashboard-number">25</span>
+            <p>Assigned faculty under your department.</p>
+          </div>
 
-GradeApproval
-GradeApproval/
-│
-├── PendingGrades.tsx
-├── GradeDetails.tsx
-├── ApprovedGrades.tsx
-├── RejectedGrades.tsx
-PendingGrades
+          <div className="dashboard-card">
+            <h3>Students</h3>
+            <span className="dashboard-number">842</span>
+            <p>Currently enrolled students.</p>
+          </div>
 
-Shows all grades waiting for approval.
+          <div className="dashboard-card">
+            <h3>Active Sections</h3>
+            <span className="dashboard-number">31</span>
+            <p>Sections currently handled this semester.</p>
+          </div>
+        </div>
 
-Example columns:
+        <div className="dashboard-actions">
+          <h2>Quick Actions</h2>
 
-Student
-Subject
-Faculty
-Semester
-Status
+          <div className="action-grid">
+            <button
+              onClick={() => navigate("/programhead/gradeapproval/pending")}
+            >
+              Grade Approval
+            </button>
 
-Actions:
+            <button>Faculty Evaluation</button>
 
-View
-Approve
-Reject
-GradeDetails
+            <button>Curriculum Management</button>
 
-Displays:
+            <button>Class Monitoring</button>
 
-Student Information
-Subject
-Grade
-Computation
-Remarks
+            <button>Student Performance</button>
 
-Buttons:
-
-Approve
-Reject
-Back
-ApprovedGrades
-
-History of approved grades.
-
-RejectedGrades
-
-History of rejected grades with remarks.
-
------------------------------------------------------------------------------------------------------
-
-FacultyAvailability
-FacultyAvailability/
-│
-├── FacultyList.tsx
-├── FacultyWorkload.tsx
-├── FacultySchedule.tsx
-FacultyList
-
-Displays:
-
-Faculty Name
-Department
-Status
-FacultyWorkload
-
-Displays:
-
-Teaching Units
-Subjects
-Remaining Load
-FacultySchedule
-
-Displays weekly teaching schedules.
-----------------------------------------------------------------------------------------------------------
-
-ScheduleVerification
-ScheduleVerification/
-│
-├── ScheduleList.tsx
-├── ScheduleDetails.tsx
-├── ConflictChecker.tsx
-├── VerifiedSchedules.tsx
-ScheduleList
-
-Displays all submitted schedules.
-
-ScheduleDetails
-
-Shows:
-
-Subject
-Faculty
-Room
-Time
-Students
-ConflictChecker
-
-Automatically detects:
-
-Faculty conflict
-Room conflict
-Time conflict
-VerifiedSchedules
-
-Shows schedules already approved.
-
-
-----------------------------------------------------------------------------------------
-
-ProgramReports
-ProgramReports/
-│
-├── ReportDashboard.tsx
-├── EnrollmentReport.tsx
-├── FacultyLoadReport.tsx
-├── GradeApprovalReport.tsx
-├── ScheduleReport.tsx
-ReportDashboard
-
-Landing page for reports.
-
-EnrollmentReport
-
-Displays:
-
-Number of students
-Program
-Year level
-FacultyLoadReport
-
-Displays faculty teaching loads.
-
-GradeApprovalReport
-
-Displays:
-
-Pending
-Approved
-Rejected
-ScheduleReport
-
-Displays:
-
-Room utilization
-Faculty schedules
-Subject schedules
-----------------------------------------------------------------------------------------------
-
-    Profile
-Profile/
-│
-├── Profile.tsx
-├── ChangePassword.tsx
-
-Allows the Program Head to:
-
-View personal information
-Update contact information
-Change password
-
--------------------------------------------------------------------------------------------------   
-
-Suggested Sidebar Navigation
-
-Dashboard
-
-Academic Management
-    • Grade Approval
-    • Faculty Availability
-    • Schedule Verification
-
-Reports
-    • Program Reports
-
-Account
-    • Profile
-    
-    
-    */
+            <button>Generate Reports</button>
+          </div>
+        </div>
+      </div>
+    </DashboardLayout>
+  );
+}
