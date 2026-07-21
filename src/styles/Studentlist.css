@@ -74,3 +74,16 @@
   text-align: center;
   color: #6c757d;
 }
+.student-profile-btn {
+  padding: 6px 14px;
+  border: none;
+  border-radius: 6px;
+  background: #2563eb;
+  color: white;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.student-profile-btn:hover {
+  background: #1d4ed8;
+}

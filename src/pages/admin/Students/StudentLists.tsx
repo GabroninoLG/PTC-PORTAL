@@ -336,12 +336,13 @@ export default function StudentManagement() {
                       <th>Course</th>
                       <th>Year</th>
                       <th>Section</th>
+                      <th>Profile</th>
                     </tr>
                   </thead>
                   <tbody>
                     {filteredStudents.length === 0 ? (
                       <tr>
-                        <td colSpan={6} className="student-table-empty">
+                        <td colSpan={7} className="student-table-empty">
                           No students found.
                         </td>
                       </tr>
@@ -356,6 +357,20 @@ export default function StudentManagement() {
                           <td>{student.course}</td>
                           <td>{student.yearLevel}</td>
                           <td>{student.section}</td>
+
+                          <td>
+                            <button
+                              type="button"
+                              className="student-profile-btn"
+                              onClick={() =>
+                                navigate(
+                                  `/admin/students/profile/${student.id}`,
+                                )
+                              }
+                            >
+                              View Profile
+                            </button>
+                          </td>
                         </tr>
                       ))
                     )}

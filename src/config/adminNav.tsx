@@ -5,7 +5,6 @@ export const adminNavGroups = [
     icon: "",
     children: [
       { label: "Student List", path: "/admin/students/manage" },
-      { label: "Student Record", path: "/admin/students/records" },
       { label: "Student Management", path: "/admin/students/addeditdrop" },
     ],
   },

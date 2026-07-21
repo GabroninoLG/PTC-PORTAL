@@ -6,6 +6,7 @@ import nodemailer from "nodemailer";
 import crypto from "crypto";
 import db from "./db.js"; // CHANGED: shared connection, moved out of this file
 import studentsRouter from "./routes/students.routes.js"; // ADDED
+import path from "path";
 
 const app = express();
 
@@ -16,6 +17,8 @@ app.use(
 );
 
 app.use(express.json());
+
+app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
 // ADDED: mount the students CRUD routes
 app.use("/api/students", studentsRouter);

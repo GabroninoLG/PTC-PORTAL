@@ -57,7 +57,6 @@ import SendNotice from "../pages/faculty/Communication/SendNotice";
 // ── Admin: Student Management ──
 import AdminDashboard from "../pages/admin/AdminDashboard";
 import ManageStudentsNew from "../pages/admin/Students/StudentLists";
-import RecordsManagement from "../pages/admin/Students/Recordmanagement";
 import AddEditDrop from "../pages/admin/Students/AddEditDrop";
 import CreateStudent from "../pages/admin/Students/createstudent";
 import EditStudent from "../pages/admin/Students/editstudent";
@@ -303,10 +302,6 @@ export default function AppRoutes() {
         element={<AdminRoute element={<ManageStudentsNew />} />}
       />
       <Route
-        path="/admin/students/records"
-        element={<AdminRoute element={<RecordsManagement />} />}
-      />
-      <Route
         path="/admin/students/addeditdrop"
         element={<AdminRoute element={<AddEditDrop />} />}
       />
@@ -315,11 +310,11 @@ export default function AppRoutes() {
         element={<AdminRoute element={<CreateStudent />} />}
       />
       <Route
-        path="/admin/students/editstudents"
+        path="/admin/students/editstudents/:id"
         element={<AdminRoute element={<EditStudent />} />}
       />
       <Route
-        path="/admin/students/profile"
+        path="/admin/students/profile/:id"
         element={<AdminRoute element={<Sprofile />} />}
       />
       {/* ── Admin: Enrollment Management ── */}
