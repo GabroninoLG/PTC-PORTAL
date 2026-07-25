@@ -2,7 +2,7 @@ import DashboardLayout from "../../../components/Layout/DashboardLayout";
 import { authService } from "../../../services/auth.service";
 import { useNavigate } from "react-router-dom";
 
-export default function UsageAnalytics() {
+export default function UserActivity() {
   const navigate = useNavigate();
   const user = authService.getSession();
 
@@ -13,8 +13,8 @@ export default function UsageAnalytics() {
 
   return (
     <DashboardLayout>
-      <div className="admin-analytics-reports">
-        <h1>Usage Analytics</h1>
+      <div className="admin-user-activity">
+        <h1>activity</h1>
         <p>This page is under construction.</p>
       </div>
     </DashboardLayout>

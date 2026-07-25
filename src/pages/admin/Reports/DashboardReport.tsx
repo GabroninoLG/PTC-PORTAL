@@ -14,7 +14,7 @@ export default function DashboardReport() {
   return (
     <DashboardLayout>
       <div className="admin-Dashboard-reports">
-        <h1>Financial Reports</h1>
+        <h1>Dashboard report</h1>
         <p>This page is under construction.</p>
       </div>
     </DashboardLayout>

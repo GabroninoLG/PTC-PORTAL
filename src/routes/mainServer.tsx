@@ -83,6 +83,11 @@ import DashboardReport from "../pages/admin/Reports/DashboardReport";
 import ExportReports from "../pages/admin/Reports/ExportReport";
 import AuditlogReport from "../pages/admin/Reports/AuditlogReport";
 import UsageAnalytics from "../pages/admin/Reports/UsageAnalytics";
+// ── Admin: USER ──
+import UserList from "../pages/admin/UserManagement/Userlist";
+import CreateUser from "../pages/admin/UserManagement/CreateUser";
+import UserActivity from "../pages/admin/UserManagement/UserActivity";
+import UserRoles from "../pages/admin/UserManagement/UserRoles";
 
 import ProgramHeadDashboard from "../pages/programhead/dashboard/Dashboard";
 import RegistrarDashboard from "../pages/registrar/Dashboard";
@@ -394,6 +399,25 @@ export default function AppRoutes() {
         path="/admin/reports/analytics"
         element={<AdminRoute element={<UsageAnalytics />} />}
       />
+      {/* ── Admin: User Management ── */}
+      <Route
+        path="/admin/user/list"
+        element={<AdminRoute element={<UserList />} />}
+      />
+      <Route
+        path="/admin/user/create"
+        element={<AdminRoute element={<CreateUser />} />}
+      />
+
+      <Route
+        path="/admin/user/activity"
+        element={<AdminRoute element={<UserActivity />} />}
+      />
+      <Route
+        path="/admin/user/roles"
+        element={<AdminRoute element={<UserRoles />} />}
+      />
+      {/* ── programhead: Dashboard ── */}
       <Route
         path="/programhead/dashboard"
         element={<ProgramHeadRoute element={<ProgramHeadDashboard />} />}

@@ -40,15 +40,27 @@ export const adminNavGroups = [
       { label: "Email", path: "/admin/system/email" },
     ],
   },
+
   {
-    id: "reports",
-    label: "Reports & Analytics",
+    id: "report-management",
+    label: "Report Management",
     icon: "",
     children: [
-      { label: "Report Dashboard", path: "/admin/reports/Dashboard" },
+      { label: "Dashboard", path: "/admin/reports/dashboard" },
       { label: "Export Reports", path: "/admin/reports/export" },
       { label: "Audit Logs", path: "/admin/reports/auditlog" },
       { label: "Usage Analytics", path: "/admin/reports/analytics" },
+    ],
+  },
+  {
+    id: "user-management",
+    label: "User Management",
+    icon: "",
+    children: [
+      { label: "User List", path: "/admin/user/list" },
+      { label: "CreateUser", path: "/admin/user/create" },
+      { label: "UserActivity", path: "/admin/user/activity" },
+      { label: "User Roles", path: "/admin/user/roles" },
     ],
   },
 ];
