@@ -22,8 +22,10 @@ export const adminNavGroups = [
     label: "Financial Management",
     icon: "",
     children: [
-      { label: "Fees Setup", path: "/admin/financial/fees" },
       { label: "Payment Monitoring", path: "/admin/financial/payments" },
+      { label: "Billing", path: "/admin/financial/billing" },
+      { label: "Scholarship", path: "/admin/financial/scholarship" },
+      { label: "Reports", path: "/admin/financial/freport" },
     ],
   },
   {
@@ -31,9 +33,11 @@ export const adminNavGroups = [
     label: "System Management",
     icon: "",
     children: [
-      { label: "User Accounts", path: "/admin/system/accounts" },
-      { label: "Roles & Permissions", path: "/admin/system/roles" },
-      { label: "System Settings", path: "/admin/system/settings" },
+      { label: "backup", path: "/admin/system/backup" },
+      { label: "Acadsetting", path: "/admin/system/acadsetting" },
+      { label: "Settings", path: "/admin/system/Gsettings" },
+      { label: "Security", path: "/admin/system/security" },
+      { label: "Email", path: "/admin/system/email" },
     ],
   },
   {

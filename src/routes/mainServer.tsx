@@ -68,12 +68,16 @@ import EnrollmentRequests from "../pages/admin/Enrollment/EnrollmentRequests";
 import EnrollmentHistory from "../pages/admin/Enrollment/EnrollmentHistory";
 import EnrollmentAnalytics from "../pages/admin/Enrollment/EnrollmentAnalytics";
 // ── Admin: Financial Management ──
-import FeesSetup from "../pages/admin/FinancialManagement/FeesSetup";
-import PaymentMonitoring from "../pages/admin/FinancialManagement/PaymentMonitoring";
+import Payment from "../pages/admin/FinancialManagement/Payments";
+import Billing from "../pages/admin/FinancialManagement/Billings";
+import Scholarship from "../pages/admin/FinancialManagement/Scholarship";
+import FinancialReport from "../pages/admin/FinancialManagement/FinancialReport";
 // ── Admin: System Management ──
-import UserAccounts from "../pages/admin/System/UserAccounts";
-import RolesPermissions from "../pages/admin/System/Rolespermissions";
-import SystemSettings from "../pages/admin/System/SystemSettings";
+import BackupManagement from "../pages/admin/System/BackupManagement";
+import AcademicSetting from "../pages/admin/System/AcademicSetting";
+import GeneralSettings from "../pages/admin/System/GeneralSetting";
+import SecuritySetting from "../pages/admin/System/SecuritySetting";
+import EmailSetting from "../pages/admin/System/EmailSetting";
 // ── Admin: Reports ──
 import DashboardReport from "../pages/admin/Reports/DashboardReport";
 import ExportReports from "../pages/admin/Reports/ExportReport";
@@ -337,25 +341,41 @@ export default function AppRoutes() {
       />
       {/* ── Admin: Financial Management ── */}
       <Route
-        path="/admin/financial/fees"
-        element={<AdminRoute element={<FeesSetup />} />}
+        path="/admin/financial/payments"
+        element={<AdminRoute element={<Payment />} />}
       />
       <Route
-        path="/admin/financial/payments"
-        element={<AdminRoute element={<PaymentMonitoring />} />}
+        path="/admin/financial/billing"
+        element={<AdminRoute element={<Billing />} />}
+      />
+      <Route
+        path="/admin/financial/scholarship"
+        element={<AdminRoute element={<Scholarship />} />}
+      />
+      <Route
+        path="/admin/financial/freport"
+        element={<AdminRoute element={<FinancialReport />} />}
       />
       {/* ── Admin: System Management ── */}
       <Route
-        path="/admin/system/accounts"
-        element={<AdminRoute element={<UserAccounts />} />}
+        path="/admin/system/backup"
+        element={<AdminRoute element={<BackupManagement />} />}
       />
       <Route
-        path="/admin/system/roles"
-        element={<AdminRoute element={<RolesPermissions />} />}
+        path="/admin/system/acadsetting"
+        element={<AdminRoute element={<AcademicSetting />} />}
       />
       <Route
-        path="/admin/system/settings"
-        element={<AdminRoute element={<SystemSettings />} />}
+        path="/admin/system/Gsettings"
+        element={<AdminRoute element={<GeneralSettings />} />}
+      />
+      <Route
+        path="/admin/system/security"
+        element={<AdminRoute element={<SecuritySetting />} />}
+      />
+      <Route
+        path="/admin/system/email"
+        element={<AdminRoute element={<EmailSetting />} />}
       />
       {/* ── Admin: Reports & Analytics ── */}
       <Route
