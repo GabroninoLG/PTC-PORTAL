@@ -14,10 +14,6 @@ async function seed() {
   try {
     console.log("Connected to database.");
 
-    // Optional: clear users before seeding
-    await db.execute("DELETE FROM users");
-    await db.execute("ALTER TABLE users AUTO_INCREMENT = 1");
-
     // Get all roles
     const [roles] = await db.execute("SELECT role_id, role_name FROM roles");
 
@@ -63,19 +59,29 @@ async function seed() {
     for (const user of users) {
       const passwordHash = await bcrypt.hash(user.password, 10);
 
+      const [existing] = await db.execute(
+        "SELECT user_id FROM users WHERE username = ?",
+        [user.username],
+      );
+
+      if (existing.length > 0) {
+        console.log(`${user.username} already exists. Skipping...`);
+        continue;
+      }
+
       await db.execute(
         `
-        INSERT INTO users
-        (
-          username,
-          email,
-          password_hash,
-          role_id,
-          is_verified,
-          is_active
-        )
-        VALUES (?, ?, ?, ?, ?, ?)
-        `,
+    INSERT INTO users
+    (
+      username,
+      email,
+      password_hash,
+      role_id,
+      is_verified,
+      is_active
+    )
+    VALUES (?, ?, ?, ?, ?, ?)
+    `,
         [
           user.username,
           user.email,
@@ -88,7 +94,6 @@ async function seed() {
 
       console.log(`Seeded ${user.role}: ${user.email}`);
     }
-
     console.log("Database seeding completed successfully.");
   } catch (err) {
     console.error(err);

@@ -41,6 +41,7 @@ export const adminNavGroups = [
     label: "Reports & Analytics",
     icon: "",
     children: [
+      { label: "Report Dashboard", path: "/admin/reports/Dashboard" },
       { label: "Student Reports", path: "/admin/reports/students" },
       { label: "Financial Reports", path: "/admin/reports/financial" },
       { label: "Usage Analytics", path: "/admin/reports/analytics" },

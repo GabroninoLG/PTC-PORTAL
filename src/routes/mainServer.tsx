@@ -75,6 +75,7 @@ import UserAccounts from "../pages/admin/System/UserAccounts";
 import RolesPermissions from "../pages/admin/System/Rolespermissions";
 import SystemSettings from "../pages/admin/System/SystemSettings";
 // ── Admin: Reports ──
+import DashboardReport from "../pages/admin/Reports/DashboardReport";
 import StudentReports from "../pages/admin/Reports/StudentReport";
 import FinancialReports from "../pages/admin/Reports/FinancialReport";
 import UsageAnalytics from "../pages/admin/Reports/UsageAnalytics";
@@ -357,6 +358,10 @@ export default function AppRoutes() {
         element={<AdminRoute element={<SystemSettings />} />}
       />
       {/* ── Admin: Reports & Analytics ── */}
+      <Route
+        path="/admin/reports/Dashboard"
+        element={<AdminRoute element={<DashboardReport />} />}
+      />
       <Route
         path="/admin/reports/students"
         element={<AdminRoute element={<StudentReports />} />}
