@@ -76,8 +76,8 @@ import RolesPermissions from "../pages/admin/System/Rolespermissions";
 import SystemSettings from "../pages/admin/System/SystemSettings";
 // ── Admin: Reports ──
 import DashboardReport from "../pages/admin/Reports/DashboardReport";
-import StudentReports from "../pages/admin/Reports/StudentReport";
-import FinancialReports from "../pages/admin/Reports/FinancialReport";
+import ExportReports from "../pages/admin/Reports/ExportReport";
+import AuditlogReport from "../pages/admin/Reports/AuditlogReport";
 import UsageAnalytics from "../pages/admin/Reports/UsageAnalytics";
 
 import ProgramHeadDashboard from "../pages/programhead/dashboard/Dashboard";
@@ -363,12 +363,12 @@ export default function AppRoutes() {
         element={<AdminRoute element={<DashboardReport />} />}
       />
       <Route
-        path="/admin/reports/students"
-        element={<AdminRoute element={<StudentReports />} />}
+        path="/admin/reports/export"
+        element={<AdminRoute element={<ExportReports />} />}
       />
       <Route
-        path="/admin/reports/financial"
-        element={<AdminRoute element={<FinancialReports />} />}
+        path="/admin/reports/auditlog"
+        element={<AdminRoute element={<AuditlogReport />} />}
       />
       <Route
         path="/admin/reports/analytics"

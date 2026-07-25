@@ -2,7 +2,7 @@ import DashboardLayout from "../../../components/Layout/DashboardLayout";
 import { authService } from "../../../services/auth.service";
 import { useNavigate } from "react-router-dom";
 
-export default function StudentReports() {
+export default function AuditlogReport() {
   const navigate = useNavigate();
   const user = authService.getSession();
 
@@ -13,8 +13,8 @@ export default function StudentReports() {
 
   return (
     <DashboardLayout>
-      <div className="admin-student-reports">
-        <h1>Student Reports</h1>
+      <div className="admin-auditlog-reports">
+        <h1>Auditlog</h1>
         <p>This page is under construction.</p>
       </div>
     </DashboardLayout>
