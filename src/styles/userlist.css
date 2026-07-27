@@ -1,0 +1,191 @@
+/* ===========================
+   User Management
+=========================== */
+
+.admin-user-list {
+  background: #ffffff;
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+}
+
+/* ===========================
+   Header
+=========================== */
+
+.admin-user-list__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.admin-user-list__header h1 {
+  margin: 0;
+  color: #1f2937;
+  font-size: 28px;
+  font-weight: 700;
+}
+
+/* ===========================
+   Search
+=========================== */
+
+.admin-user-list__search {
+  width: 100%;
+  padding: 12px 15px;
+  margin-bottom: 20px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 15px;
+  outline: none;
+  transition: 0.2s;
+  box-sizing: border-box;
+}
+
+.admin-user-list__search:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+/* ===========================
+   Table
+=========================== */
+
+.admin-user-list__table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+}
+
+.admin-user-list__table thead {
+  background: #2563eb;
+  color: #fff;
+}
+
+.admin-user-list__table th {
+  padding: 14px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.admin-user-list__table td {
+  padding: 14px;
+  border-bottom: 1px solid #e5e7eb;
+  vertical-align: middle;
+  font-size: 14px;
+}
+
+.admin-user-list__table tbody tr:hover {
+  background: #f8fafc;
+}
+
+/* ===========================
+   Status Badge
+=========================== */
+
+.status-active,
+.status-inactive {
+  display: inline-block;
+  padding: 5px 12px;
+  border-radius: 30px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.status-active {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.status-inactive {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+/* ===========================
+   Buttons
+=========================== */
+
+.btn {
+  border: none;
+  border-radius: 6px;
+  padding: 8px 14px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: 0.2s;
+  font-weight: 600;
+}
+
+.btn:hover {
+  opacity: 0.92;
+}
+
+.btn-primary {
+  background: #2563eb;
+  color: #fff;
+}
+
+.btn-secondary {
+  background: #6b7280;
+  color: #fff;
+}
+
+.btn-warning {
+  background: #f59e0b;
+  color: #fff;
+}
+
+.btn-danger {
+  background: #dc2626;
+  color: #fff;
+}
+
+.btn + .btn {
+  margin-left: 8px;
+}
+
+/* ===========================
+   Action Buttons
+=========================== */
+
+.admin-user-list__table td:last-child {
+  white-space: nowrap;
+}
+
+/* ===========================
+   Empty / Loading
+=========================== */
+
+.admin-user-list__table td[colspan] {
+  padding: 40px;
+  color: #6b7280;
+  font-style: italic;
+}
+
+/* ===========================
+   Responsive
+=========================== */
+
+@media (max-width: 992px) {
+  .admin-user-list {
+    overflow-x: auto;
+  }
+
+  .admin-user-list__table {
+    min-width: 900px;
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-user-list__header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+
+  .admin-user-list__header button {
+    width: 100%;
+  }
+}

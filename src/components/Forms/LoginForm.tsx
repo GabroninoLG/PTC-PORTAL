@@ -4,7 +4,7 @@ import { authService } from "../../services/auth.service";
 import styles from "../../styles/auth.module.css";
 
 export default function LoginForm() {
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -15,7 +15,7 @@ export default function LoginForm() {
     setError("");
     setLoading(true);
 
-    const result = await authService.login(email, password);
+    const result = await authService.login(username, password);
 
     setLoading(false);
 
@@ -24,7 +24,7 @@ export default function LoginForm() {
       return;
     }
 
-    authService.savePendingEmail(email);
+    authService.savePendingUsername(username);
     navigate("/otp");
   }
 
@@ -40,12 +40,13 @@ export default function LoginForm() {
 
         <form onSubmit={handleSubmit}>
           <div className={styles.inputgroup}>
-            <label>Email</label>
+            <label>Student Number / Username</label>
+
             <input
-              type="email"
-              placeholder="r@ptc.edu.ph"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              type="text"
+              placeholder="26BSIT-0001"
+              value={username}
+              onChange={(e) => setUsername(e.target.value.toUpperCase())}
               required
             />
           </div>

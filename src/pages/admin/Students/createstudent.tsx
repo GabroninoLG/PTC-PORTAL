@@ -76,6 +76,10 @@ export default function CreateStudent() {
   const [formState, setFormState] = useState(emptyForm);
   const [isSaving, setIsSaving] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [createdStudent, setCreatedStudent] = useState<{
+    studentNumber: string;
+    temporaryPassword: string;
+  } | null>(null);
 
   const sectionOptions = useMemo(
     () => generateSectionOptions(formState.course, formState.yearLevel),
@@ -151,9 +155,11 @@ export default function CreateStudent() {
       if (!response.ok) {
         throw new Error(data.error || "Failed to add student");
       }
-
-      // TODO: adjust to match your actual list-page route if it's not "/admin/students"
-      navigate("/admin/students/addeditdrop");
+      setCreatedStudent({
+        studentNumber: data.studentNumber,
+        temporaryPassword: data.temporaryPassword,
+      });
+      setFormState(emptyForm);
     } catch (error) {
       setErrorMessage(
         error instanceof Error ? error.message : "Failed to add student",
@@ -166,12 +172,53 @@ export default function CreateStudent() {
   return (
     <DashboardLayout>
       <div className="admin-createstudents-students">
-        <h1>Add Student</h1>
+        <h1></h1>
 
         {errorMessage && (
           <p className="admin-manage-students__error">{errorMessage}</p>
         )}
+        {createdStudent && (
+          <div className="admin-success-box">
+            <h3>✅ Student Created Successfully</h3>
 
+            <p>
+              <strong>Student Number:</strong> {createdStudent.studentNumber}
+            </p>
+
+            <p>
+              <strong>Username:</strong> {createdStudent.studentNumber}
+            </p>
+
+            <p>
+              <strong>Temporary Password:</strong>{" "}
+              {createdStudent.temporaryPassword}
+            </p>
+
+            <div className="admin-student-form__actions">
+              <button
+                type="button"
+                className="btn"
+                onClick={async () => {
+                  await navigator.clipboard.writeText(
+                    `Username: ${createdStudent.studentNumber}
+                    Password: ${createdStudent.temporaryPassword}`,
+                  );
+                  alert("Credentials copied.");
+                }}
+              >
+                Copy Credentials
+              </button>
+
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={() => navigate("/admin/students/addeditdrop")}
+              >
+                Back to Student List
+              </button>
+            </div>
+          </div>
+        )}
         <form onSubmit={handleSubmit} className="admin-student-form">
           <label>
             First Name
@@ -390,9 +437,9 @@ export default function CreateStudent() {
             <button
               type="submit"
               className="btn btn-primary"
-              disabled={isSaving}
+              disabled={isSaving || !!createdStudent}
             >
-              {isSaving ? "Saving…" : "Add Student"}
+              {isSaving ? "Saving..." : "Add Student"}
             </button>
           </div>
         </form>

@@ -58,7 +58,6 @@ export const adminNavGroups = [
     icon: "",
     children: [
       { label: "User List", path: "/admin/user/list" },
-      { label: "CreateUser", path: "/admin/user/create" },
       { label: "UserActivity", path: "/admin/user/activity" },
       { label: "User Roles", path: "/admin/user/roles" },
     ],

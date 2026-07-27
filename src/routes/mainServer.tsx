@@ -88,6 +88,7 @@ import UserList from "../pages/admin/UserManagement/Userlist";
 import CreateUser from "../pages/admin/UserManagement/CreateUser";
 import UserActivity from "../pages/admin/UserManagement/UserActivity";
 import UserRoles from "../pages/admin/UserManagement/UserRoles";
+import EditUser from "../pages/admin/UserManagement/EditUser";
 
 import ProgramHeadDashboard from "../pages/programhead/dashboard/Dashboard";
 import RegistrarDashboard from "../pages/registrar/Dashboard";
@@ -416,6 +417,10 @@ export default function AppRoutes() {
       <Route
         path="/admin/user/roles"
         element={<AdminRoute element={<UserRoles />} />}
+      />
+      <Route
+        path="/admin/user/edit/:id"
+        element={<AdminRoute element={<EditUser />} />}
       />
       {/* ── programhead: Dashboard ── */}
       <Route

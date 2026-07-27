@@ -35,7 +35,10 @@ export const authService = {
   // ----------------------
   // Step 1 - Login
   // ----------------------
-  async login(email: string, password: string): Promise<LoginResponse | null> {
+  async login(
+    username: string,
+    password: string,
+  ): Promise<LoginResponse | null> {
     try {
       const res = await fetch(`${API_BASE_URL}/auth/login`, {
         method: "POST",
@@ -43,7 +46,7 @@ export const authService = {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          email,
+          username,
           password,
         }),
       });
@@ -60,7 +63,7 @@ export const authService = {
   // ----------------------
   // Step 2 - Verify OTP
   // ----------------------
-  async verifyOtp(email: string, otp: string): Promise<User | null> {
+  async verifyOtp(username: string, otp: string): Promise<User | null> {
     try {
       const res = await fetch(`${API_BASE_URL}/auth/verify-otp`, {
         method: "POST",
@@ -68,7 +71,7 @@ export const authService = {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          email,
+          username,
           otp,
         }),
       });
@@ -93,16 +96,16 @@ export const authService = {
   // ----------------------
   // Pending Email
   // ----------------------
-  savePendingEmail(email: string): void {
-    sessionStorage.setItem("pending_email", email);
+  savePendingUsername(username: string): void {
+    sessionStorage.setItem("pending_username", username);
   },
 
-  getPendingEmail(): string | null {
-    return sessionStorage.getItem("pending_email");
+  getPendingUsername(): string | null {
+    return sessionStorage.getItem("pending_username");
   },
 
-  clearPendingEmail(): void {
-    sessionStorage.removeItem("pending_email");
+  clearPendingUsername(): void {
+    sessionStorage.removeItem("pending_username");
   },
 
   // ----------------------

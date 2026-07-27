@@ -21,30 +21,30 @@ export default function OtpForm() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const email = authService.getPendingEmail();
+  const username = authService.getPendingUsername();
 
   // Guard: redirect to login if no pending email
   useEffect(() => {
-    if (!email) navigate("/login");
+    if (!username) navigate("/login");
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  if (!email) return null;
+  if (!username) return null;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
     setLoading(true);
 
-    const currentEmail = authService.getPendingEmail(); // ← read fresh inside the function
+    const currentUsername = authService.getPendingUsername();
 
-    if (!currentEmail) {
-      setLoading(false); // FIX: was missing, left button stuck on "Verifying..."
+    if (!currentUsername) {
+      setLoading(false);
       navigate("/login");
       return;
     }
 
-    const user = await authService.verifyOtp(currentEmail, otp); // ← use currentEmail, guaranteed string
+    const user = await authService.verifyOtp(currentUsername, otp); // ← use currentEmail, guaranteed string
 
     setLoading(false);
 
@@ -53,7 +53,7 @@ export default function OtpForm() {
       return;
     }
 
-    authService.clearPendingEmail();
+    authService.clearPendingUsername();
     authService.saveSession(user);
     switch (user.role) {
       case "Admin":
@@ -94,8 +94,10 @@ export default function OtpForm() {
       <div className={styles.authleft}>
         <h2>Check Your Email</h2>
         <p>
-          We sent a 6-digit OTP to <strong>{email}</strong>. It expires in 5
-          minutes.
+          A 6-digit OTP has been sent to the email address associated with your
+          account.
+          <br />
+          <strong>Username: {username}</strong>
         </p>
       </div>
 
