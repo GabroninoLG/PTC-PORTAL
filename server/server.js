@@ -7,6 +7,7 @@ import authRouter from "./routes/auth.routes.js";
 import studentsRouter from "./routes/students.routes.js";
 import usersRouter from "./routes/users.routes.js";
 import activityRouter from "./routes/activity.routes.js";
+import announcementRoutes from "./routes/announcement.routes.js";
 
 const app = express();
 
@@ -33,6 +34,8 @@ app.use("/api/students", studentsRouter);
 app.use("/api/users", usersRouter);
 
 app.use("/api/activity-logs", activityRouter);
+
+app.use("/api/announcements", announcementRoutes);
 
 // =======================
 // Root Route

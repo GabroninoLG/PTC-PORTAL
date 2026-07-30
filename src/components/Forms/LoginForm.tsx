@@ -12,20 +12,20 @@ export default function LoginForm() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+
     setError("");
     setLoading(true);
 
-    const result = await authService.login(username, password);
+    try {
+      await authService.login(username, password);
 
-    setLoading(false);
-
-    if (!result) {
-      setError("Invalid email or password.");
-      return;
+      authService.savePendingUsername(username);
+      navigate("/otp");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Login failed.");
+    } finally {
+      setLoading(false);
     }
-
-    authService.savePendingUsername(username);
-    navigate("/otp");
   }
 
   return (

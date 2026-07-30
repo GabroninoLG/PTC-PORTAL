@@ -96,6 +96,9 @@ import RegistrarDashboard from "../pages/registrar/Dashboard";
 import type { ReactElement } from "react";
 import PendingGrades from "../pages/programhead/GradeApproval/PendingGrades";
 import RStudentRecord from "../pages/registrar/GradeApproval/Studentrecord";
+import Announcementlist from "../pages/admin/Announcement/Announcementlist";
+import Announcementcreate from "../pages/admin/Announcement/CreateAnnouncement";
+import Announcementedit from "../pages/admin/Announcement/EditAnnouncement";
 
 // ─── Role guard ───────────────────────────────────────────────
 function ProtectedRoute({
@@ -421,6 +424,19 @@ export default function AppRoutes() {
       <Route
         path="/admin/user/edit/:id"
         element={<AdminRoute element={<EditUser />} />}
+      />
+      {/* ── Admin: Announcement ── */}
+      <Route
+        path="/admin/announcement/list"
+        element={<AdminRoute element={<Announcementlist />} />}
+      />
+      <Route
+        path="/admin/announcement/create"
+        element={<AdminRoute element={<Announcementcreate />} />}
+      />
+      <Route
+        path="/admin/announcement/edit"
+        element={<AdminRoute element={<Announcementedit />} />}
       />
       {/* ── programhead: Dashboard ── */}
       <Route
