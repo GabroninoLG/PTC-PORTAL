@@ -2,7 +2,7 @@ import DashboardLayout from "../../../components/Layout/DashboardLayout";
 import { authService } from "../../../services/auth.service";
 import { useNavigate } from "react-router-dom";
 
-export default function ViewSubjects() {
+export default function DocumentRelease() {
   const navigate = useNavigate();
   const user = authService.getSession();
 
@@ -13,8 +13,8 @@ export default function ViewSubjects() {
 
   return (
     <DashboardLayout>
-      <div className="view-subjects">
-        <p>This is your subjects view.</p>
+      <div className="document-release">
+        <p>Document.</p>
       </div>
     </DashboardLayout>
   );

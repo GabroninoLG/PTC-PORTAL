@@ -70,7 +70,6 @@ export const adminNavGroups = [
     children: [
       { label: "Announcement List", path: "/admin/announcement/list" },
       { label: "Announcement create", path: "/admin/announcement/create" },
-      { label: "Announcement edit", path: "/admin/announcement/edit" },
     ],
   },
 ];

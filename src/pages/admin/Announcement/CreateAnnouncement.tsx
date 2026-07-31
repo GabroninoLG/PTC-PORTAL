@@ -5,35 +5,86 @@ import { authService } from "../../../services/auth.service";
 import "../../../styles/announcementcreate.css";
 
 const API_BASE_URL = "http://localhost:3000/api/announcements";
+const ROLE_API_URL = "http://localhost:3000/api/roles";
+const FILE_UPLOAD_URL = "http://localhost:3000/api/files/upload";
+
+type Role = {
+  role_id: number;
+  role_name: string;
+};
 
 export default function CreateAnnouncement() {
   const navigate = useNavigate();
+
   const session = authService.getSession();
 
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [audience, setAudience] = useState("Everyone");
+
+  const [roles, setRoles] = useState<Role[]>([]);
+  const [recipients, setRecipients] = useState<number[]>([]);
+
   const [publishDate, setPublishDate] = useState("");
   const [expiryDate, setExpiryDate] = useState("");
+
   const [isActive, setIsActive] = useState(true);
+
+  // FILE STATES
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [fileId] = useState<number | null>(null);
+
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (!session || session.role !== "Admin") {
       navigate("/login");
+      return;
     }
-  }, [session, navigate]);
 
-  if (!session || session.role !== "Admin") {
-    return null;
+    loadRoles();
+  }, []);
+
+  async function loadRoles() {
+    try {
+      const response = await fetch(ROLE_API_URL);
+
+      const data = await response.json();
+
+      setRoles(data);
+    } catch (err) {
+      console.error(err);
+
+      alert("Unable to load roles.");
+    }
   }
 
-  const userId = session.user_id;
+  async function uploadFile() {
+    if (!selectedFile) {
+      return null;
+    }
+
+    const formData = new FormData();
+
+    formData.append("file", selectedFile);
+
+    formData.append("uploaded_by", String(session?.user_id));
+
+    const response = await fetch(FILE_UPLOAD_URL, {
+      method: "POST",
+      body: formData,
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || "File upload failed.");
+    }
+
+    return data.file_id;
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-
-    console.log("CURRENT SESSION:", session);
 
     if (!title.trim()) {
       alert("Title is required.");
@@ -50,26 +101,45 @@ export default function CreateAnnouncement() {
       return;
     }
 
+    if (recipients.length === 0) {
+      alert("Select recipient.");
+      return;
+    }
+
     try {
       setLoading(true);
+
+      // ============================
+      // UPLOAD FILE FIRST
+      // ============================
+
+      let uploadedFileId = fileId;
+
+      if (selectedFile) {
+        uploadedFileId = await uploadFile();
+      }
+
+      // ============================
+      // CREATE ANNOUNCEMENT
+      // ============================
 
       const announcementData = {
         title: title.trim(),
 
         content: content.trim(),
 
-        audience,
-
-        created_by: userId,
+        created_by: session?.user_id,
 
         publish_date: `${publishDate} 00:00:00`,
 
         expiry_date: expiryDate ? `${expiryDate} 23:59:59` : null,
 
         is_active: isActive ? 1 : 0,
-      };
 
-      console.log("SENDING DATA:", announcementData);
+        recipients,
+
+        attachments: uploadedFileId ? [uploadedFileId] : [],
+      };
 
       const response = await fetch(API_BASE_URL, {
         method: "POST",
@@ -83,36 +153,32 @@ export default function CreateAnnouncement() {
 
       const data = await response.json();
 
-      console.log("SERVER RESPONSE:", data);
-
       if (!response.ok) {
         throw new Error(data.error || "Failed to create announcement.");
       }
 
       alert("Announcement created successfully!");
 
-      navigate("/admin/announcements");
-    } catch (error) {
-      console.error("CREATE ANNOUNCEMENT ERROR:", error);
+      navigate("/admin/announcement/list");
+    } catch (err) {
+      console.error(err);
 
-      if (error instanceof Error) {
-        alert(error.message);
-      } else {
-        alert("Something went wrong.");
+      if (err instanceof Error) {
+        alert(err.message);
       }
     } finally {
       setLoading(false);
     }
   }
 
+  if (!session || session.role !== "Admin") {
+    return null;
+  }
+
   return (
     <DashboardLayout>
       <div className="admin-announcement-create">
-        <div className="announcement-create-header">
-          <h1>Create Announcement</h1>
-
-          <p>Create a new announcement for the PTC Student Portal.</p>
-        </div>
+        <h1>Create Announcement</h1>
 
         <form className="announcement-form" onSubmit={handleSubmit}>
           <div className="form-group">
@@ -120,7 +186,6 @@ export default function CreateAnnouncement() {
 
             <input
               type="text"
-              placeholder="Enter announcement title..."
               value={title}
               onChange={(e) => setTitle(e.target.value)}
             />
@@ -131,34 +196,47 @@ export default function CreateAnnouncement() {
 
             <textarea
               rows={8}
-              placeholder="Write the announcement..."
               value={content}
               onChange={(e) => setContent(e.target.value)}
             />
           </div>
 
-          <div className="form-row">
-            <div className="form-group">
-              <label>Audience</label>
+          <div className="form-group">
+            <label>Recipients</label>
 
-              <select
-                value={audience}
-                onChange={(e) => setAudience(e.target.value)}
-              >
-                <option>Everyone</option>
+            <div className="recipient-list">
+              {roles.map((role) => (
+                <label key={role.role_id}>
+                  <input
+                    type="checkbox"
+                    checked={recipients.includes(role.role_id)}
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        setRecipients([...recipients, role.role_id]);
+                      } else {
+                        setRecipients(
+                          recipients.filter((id) => id !== role.role_id),
+                        );
+                      }
+                    }}
+                  />
 
-                <option>Students</option>
-
-                <option>Faculty</option>
-
-                <option>Registrar</option>
-
-                <option>Program Head</option>
-
-                <option>Admin</option>
-              </select>
+                  {role.role_name}
+                </label>
+              ))}
             </div>
+          </div>
 
+          <div className="form-group">
+            <label>Attachment</label>
+
+            <input
+              type="file"
+              onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
+            />
+          </div>
+
+          <div className="form-row">
             <div className="form-group">
               <label>Status</label>
 
@@ -195,19 +273,9 @@ export default function CreateAnnouncement() {
             </div>
           </div>
 
-          <div className="form-actions">
-            <button
-              type="button"
-              className="cancel-btn"
-              onClick={() => navigate("/admin/announcements")}
-            >
-              Cancel
-            </button>
-
-            <button type="submit" className="save-btn" disabled={loading}>
-              {loading ? "Creating..." : "Create Announcement"}
-            </button>
-          </div>
+          <button disabled={loading} className="save-btn">
+            {loading ? "Creating..." : "Create Announcement"}
+          </button>
         </form>
       </div>
     </DashboardLayout>

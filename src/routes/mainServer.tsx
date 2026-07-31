@@ -16,13 +16,6 @@ import StudentRecord from "../pages/student/AcademicRecord/StudentRecord";
 import StudentTranscript from "../pages/student/AcademicRecord/Transcript";
 import StudentCourseHistory from "../pages/student/AcademicRecord/CourseHistory";
 
-// Student pages — Course Management
-import ViewSubjects from "../pages/student/CourseManagement/Viewsubjects";
-import Assignments from "../pages/student/CourseManagement/Assignments";
-import LectureNotes from "../pages/student/CourseManagement/LectureNotes";
-import Syllabus from "../pages/student/CourseManagement/Syllabus";
-import SubmitRequirements from "../pages/student/CourseManagement/Submission";
-
 // Student pages — Enrollment
 import EnrollmentCourses from "../pages/student/Enrollment/AvailableCourses";
 import AddDropSubjects from "../pages/student/Enrollment/AddDrop";
@@ -34,6 +27,15 @@ import TuitionFees from "../pages/student/Financial/Tuitionfees";
 import PaymentHistory from "../pages/student/Financial/PaymentHistory";
 import BalanceInquiry from "../pages/student/Financial/Balance";
 import OnlinePayment from "../pages/student/Financial/OnlinePayment";
+
+// Student pages — Document
+import RequestDocument from "../pages/student/Documents/RequestDocument";
+import DocumentRelease from "../pages/student/Documents/DocumentRelease";
+
+// Student pages — Settings
+import SettingUser from "../pages/student/Settings/Usermanagement";
+
+import AnnouncementS from "../pages/student/Announcement";
 
 // Faculty pages
 import FacultyDashboard from "../pages/faculty/FacultyDashboard";
@@ -99,6 +101,7 @@ import RStudentRecord from "../pages/registrar/GradeApproval/Studentrecord";
 import Announcementlist from "../pages/admin/Announcement/Announcementlist";
 import Announcementcreate from "../pages/admin/Announcement/CreateAnnouncement";
 import Announcementedit from "../pages/admin/Announcement/EditAnnouncement";
+import AnnouncementDetails from "../pages/admin/Announcement/AnnouncementDetails";
 
 // ─── Role guard ───────────────────────────────────────────────
 function ProtectedRoute({
@@ -163,6 +166,10 @@ export default function AppRoutes() {
         path="/student/profile"
         element={<StudentRoute element={<StudentProfile />} />}
       />
+      <Route
+        path="/announcement/student"
+        element={<StudentRoute element={<AnnouncementS />} />}
+      />
       {/* ── Student: Academic Records ── */}
       <Route
         path="/student/records"
@@ -179,27 +186,6 @@ export default function AppRoutes() {
       <Route
         path="/student/schedule"
         element={<StudentRoute element={<StudentSchedule />} />}
-      />
-      {/* ── Student: Course Management ── */}
-      <Route
-        path="/student/courses/subjects"
-        element={<StudentRoute element={<ViewSubjects />} />}
-      />
-      <Route
-        path="/student/courses/assignments"
-        element={<StudentRoute element={<Assignments />} />}
-      />
-      <Route
-        path="/student/courses/notes"
-        element={<StudentRoute element={<LectureNotes />} />}
-      />
-      <Route
-        path="/student/courses/syllabus"
-        element={<StudentRoute element={<Syllabus />} />}
-      />
-      <Route
-        path="/student/courses/submissions"
-        element={<StudentRoute element={<SubmitRequirements />} />}
       />
       {/* ── Student: Enrollment ── */}
       <Route
@@ -235,6 +221,23 @@ export default function AppRoutes() {
         path="/student/financial/pay"
         element={<StudentRoute element={<OnlinePayment />} />}
       />
+      {/* ── Student: Document ── */}
+      <Route
+        path="/student/document/request"
+        element={<StudentRoute element={<RequestDocument />} />}
+      />
+      <Route
+        path="/student/document/release"
+        element={<StudentRoute element={<DocumentRelease />} />}
+      />
+
+      {/* ── Student: Settings ── */}
+      <Route
+        path="/student/setting/user"
+        element={<StudentRoute element={<SettingUser />} />}
+      />
+      {/* ── Student: announcement ── */}
+
       {/* ── Faculty: Solo links ── */}
       <Route
         path="/faculty/dashboard"
@@ -435,8 +438,12 @@ export default function AppRoutes() {
         element={<AdminRoute element={<Announcementcreate />} />}
       />
       <Route
-        path="/admin/announcement/edit"
+        path="/admin/announcement/edit/:id"
         element={<AdminRoute element={<Announcementedit />} />}
+      />
+      <Route
+        path="/admin/announcement/details/:id"
+        element={<AdminRoute element={<AnnouncementDetails />} />}
       />
       {/* ── programhead: Dashboard ── */}
       <Route

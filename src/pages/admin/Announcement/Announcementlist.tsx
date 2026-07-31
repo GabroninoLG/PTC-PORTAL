@@ -8,14 +8,13 @@ type Announcement = {
   announcement_id: number;
   title: string;
   content: string;
-  audience: string;
   created_by: string;
   publish_date: string;
-  expiry_date: string;
+  expiry_date: string | null;
   is_active: number;
   created_at: string;
+  recipients: string | null;
 };
-
 const API_BASE_URL = "http://localhost:3000/api/announcements";
 
 export default function AnnouncementList() {
@@ -86,7 +85,7 @@ export default function AnnouncementList() {
     return (
       announcement.title.toLowerCase().includes(q) ||
       announcement.content.toLowerCase().includes(q) ||
-      announcement.audience.toLowerCase().includes(q) ||
+      (announcement.recipients ?? "").toLowerCase().includes(q) ||
       announcement.created_by.toLowerCase().includes(q)
     );
   });
@@ -99,13 +98,6 @@ export default function AnnouncementList() {
             <h1>Announcement Management</h1>
             <p>Manage portal announcements.</p>
           </div>
-
-          <button
-            className="create-announcement-btn"
-            onClick={() => navigate("/admin/announcements/create")}
-          >
-            + Create Announcement
-          </button>
         </div>
 
         <div className="announcement-toolbar">
@@ -150,7 +142,7 @@ export default function AnnouncementList() {
                   <tr key={announcement.announcement_id}>
                     <td>{announcement.title}</td>
 
-                    <td>{announcement.audience}</td>
+                    <td>{announcement.recipients}</td>
 
                     <td>{announcement.created_by}</td>
 
@@ -181,7 +173,7 @@ export default function AnnouncementList() {
                         className="action-btn view"
                         onClick={() =>
                           navigate(
-                            `/admin/announcements/${announcement.announcement_id}`,
+                            `/admin/announcement/details/${announcement.announcement_id}`,
                           )
                         }
                       >
@@ -192,7 +184,7 @@ export default function AnnouncementList() {
                         className="action-btn edit"
                         onClick={() =>
                           navigate(
-                            `/admin/announcements/edit/${announcement.announcement_id}`,
+                            `/admin/announcement/edit/${announcement.announcement_id}`,
                           )
                         }
                       >

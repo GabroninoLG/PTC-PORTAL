@@ -2,7 +2,7 @@ import DashboardLayout from "../../../components/Layout/DashboardLayout";
 import { authService } from "../../../services/auth.service";
 import { useNavigate } from "react-router-dom";
 
-export default function Syllabus() {
+export default function SettingUser() {
   const navigate = useNavigate();
   const user = authService.getSession();
 
@@ -13,8 +13,8 @@ export default function Syllabus() {
 
   return (
     <DashboardLayout>
-      <div className="syllabus">
-        <p>This is your syllabus page.</p>
+      <div className="setting-user">
+        <p>userere.</p>
       </div>
     </DashboardLayout>
   );
