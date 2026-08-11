@@ -98,3 +98,8 @@
     color: white !important;
     font-weight: 600;
 }
+
+.holiday-date-text {
+    color: #dc2626;
+    font-weight: bold;
+}
