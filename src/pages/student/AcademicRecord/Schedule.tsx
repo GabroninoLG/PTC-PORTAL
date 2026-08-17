@@ -61,7 +61,7 @@ const holidayEvents = holidays.map((holiday) => ({
     title: holiday.localName,
     start: holiday.date,
     className: "holiday-event",
-}));
+}));  
 
   if (!user || user.role !== "Student") {
     navigate("/login");

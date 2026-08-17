@@ -10,6 +10,7 @@ import activityRouter from "./routes/activity.routes.js";
 import announcementRoutes from "./routes/announcement.routes.js";
 import rolesRouter from "./routes/roles.routes.js";
 import filesRouter from "./routes/files.routes.js";
+import documentsRouter from "./routes/documents.routes.js";
 
 const app = express();
 
@@ -42,6 +43,8 @@ app.use("/api/announcements", announcementRoutes);
 app.use("/api/roles", rolesRouter);
 
 app.use("/api/files", filesRouter);
+
+app.use("/api/documents", documentsRouter);
 
 // =======================
 // Root Route
