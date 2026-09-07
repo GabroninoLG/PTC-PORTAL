@@ -455,18 +455,20 @@ export default function Enrollmentmain() {
   // 1. Your Official Classes / Registrar Placement
   // 2. Regular Subjects
   // 3. Valid Retake Subjects
-  // 4. Blocked Subjects
-  // 5. Completed Subjects
+  // 4. Carryover Subjects
+  // 5. Blocked Subjects
+  // 6. Completed Subjects
   //
   // Only one large section can be open at a time.
   // ============================================================
 
-  type EnrollmentSectionKey =
-    | "official"
-    | "regular"
-    | "retake"
-    | "blocked"
-    | "completed";
+type EnrollmentSectionKey =
+  | "official"
+  | "regular"
+  | "retake"
+  | "carryover"
+  | "blocked"
+  | "completed";
 
   const [expandedSection, setExpandedSection] =
     useState<EnrollmentSectionKey | null>(null);
@@ -2561,7 +2563,17 @@ export default function Enrollmentmain() {
 
         {carry_over_subjects.length > 0 && (
           <div className="subjects-container">
-            <div className="subjects-header">
+            <div
+              className="subjects-header"
+              role="button"
+              tabIndex={0}
+              aria-expanded={expandedSection === "carryover"}
+              onClick={() => toggleEnrollmentSection("carryover")}
+              onKeyDown={(event) =>
+                handleSectionKeyDown(event, "carryover")
+              }
+              style={{ cursor: "pointer", userSelect: "none" }}
+            >
               <div>
                 <span className="enrollment-eyebrow">
                   Earlier Curriculum Term
@@ -2576,16 +2588,34 @@ export default function Enrollmentmain() {
                 </p>
               </div>
 
-              <div className="selection-counter">
-                {carry_over_subjects.length} eligible
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "10px",
+                  flexShrink: 0,
+                }}
+              >
+                <div className="selection-counter">
+                  {carry_over_subjects.length} eligible
+                </div>
+
+                <span
+                  aria-hidden="true"
+                  style={sectionArrowStyle(expandedSection === "carryover")}
+                >
+                  ▾
+                </span>
               </div>
             </div>
 
-            <div className="subject-list">
-              {carry_over_subjects.map((subject) =>
-                renderCarryOverSubject(subject),
-              )}
-            </div>
+            {expandedSection === "carryover" && (
+              <div className="subject-list">
+                {carry_over_subjects.map((subject) =>
+                  renderCarryOverSubject(subject),
+                )}
+              </div>
+            )}
           </div>
         )}
 
