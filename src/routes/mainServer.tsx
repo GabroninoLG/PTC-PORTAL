@@ -23,9 +23,9 @@ import StudentCourseHistory from "../pages/student/AcademicRecord/CourseHistory"
 import StudentRecord from "../pages/student/AcademicRecord/StudentRecord";
 
 // Student pages — Enrollment
-import EnrollmentCourses from "../pages/student/Enrollment/AvailableCourses";
+
 import AddDropSubjects from "../pages/student/Enrollment/AddDrop";
-import SubmitEnrollment from "../pages/student/Enrollment/SubmitEnrollment";
+
 import Enrollmentmain from "../pages/student/Enrollment/Enrollmentmain";
 
 // Student pages — Financial
@@ -282,18 +282,12 @@ export default function AppRoutes() {
         />
 
         {/* ── Student: Enrollment ── */}
-        <Route
-          path="/student/enrollment/courses"
-          element={<StudentRoute element={<EnrollmentCourses />} />}
-        />
+
         <Route
           path="/student/enrollment/add-drop"
           element={<StudentRoute element={<AddDropSubjects />} />}
         />
-        <Route
-          path="/student/enrollment/submit"
-          element={<StudentRoute element={<SubmitEnrollment />} />}
-        />
+
         <Route
           path="/student/enrollment/main"
           element={<StudentRoute element={<Enrollmentmain />} />}
