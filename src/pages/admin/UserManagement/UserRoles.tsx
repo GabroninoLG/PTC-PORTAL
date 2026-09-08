@@ -78,7 +78,6 @@ export default function UserRoles() {
   ];
 
   return (
-    
     <DashboardLayout>
       <div className="user-role-container">
         <div className="role-header">
@@ -86,8 +85,6 @@ export default function UserRoles() {
             <h1>User Roles Management</h1>
             <p>Manage user permissions and access control in the portal.</p>
           </div>
-
-          <button className="add-role-btn">+ Create Role</button>
         </div>
 
         <div className="roles-grid">
