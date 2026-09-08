@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 .department-modal-overlay {
   position: fixed;
   inset: 0;
@@ -358,12 +357,6 @@
     width: 100%;
   }
 }
-=======
-/* ---------------------------------------------------------
-   REGISTRAR — DEPARTMENT ADD / EDIT DIALOG
-   Fully scoped to DepartmentModal.
---------------------------------------------------------- */
->>>>>>> 105c160 (Improve sidebar and footer UI)
 
 .registrar-department-modal__overlay {
   --rdmd-green-950: #073b24;
@@ -417,13 +410,6 @@
   animation: registrarDepartmentModalRise 180ms ease;
 }
 
-<<<<<<< HEAD
-=======
-/* ---------------------------------------------------------
-   HEADER
---------------------------------------------------------- */
-
->>>>>>> 105c160 (Improve sidebar and footer UI)
 .registrar-department-modal__header {
   position: relative;
   display: grid;
@@ -522,13 +508,6 @@
   opacity: 0.5;
 }
 
-<<<<<<< HEAD
-=======
-/* ---------------------------------------------------------
-   FORM / MESSAGES
---------------------------------------------------------- */
-
->>>>>>> 105c160 (Improve sidebar and footer UI)
 .registrar-department-modal__form {
   padding: 20px 23px 23px;
 }
@@ -577,13 +556,6 @@
   margin: 0;
 }
 
-<<<<<<< HEAD
-=======
-/* ---------------------------------------------------------
-   FIELDS
---------------------------------------------------------- */
-
->>>>>>> 105c160 (Improve sidebar and footer UI)
 .registrar-department-modal__fields {
   display: grid;
   gap: 17px;
@@ -692,13 +664,6 @@
   text-align: center;
 }
 
-<<<<<<< HEAD
-=======
-/* ---------------------------------------------------------
-   ACTIONS
---------------------------------------------------------- */
-
->>>>>>> 105c160 (Improve sidebar and footer UI)
 .registrar-department-modal__actions {
   display: flex;
   align-items: center;
@@ -759,13 +724,6 @@
   box-shadow: 0 8px 18px rgba(10, 75, 45, 0.2);
 }
 
-<<<<<<< HEAD
-=======
-/* ---------------------------------------------------------
-   ACCESSIBILITY / RESPONSIVE
---------------------------------------------------------- */
-
->>>>>>> 105c160 (Improve sidebar and footer UI)
 .registrar-department-modal__overlay button:focus-visible,
 .registrar-department-modal__overlay input:focus-visible {
   outline: 3px solid rgba(15, 122, 69, 0.19);
