@@ -2147,3 +2147,207 @@
   color: #285f91;
   background: #f2f8fd;
 }
+
+/* =====================================================
+   SELECT ASSIGNED CLASS SEARCH BAR 
+   ===================================================== */
+
+.faculty-assigned-class-search {
+  display: grid;
+  gap: 6px;
+}
+
+.faculty-assigned-class-search > label {
+  color: #76827b;
+  font-size: 8.5px;
+  font-weight: 760;
+  letter-spacing: 0.055em;
+  text-transform: uppercase;
+}
+
+.faculty-assigned-class-search__control {
+  position: relative;
+  min-width: 0;
+}
+
+.faculty-assigned-class-search__input {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.faculty-assigned-class-search__input > svg {
+  position: absolute;
+  left: 11px;
+  z-index: 2;
+  color: #64748b;
+  pointer-events: none;
+}
+
+.faculty-assigned-class-search__input input {
+  width: 100%;
+  min-width: 0;
+  min-height: 41px;
+  padding: 9px 38px 9px 36px;
+  border: 1px solid #cfdcd3;
+  border-radius: 9px;
+  outline: none;
+  background: #ffffff;
+  color: #17201b;
+  font-size: 10.8px;
+  appearance: none;
+  -webkit-appearance: none;
+  transition:
+    border-color 0.16s ease,
+    background 0.16s ease;
+}
+
+.faculty-assigned-class-search__input input:focus,
+.faculty-assigned-class-search__input input:focus-visible {
+  border-color: #9fc9ae;
+  outline: none;
+  box-shadow: none;
+}
+
+.faculty-assigned-class-search__input input:disabled {
+  color: #9aa69e;
+  background: #f6f8f6;
+  cursor: not-allowed;
+}
+
+.faculty-assigned-class-search__input button {
+  position: absolute;
+  right: 8px;
+  z-index: 3;
+  display: inline-grid;
+  width: 27px;
+  height: 27px;
+  place-items: center;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: #64748b;
+  cursor: pointer;
+}
+
+.faculty-assigned-class-search__input button:hover {
+  background: #f0fdf4;
+  color: #166534;
+}
+
+.faculty-assigned-class-search > small {
+  color: #76827b;
+  font-size: 8.8px;
+  line-height: 1.4;
+}
+
+.faculty-assigned-class-suggestions {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  z-index: 100;
+  max-height: 310px;
+  overflow-y: auto;
+  padding: 6px;
+  border: 1px solid #cfe0d4;
+  border-radius: 11px;
+  background: #ffffff;
+  box-shadow:
+    0 14px 34px rgba(15, 23, 42, 0.12),
+    0 3px 10px rgba(21, 128, 61, 0.05);
+}
+
+.faculty-assigned-class-suggestion {
+  display: grid;
+  gap: 4px;
+  width: 100%;
+  padding: 10px 11px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #334155;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background 0.14s ease,
+    color 0.14s ease;
+}
+
+.faculty-assigned-class-suggestion:hover {
+  background: #f0fdf4;
+}
+
+.faculty-assigned-class-suggestion.is-selected {
+  background: #ecfdf3;
+}
+
+.faculty-assigned-class-suggestion > div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.faculty-assigned-class-suggestion strong {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  color: #14532d;
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.faculty-assigned-class-suggestion > div > span {
+  flex: 0 0 auto;
+  color: #64748b;
+  font-size: 8.8px;
+  font-weight: 650;
+}
+
+.faculty-assigned-class-suggestion small {
+  overflow-wrap: anywhere;
+  color: #64748b;
+  font-size: 9px;
+  line-height: 1.4;
+}
+
+.faculty-assigned-class-suggestions__empty {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  color: #64748b;
+  font-size: 10px;
+}
+
+.faculty-assigned-class-suggestions__empty svg {
+  color: #15803d;
+}
+
+.faculty-assigned-class-suggestions::-webkit-scrollbar {
+  width: 8px;
+}
+
+.faculty-assigned-class-suggestions::-webkit-scrollbar-track {
+  background: #f8fbf9;
+}
+
+.faculty-assigned-class-suggestions::-webkit-scrollbar-thumb {
+  border: 2px solid #f8fbf9;
+  border-radius: 999px;
+  background: #c8d8cd;
+}
+
+@media (max-width: 620px) {
+  .faculty-assigned-class-suggestion > div {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .faculty-assigned-class-suggestion > div > span {
+    flex: none;
+  }
+}

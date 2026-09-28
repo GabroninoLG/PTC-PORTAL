@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import {
   AlertCircle,
   ArrowLeft,
@@ -29,6 +29,7 @@ import { authService } from "../../../services/auth.service";
 import { api } from "../../../services/api";
 
 import "../../../styles/EnterGrades.css";
+import "../../../styles/EnterGradesClassSearch.css";
 
 const API_BASE_URL = `${api.baseUrl}/api/faculty/classes`;
 
@@ -545,6 +546,7 @@ function emptySummary(): GradebookSummary {
 
 export default function EnterGrades() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   const session = authService.getSession();
 
@@ -553,6 +555,11 @@ export default function EnterGrades() {
   const userRole = session?.role;
 
   const authenticated = Boolean(session && token);
+
+  const requestedOfferingId = useMemo(
+    () => parsePositiveInt(searchParams.get("offering_id")),
+    [searchParams],
+  );
 
   const [faculty, setFaculty] = useState<FacultyInfo | null>(null);
 
@@ -565,6 +572,9 @@ export default function EnterGrades() {
   const [selectedOfferingId, setSelectedOfferingId] = useState<number | null>(
     null,
   );
+
+  const [classSearch, setClassSearch] = useState("");
+  const [classSearchFocused, setClassSearchFocused] = useState(false);
 
   const [gradebookClass, setGradebookClass] = useState<FacultyClass | null>(
     null,
@@ -683,6 +693,15 @@ export default function EnterGrades() {
 
         setSelectedOfferingId((current) => {
           if (
+            requestedOfferingId &&
+            loadedClasses.some(
+              (item) => item.offering_id === requestedOfferingId,
+            )
+          ) {
+            return requestedOfferingId;
+          }
+
+          if (
             current &&
             loadedClasses.some((item) => item.offering_id === current)
           ) {
@@ -721,7 +740,7 @@ export default function EnterGrades() {
     return () => {
       controller.abort();
     };
-  }, [authenticated, userRole, navigate]);
+  }, [authenticated, userRole, navigate, requestedOfferingId]);
 
   const loadGradebook = useCallback(
     async (signal?: AbortSignal) => {
@@ -924,6 +943,40 @@ export default function EnterGrades() {
     setRowFeedback({});
 
     setGradebookError("");
+  };
+
+  const filteredAssignedClasses = useMemo(() => {
+    const query = classSearch.trim().toLowerCase();
+
+    if (!query) {
+      return [];
+    }
+
+    return classes.filter((item) => {
+      const searchableText = [
+        String(item.offering_id),
+        item.subject.subject_code,
+        item.subject.subject_name,
+        item.section.section_name,
+        item.section.course.course_code,
+        item.section.course.course_name,
+        item.academic_period.academic_year,
+        item.academic_period.semester_name,
+        item.schedule.days || "",
+        item.schedule.time || "",
+        getRoomLabel(item.room),
+        item.offering_status,
+      ]
+        .join(" ")
+        .toLowerCase();
+
+      return searchableText.includes(query);
+    });
+  }, [classes, classSearch]);
+
+  const selectAssignedClass = (item: FacultyClass) => {
+    handleClassChange(String(item.offering_id));
+    setClassSearch("");
   };
 
   const updateForm = (
@@ -1531,26 +1584,100 @@ export default function EnterGrades() {
               </span>
             </div>
 
-            <label htmlFor="faculty-grade-class">Assigned Class</label>
+            <div className="faculty-assigned-class-search">
+              <label htmlFor="faculty-grade-class">Search Assigned Class</label>
 
-            <select
-              id="faculty-grade-class"
-              value={selectedOfferingId ? String(selectedOfferingId) : ""}
-              onChange={(event) => handleClassChange(event.target.value)}
-              disabled={classesLoading || classes.length === 0}
-            >
-              {classes.length === 0 && (
-                <option value="">No assigned classes</option>
-              )}
+              <div className="faculty-assigned-class-search__control">
+                <div className="faculty-assigned-class-search__input">
+                  <Search size={16} />
 
-              {classes.map((item) => (
-                <option key={item.offering_id} value={item.offering_id}>
-                  {item.subject.subject_code} — {item.section.section_name} —{" "}
-                  {item.academic_period.academic_year} /{" "}
-                  {item.academic_period.semester_name}
-                </option>
-              ))}
-            </select>
+                  <input
+                    id="faculty-grade-class"
+                    type="text"
+                    name="faculty-assigned-class-filter"
+                    value={classSearch}
+                    onChange={(event) => setClassSearch(event.target.value)}
+                    onFocus={() => setClassSearchFocused(true)}
+                    onBlur={() => {
+                      window.setTimeout(() => {
+                        setClassSearchFocused(false);
+                      }, 120);
+                    }}
+                    placeholder="Search subject, section, course, year..."
+                    autoComplete="off"
+                    autoCapitalize="none"
+                    spellCheck={false}
+                    disabled={classesLoading || classes.length === 0}
+                  />
+
+                  {classSearch && (
+                    <button
+                      type="button"
+                      aria-label="Clear class search"
+                      onMouseDown={(event) => event.preventDefault()}
+                      onClick={() => setClassSearch("")}
+                    >
+                      <X size={15} />
+                    </button>
+                  )}
+                </div>
+
+                {classSearchFocused && classSearch.trim() && (
+                  <div
+                    className="faculty-assigned-class-suggestions"
+                    role="listbox"
+                    aria-label="Matching assigned classes"
+                  >
+                    {filteredAssignedClasses.length === 0 ? (
+                      <div className="faculty-assigned-class-suggestions__empty">
+                        <Search size={16} />
+                        <span>No matching assigned class</span>
+                      </div>
+                    ) : (
+                      filteredAssignedClasses.slice(0, 8).map((item) => {
+                        const isSelected =
+                          item.offering_id === selectedOfferingId;
+
+                        return (
+                          <button
+                            key={item.offering_id}
+                            type="button"
+                            className={`faculty-assigned-class-suggestion ${
+                              isSelected ? "is-selected" : ""
+                            }`}
+                            onMouseDown={(event) => event.preventDefault()}
+                            onClick={() => {
+                              selectAssignedClass(item);
+                              setClassSearchFocused(false);
+                            }}
+                          >
+                            <div>
+                              <strong>
+                                {item.subject.subject_code} —{" "}
+                                {item.section.section_name}
+                              </strong>
+                              <span>
+                                {item.academic_period.academic_year} /{" "}
+                                {item.academic_period.semester_name}
+                              </span>
+                            </div>
+
+                            <small>
+                              {item.subject.subject_name} ·{" "}
+                              {item.section.course.course_code}
+                            </small>
+                          </button>
+                        );
+                      })
+                    )}
+                  </div>
+                )}
+              </div>
+
+              <small>
+                Start typing to see matching assigned classes.
+              </small>
+            </div>
           </div>
         </section>
 
