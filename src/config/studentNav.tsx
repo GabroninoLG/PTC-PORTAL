@@ -13,7 +13,6 @@ export const studentNavGroups = [
     children: [
       { label: "Schedule", path: "/student/schedule" },
       { label: "Grades", path: "/student/records" },
-      { label: "Academic History", path: "/student/course-history" },
     ],
   },
 

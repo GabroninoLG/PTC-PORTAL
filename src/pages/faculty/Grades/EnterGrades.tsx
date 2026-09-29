@@ -29,7 +29,6 @@ import { authService } from "../../../services/auth.service";
 import { api } from "../../../services/api";
 
 import "../../../styles/EnterGrades.css";
-import "../../../styles/EnterGradesClassSearch.css";
 
 const API_BASE_URL = `${api.baseUrl}/api/faculty/classes`;
 
@@ -1674,9 +1673,7 @@ export default function EnterGrades() {
                 )}
               </div>
 
-              <small>
-                Start typing to see matching assigned classes.
-              </small>
+              <small>Start typing to see matching assigned classes.</small>
             </div>
           </div>
         </section>

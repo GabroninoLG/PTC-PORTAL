@@ -8,17 +8,6 @@ export const facultyNavGroups = [
       { label: "Teaching Schedule ", path: "/faculty/classes/schedule" },
     ],
   },
-
-  {
-    id: "grades",
-    label: "Post Grades",
-    icon: "",
-    children: [
-      { label: "Enter Grades", path: "/faculty/grades/enter" },
-      { label: "Grade Summary", path: "/faculty/grades/summary" },
-      { label: "Grade History", path: "/faculty/grades/history" },
-    ],
-  },
 ];
 
 export const facultySoloLinks = [
