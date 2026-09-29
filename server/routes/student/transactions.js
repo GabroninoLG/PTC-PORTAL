@@ -6,20 +6,22 @@ import db from "../../db.js";
 const router = express.Router();
 
 // ============================================================
-// GET MY FINANCE TRANSACTIONS
+// GET MY TRANSACTIONS
 //
 // GET /api/student/transactions
 //
-// Parent route security:
-//   /api/student -> authenticate -> requireRole("Student")
+// DOCUMENT REQUEST FLOW:
 //
-// Returns ALL Finance tickets owned by the authenticated student:
-// - Student document requests (COR / COG)
-// - Finance-created manual transactions
-// - Later Faculty-verified Grade 4 transactions
+// Request Document:
+// - Pending
+// - Ready for Processing
+// - Processing
 //
-// Student identity always comes from req.user.
-// The frontend never supplies student_id.
+// My Transactions:
+// - Done
+// - Cancelled
+//
+// There is no Reject flow for Registrar document requests.
 // ============================================================
 
 router.get("/", async (req, res) => {
@@ -47,7 +49,7 @@ router.get("/", async (req, res) => {
     }
 
     // ========================================================
-    // 2. RESOLVE AUTHENTICATED STUDENT
+    // 2. RESOLVE STUDENT
     // ========================================================
 
     const [studentRows] = await db.execute(
@@ -72,7 +74,8 @@ router.get("/", async (req, res) => {
       return res.status(404).json({
         success: false,
         code: "STUDENT_PROFILE_NOT_FOUND",
-        message: "No Student profile is connected to this account.",
+        message:
+          "No Student profile is connected to this account.",
       });
     }
 
@@ -81,7 +84,16 @@ router.get("/", async (req, res) => {
     const studentId = Number(student.student_id);
 
     // ========================================================
-    // 3. LOAD ALL STUDENT FINANCE TRANSACTIONS
+    // 3. LOAD TRANSACTIONS
+    //
+    // IMPORTANT:
+    //
+    // Document requests only appear here when:
+    // - registrar_status = Done
+    // - registrar_status = Cancelled
+    // - or payment itself was Cancelled
+    //
+    // Non-document Finance transactions remain visible.
     // ========================================================
 
     const [rows] = await db.execute(
@@ -134,23 +146,40 @@ router.get("/", async (req, res) => {
         FROM finance_tickets ft
 
         INNER JOIN finance_transaction_types ftt
-          ON ftt.transaction_type_id = ft.transaction_type_id
+          ON ftt.transaction_type_id =
+             ft.transaction_type_id
 
         LEFT JOIN student_document_requests sdr
-          ON sdr.request_id = ft.document_request_id
+          ON sdr.request_id =
+             ft.document_request_id
 
         LEFT JOIN enrollments e
-          ON e.enrollment_id = sdr.enrollment_id
+          ON e.enrollment_id =
+             sdr.enrollment_id
 
         LEFT JOIN academic_years ay
-          ON ay.academic_year_id = e.academic_year_id
+          ON ay.academic_year_id =
+             e.academic_year_id
 
         LEFT JOIN semesters sem
-          ON sem.semester_id = e.semester_id
+          ON sem.semester_id =
+             e.semester_id
 
         WHERE ft.student_id = ?
 
-        ORDER BY ft.ticket_id DESC
+          AND (
+            ft.document_request_id IS NULL
+
+            OR ft.registrar_status IN (
+              'Done',
+              'Cancelled'
+            )
+
+            OR ft.payment_status = 'Cancelled'
+          )
+
+        ORDER BY
+          ft.ticket_id DESC
       `,
       [studentId],
     );
@@ -167,15 +196,20 @@ router.get("/", async (req, res) => {
       source_type: row.source_type,
 
       transaction: {
-        transaction_type_id: Number(row.transaction_type_id),
+        transaction_type_id:
+          Number(row.transaction_type_id),
 
-        transaction_code: row.transaction_code,
+        transaction_code:
+          row.transaction_code,
 
-        transaction_name: row.transaction_name,
+        transaction_name:
+          row.transaction_name,
 
-        description: row.transaction_description || null,
+        description:
+          row.transaction_description || null,
 
-        workflow_type: row.workflow_type,
+        workflow_type:
+          row.workflow_type,
       },
 
       document_request:
@@ -183,76 +217,103 @@ router.get("/", async (req, res) => {
         row.document_request_id === undefined
           ? null
           : {
-              request_id: Number(row.document_request_id),
+              request_id:
+                Number(row.document_request_id),
 
-              request_number: row.request_number,
+              request_number:
+                row.request_number,
 
-              document_type: row.document_type,
+              document_type:
+                row.document_type,
 
               enrollment_id:
-                row.enrollment_id === null || row.enrollment_id === undefined
+                row.enrollment_id === null ||
+                row.enrollment_id === undefined
                   ? null
                   : Number(row.enrollment_id),
 
               academic_period:
-                row.enrollment_id === null || row.enrollment_id === undefined
+                row.enrollment_id === null ||
+                row.enrollment_id === undefined
                   ? null
                   : {
-                      academic_year: row.academic_year || null,
+                      academic_year:
+                        row.academic_year || null,
 
-                      semester_name: row.semester_name || null,
+                      semester_name:
+                        row.semester_name || null,
 
-                      enrollment_status: row.enrollment_status || null,
+                      enrollment_status:
+                        row.enrollment_status || null,
                     },
 
-              purpose: row.purpose || null,
+              purpose:
+                row.purpose || null,
 
-              copies: Number(row.copies ?? 1),
+              copies:
+                Number(row.copies ?? 1),
 
-              requested_at: row.requested_at || null,
+              requested_at:
+                row.requested_at || null,
 
-              cancelled_at: row.cancelled_at || null,
+              cancelled_at:
+                row.cancelled_at || null,
 
-              cancellation_reason: row.cancellation_reason || null,
+              cancellation_reason:
+                row.cancellation_reason || null,
             },
 
       grade_id:
-        row.grade_id === null || row.grade_id === undefined
+        row.grade_id === null ||
+        row.grade_id === undefined
           ? null
           : Number(row.grade_id),
 
       payment: {
         amount_due:
-          row.amount_due === null || row.amount_due === undefined
+          row.amount_due === null ||
+          row.amount_due === undefined
             ? null
             : Number(row.amount_due),
 
-        amount_paid: Number(row.amount_paid ?? 0),
+        amount_paid:
+          Number(row.amount_paid ?? 0),
 
-        payment_method: row.payment_method || null,
+        payment_method:
+          row.payment_method || null,
 
-        receipt_number: row.receipt_number || null,
+        receipt_number:
+          row.receipt_number || null,
 
-        payment_status: row.payment_status,
+        payment_status:
+          row.payment_status,
 
-        paid_at: row.paid_at || null,
+        paid_at:
+          row.paid_at || null,
       },
 
       registrar: {
-        status: row.registrar_status,
+        status:
+          row.registrar_status,
 
-        remarks: row.registrar_remarks || null,
+        remarks:
+          row.registrar_remarks || null,
 
-        started_at: row.registrar_started_at || null,
+        started_at:
+          row.registrar_started_at || null,
 
-        completed_at: row.registrar_completed_at || null,
+        completed_at:
+          row.registrar_completed_at || null,
       },
 
-      finance_remarks: row.finance_remarks || null,
+      finance_remarks:
+        row.finance_remarks || null,
 
-      created_at: row.created_at,
+      created_at:
+        row.created_at,
 
-      updated_at: row.updated_at,
+      updated_at:
+        row.updated_at,
     }));
 
     // ========================================================
@@ -276,7 +337,8 @@ router.get("/", async (req, res) => {
     };
 
     for (const transaction of transactions) {
-      const paymentStatus = transaction.payment.payment_status;
+      const paymentStatus =
+        transaction.payment.payment_status;
 
       if (paymentStatus === "Pending Payment") {
         summary.pending_payment += 1;
@@ -289,7 +351,9 @@ router.get("/", async (req, res) => {
       if (paymentStatus === "Paid") {
         summary.paid += 1;
 
-        summary.total_paid += Number(transaction.payment.amount_paid ?? 0);
+        summary.total_paid += Number(
+          transaction.payment.amount_paid ?? 0,
+        );
       }
 
       if (paymentStatus === "Cancelled") {
@@ -301,9 +365,13 @@ router.get("/", async (req, res) => {
       }
     }
 
-    summary.total_outstanding = Number(summary.total_outstanding.toFixed(2));
+    summary.total_outstanding = Number(
+      summary.total_outstanding.toFixed(2),
+    );
 
-    summary.total_paid = Number(summary.total_paid.toFixed(2));
+    summary.total_paid = Number(
+      summary.total_paid.toFixed(2),
+    );
 
     // ========================================================
     // 6. SUCCESS
@@ -317,7 +385,8 @@ router.get("/", async (req, res) => {
       student: {
         student_id: studentId,
 
-        student_number: student.student_number,
+        student_number:
+          student.student_number,
 
         student_name: [
           student.first_name,
@@ -333,14 +402,18 @@ router.get("/", async (req, res) => {
       transactions,
     });
   } catch (error) {
-    console.error("GET STUDENT FINANCE TRANSACTIONS ERROR:", error);
+    console.error(
+      "GET STUDENT FINANCE TRANSACTIONS ERROR:",
+      error,
+    );
 
     return res.status(500).json({
       success: false,
 
       code: "STUDENT_TRANSACTIONS_LOAD_FAILED",
 
-      message: "Failed to load the student's Finance transactions.",
+      message:
+        "Failed to load the student's Finance transactions.",
     });
   }
 });
