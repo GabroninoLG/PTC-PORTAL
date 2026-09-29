@@ -178,41 +178,188 @@ async function sendPasswordResetOtp(email, otp) {
   return transporter.sendMail({
     from: '"PTC Portal" <noreply@ptc.edu.ph>',
     to: email,
-    subject: "PTC Portal Password Reset Code",
+    subject: "Your PTC Portal password reset code",
 
-    text:
-      `Your password reset verification code is ${otp}. ` +
-      `This code expires in 5 minutes. ` +
-      `If you did not request a password reset, you can ignore this email.`,
+    text: `
+PTC Portal
+Password Reset Verification
+
+Your password reset verification code is:
+
+${otp}
+
+This code will expire in 5 minutes.
+
+If you did not request a password reset, you can safely ignore this email.
+
+This is an automated message from PTC Portal.
+    `.trim(),
 
     html: `
-      <div style="font-family: Arial, sans-serif; line-height: 1.6;">
-        <h2>PTC Portal Password Reset</h2>
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Password Reset Verification</title>
+</head>
 
-        <p>
-          Your password reset verification code is:
-        </p>
+<body style="
+  margin: 0;
+  padding: 0;
+  background-color: #f3f4f6;
+  font-family: Arial, Helvetica, sans-serif;
+">
 
-        <p
-          style="
-            font-size: 28px;
-            font-weight: bold;
-            letter-spacing: 6px;
-          "
-        >
-          ${otp}
-        </p>
+  <div style="
+    width: 100%;
+    padding: 40px 15px;
+    box-sizing: border-box;
+  ">
 
-        <p>
-          This code expires in 5 minutes.
-        </p>
+    <div style="
+      max-width: 500px;
+      margin: 0 auto;
+      background-color: #ffffff;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
+    ">
 
-        <p>
-          If you did not request a password reset,
-          you can ignore this email.
-        </p>
+      <!-- Header -->
+      <div style="
+        padding: 28px 30px;
+        background-color: #1f2937;
+        color: #ffffff;
+        text-align: center;
+      ">
+
+        <div style="
+          font-size: 24px;
+          font-weight: bold;
+          margin-bottom: 8px;
+        ">
+          PTC Portal
+        </div>
+
+        <div style="
+          font-size: 14px;
+          opacity: 0.85;
+        ">
+          Secure Account Verification
+        </div>
+
       </div>
-    `,
+
+      <!-- Content -->
+      <div style="
+        padding: 35px 30px;
+        text-align: center;
+      ">
+
+        <h2 style="
+          margin: 0 0 12px;
+          color: #1f2937;
+          font-size: 22px;
+        ">
+          Reset your password
+        </h2>
+
+        <p style="
+          margin: 0 0 25px;
+          color: #6b7280;
+          font-size: 15px;
+          line-height: 1.6;
+        ">
+          Use the verification code below to continue
+          resetting your PTC Portal password.
+        </p>
+
+        <!-- OTP -->
+        <div style="
+          display: inline-block;
+          padding: 16px 28px;
+          margin: 5px 0 20px;
+          background-color: #f3f4f6;
+          border-radius: 10px;
+          letter-spacing: 8px;
+          font-size: 32px;
+          font-weight: bold;
+          color: #111827;
+        ">
+          ${otp}
+        </div>
+
+        <p style="
+          margin: 10px 0 0;
+          color: #6b7280;
+          font-size: 14px;
+        ">
+          This verification code expires in
+          <strong style="color: #374151;">
+            5 minutes
+          </strong>.
+        </p>
+
+        <!-- Security Notice -->
+        <div style="
+          margin-top: 28px;
+          padding: 15px;
+          background-color: #f9fafb;
+          border-radius: 8px;
+          text-align: left;
+        ">
+
+          <p style="
+            margin: 0;
+            color: #6b7280;
+            font-size: 13px;
+            line-height: 1.6;
+          ">
+
+            <strong style="color: #374151;">
+              Security notice:
+            </strong>
+
+            If you did not request a password reset,
+            you can safely ignore this email.
+            Do not share this verification code with anyone.
+
+          </p>
+
+        </div>
+
+      </div>
+
+      <!-- Footer -->
+      <div style="
+        padding: 20px 30px;
+        border-top: 1px solid #e5e7eb;
+        text-align: center;
+      ">
+
+        <p style="
+          margin: 0;
+          color: #9ca3af;
+          font-size: 12px;
+          line-height: 1.5;
+        ">
+
+          This is an automated message from PTC Portal.
+          <br />
+          Please do not reply to this email.
+
+        </p>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</body>
+</html>
+    `.trim()
   });
 }
 
@@ -1570,13 +1717,179 @@ router.post("/login", async (req, res) => {
       [user.user_id, otpHash, expiresAt],
     );
 
-    const info = await transporter.sendMail({
-      from: '"PTC Portal" <noreply@ptc.edu.ph>',
-      to: user.email,
-      subject: "PTC Portal OTP",
-      text: `Your OTP is ${otp}.`,
-      html: `...`,
-    });
+const info = await transporter.sendMail({
+  from: '"PTC Portal" <noreply@ptc.edu.ph>',
+  to: user.email,
+  subject: "Your PTC Portal verification code",
+
+  text:
+    `Your PTC Portal verification code is ${otp}.\n\n` +
+    `This code expires in 5 minutes.\n\n` +
+    `If you did not try to sign in to PTC Portal, you can safely ignore this email.`,
+
+  html: `
+    <div
+      style="
+        margin: 0;
+        padding: 40px 20px;
+        background-color: #f4f6f8;
+        font-family: Arial, Helvetica, sans-serif;
+      "
+    >
+      <div
+        style="
+          max-width: 520px;
+          margin: 0 auto;
+          background-color: #ffffff;
+          border: 1px solid #e2e5e8;
+          border-radius: 12px;
+          overflow: hidden;
+        "
+      >
+
+        <!-- Header -->
+        <div
+          style="
+            padding: 24px 30px;
+            border-bottom: 1px solid #eeeeee;
+            text-align: center;
+          "
+        >
+          <div
+            style="
+              font-size: 22px;
+              font-weight: bold;
+              color: #1f2937;
+            "
+          >
+            PTC Portal
+          </div>
+
+          <div
+            style="
+              margin-top: 5px;
+              font-size: 13px;
+              color: #6b7280;
+            "
+          >
+            Secure Account Verification
+          </div>
+        </div>
+
+        <!-- Main Content -->
+        <div style="padding: 35px 30px;">
+
+          <h2
+            style="
+              margin: 0 0 14px;
+              color: #202124;
+              font-size: 24px;
+              font-weight: 600;
+            "
+          >
+            Verify your sign-in
+          </h2>
+
+          <p
+            style="
+              margin: 0 0 25px;
+              color: #5f6368;
+              font-size: 15px;
+              line-height: 1.6;
+            "
+          >
+            We received a request to sign in to your PTC Portal account.
+            Enter the verification code below to continue.
+          </p>
+
+          <!-- OTP -->
+          <div
+            style="
+              margin: 25px 0;
+              padding: 22px;
+              background-color: #f7f8fa;
+              border: 1px solid #e1e4e8;
+              border-radius: 8px;
+              text-align: center;
+            "
+          >
+            <div
+              style="
+                margin-bottom: 8px;
+                color: #6b7280;
+                font-size: 12px;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+              "
+            >
+              Verification code
+            </div>
+
+            <div
+              style="
+                color: #202124;
+                font-size: 34px;
+                font-weight: 700;
+                letter-spacing: 8px;
+              "
+            >
+              ${otp}
+            </div>
+          </div>
+
+          <p
+            style="
+              margin: 20px 0 0;
+              color: #5f6368;
+              font-size: 14px;
+              line-height: 1.6;
+            "
+          >
+            This code will expire in
+            <strong>5 minutes</strong>.
+          </p>
+
+          <p
+            style="
+              margin: 18px 0 0;
+              color: #5f6368;
+              font-size: 14px;
+              line-height: 1.6;
+            "
+          >
+            If you did not try to sign in to PTC Portal,
+            you can safely ignore this email.
+          </p>
+
+        </div>
+
+        <!-- Footer -->
+        <div
+          style="
+            padding: 20px 30px;
+            background-color: #fafafa;
+            border-top: 1px solid #eeeeee;
+            text-align: center;
+          "
+        >
+          <p
+            style="
+              margin: 0;
+              color: #9aa0a6;
+              font-size: 12px;
+              line-height: 1.5;
+            "
+          >
+            This is an automated message from PTC Portal.
+            <br />
+            Please do not reply to this email.
+          </p>
+        </div>
+
+      </div>
+    </div>
+  `,
+});
 
     console.log("Preview URL:", nodemailer.getTestMessageUrl(info));
 
@@ -1756,13 +2069,179 @@ WHERE user_id = ?
     // 5. Send the new OTP
     // ==========================================
 
-    const info = await transporter.sendMail({
-      from: '"PTC Portal" <noreply@ptc.edu.ph>',
-      to: user.email,
-      subject: "PTC Portal OTP",
-      text: `Your new OTP is ${otp}.`,
-      html: `...`,
-    });
+const info = await transporter.sendMail({
+  from: '"PTC Portal" <noreply@ptc.edu.ph>',
+  to: user.email,
+  subject: "Your new PTC Portal verification code",
+
+  text:
+    `Your new PTC Portal verification code is ${otp}.\n\n` +
+    `This code expires in 5 minutes.\n\n` +
+    `If you did not request a new verification code, you can safely ignore this email.`,
+
+  html: `
+    <div
+      style="
+        margin: 0;
+        padding: 40px 20px;
+        background-color: #f4f6f8;
+        font-family: Arial, Helvetica, sans-serif;
+      "
+    >
+      <div
+        style="
+          max-width: 520px;
+          margin: 0 auto;
+          background-color: #ffffff;
+          border: 1px solid #e2e5e8;
+          border-radius: 12px;
+          overflow: hidden;
+        "
+      >
+
+        <!-- Header -->
+        <div
+          style="
+            padding: 24px 30px;
+            border-bottom: 1px solid #eeeeee;
+            text-align: center;
+          "
+        >
+          <div
+            style="
+              font-size: 22px;
+              font-weight: bold;
+              color: #1f2937;
+            "
+          >
+            PTC Portal
+          </div>
+
+          <div
+            style="
+              margin-top: 5px;
+              font-size: 13px;
+              color: #6b7280;
+            "
+          >
+            Secure Account Verification
+          </div>
+        </div>
+
+        <!-- Main Content -->
+        <div style="padding: 35px 30px;">
+
+          <h2
+            style="
+              margin: 0 0 14px;
+              color: #202124;
+              font-size: 24px;
+              font-weight: 600;
+            "
+          >
+            Your new verification code
+          </h2>
+
+          <p
+            style="
+              margin: 0 0 25px;
+              color: #5f6368;
+              font-size: 15px;
+              line-height: 1.6;
+            "
+          >
+            A new verification code was requested for your
+            PTC Portal account. Use the code below to continue.
+          </p>
+
+          <!-- OTP -->
+          <div
+            style="
+              margin: 25px 0;
+              padding: 22px;
+              background-color: #f7f8fa;
+              border: 1px solid #e1e4e8;
+              border-radius: 8px;
+              text-align: center;
+            "
+          >
+            <div
+              style="
+                margin-bottom: 8px;
+                color: #6b7280;
+                font-size: 12px;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+              "
+            >
+              New verification code
+            </div>
+
+            <div
+              style="
+                color: #202124;
+                font-size: 34px;
+                font-weight: 700;
+                letter-spacing: 8px;
+              "
+            >
+              ${otp}
+            </div>
+          </div>
+
+          <p
+            style="
+              margin: 20px 0 0;
+              color: #5f6368;
+              font-size: 14px;
+              line-height: 1.6;
+            "
+          >
+            This code will expire in
+            <strong>5 minutes</strong>.
+          </p>
+
+          <p
+            style="
+              margin: 18px 0 0;
+              color: #5f6368;
+              font-size: 14px;
+              line-height: 1.6;
+            "
+          >
+            If you did not request a new verification code,
+            you can safely ignore this email.
+          </p>
+
+        </div>
+
+        <!-- Footer -->
+        <div
+          style="
+            padding: 20px 30px;
+            background-color: #fafafa;
+            border-top: 1px solid #eeeeee;
+            text-align: center;
+          "
+        >
+          <p
+            style="
+              margin: 0;
+              color: #9aa0a6;
+              font-size: 12px;
+              line-height: 1.5;
+            "
+          >
+            This is an automated message from PTC Portal.
+            <br />
+            Please do not reply to this email.
+          </p>
+        </div>
+
+      </div>
+    </div>
+  `,
+});
 
     console.log("RESEND OTP PREVIEW URL:", nodemailer.getTestMessageUrl(info));
 
