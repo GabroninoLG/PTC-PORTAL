@@ -10,6 +10,7 @@ import {
   RefreshCcw,
   Send,
   WalletCards,
+  X,
 } from "lucide-react";
 
 import DashboardLayout from "../../../components/Layout/DashboardLayout";
@@ -223,6 +224,8 @@ export default function RequestDocument() {
   const [successMessage, setSuccessMessage] = useState("");
   const [createdRequest, setCreatedRequest] =
     useState<CreateRequestResponse | null>(null);
+  const [selectedRequest, setSelectedRequest] =
+    useState<DocumentRequest | null>(null);
 
   useEffect(() => {
     if (!isStudent) {
@@ -309,6 +312,28 @@ export default function RequestDocument() {
 
     void loadRequests();
   }, [isStudent, loadRequests]);
+
+  useEffect(() => {
+    if (!selectedRequest) {
+      document.body.style.overflow = "";
+      return;
+    }
+
+    document.body.style.overflow = "hidden";
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setSelectedRequest(null);
+      }
+    };
+
+    window.addEventListener("keydown", handleEscape);
+
+    return () => {
+      document.body.style.overflow = "";
+      window.removeEventListener("keydown", handleEscape);
+    };
+  }, [selectedRequest]);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -679,9 +704,11 @@ export default function RequestDocument() {
           ) : (
             <div className="request-document-history-list">
               {requests.map((request) => (
-                <article
+                <button
+                  type="button"
                   key={request.request_id}
-                  className="request-document-history-card"
+                  className="request-document-history-card request-document-history-card--clickable"
+                  onClick={() => setSelectedRequest(request)}
                 >
                   <div className="request-document-history-card__header">
                     <div className="request-document-history-card__title-wrap">
@@ -711,51 +738,175 @@ export default function RequestDocument() {
                       />
                     </div>
                   </div>
-
-                  <div className="request-document-info-grid request-document-info-grid--history">
-                    <InfoBox
-                      label="Request Number"
-                      value={request.request_number}
-                    />
-                    <InfoBox
-                      label="Finance Ticket"
-                      value={request.ticket_number || "Not generated"}
-                    />
-                    <InfoBox
-                      label="Academic Period"
-                      value={formatAcademicPeriod(request.academic_period)}
-                    />
-                    <InfoBox label="Copies" value={String(request.copies)} />
-                    <InfoBox
-                      label="Amount Due"
-                      value={formatMoney(request.amount_due)}
-                    />
-                    <InfoBox
-                      label="Amount Paid"
-                      value={formatMoney(request.amount_paid)}
-                    />
-                    <InfoBox
-                      label="Payment Method"
-                      value={request.payment_method || "—"}
-                    />
-                  </div>
-
-                  {request.purpose && (
-                    <div className="request-document-purpose">
-                      <span>Purpose</span>
-                      <p>{request.purpose}</p>
-                    </div>
-                  )}
-
-                  <RequestProgress
-                    paymentStatus={request.payment_status}
-                    registrarStatus={request.registrar_status}
-                  />
-                </article>
+                </button>
               ))}
             </div>
           )}
         </section>
+
+        {selectedRequest && (
+          <div
+            className="request-document-modal-overlay"
+            onMouseDown={(event) => {
+              if (event.target === event.currentTarget) {
+                setSelectedRequest(null);
+              }
+            }}
+          >
+            <div
+              className="request-document-modal"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="request-document-modal-title"
+            >
+              <div className="request-document-modal__header">
+                <div className="request-document-modal__title-wrap">
+                  <span className="request-document-modal__icon">
+                    <FileText size={22} aria-hidden="true" />
+                  </span>
+
+                  <div>
+                    <h2 id="request-document-modal-title">
+                      {selectedRequest.document_type === "COR"
+                        ? "Certificate of Registration"
+                        : "Certificate of Grades"}
+                    </h2>
+                    <p>
+                      Requested {formatDate(selectedRequest.requested_at)}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="request-document-modal__actions">
+                  <StatusBadge
+                    label={selectedRequest.payment_status}
+                    className={paymentStatusClass(
+                      selectedRequest.payment_status,
+                    )}
+                  />
+                  <StatusBadge
+                    label={selectedRequest.registrar_status}
+                    className={registrarStatusClass(
+                      selectedRequest.registrar_status,
+                    )}
+                  />
+
+                  <button
+                    type="button"
+                    className="request-document-modal__close"
+                    onClick={() => setSelectedRequest(null)}
+                    aria-label="Close request details"
+                  >
+                    <X size={20} aria-hidden="true" />
+                  </button>
+                </div>
+              </div>
+
+              <div className="request-document-modal__body">
+                <section className="request-document-modal__section">
+                  <div className="request-document-modal__section-title">
+                    <ReceiptText size={18} aria-hidden="true" />
+                    <h3>Request Information</h3>
+                  </div>
+
+                  <div className="request-document-info-grid request-document-info-grid--modal">
+                    <InfoBox
+                      label="Request Number"
+                      value={selectedRequest.request_number}
+                    />
+                    <InfoBox
+                      label="Finance Ticket"
+                      value={selectedRequest.ticket_number || "Not generated"}
+                    />
+                    <InfoBox
+                      label="Academic Period"
+                      value={formatAcademicPeriod(
+                        selectedRequest.academic_period,
+                      )}
+                    />
+                    <InfoBox
+                      label="Copies"
+                      value={String(selectedRequest.copies)}
+                    />
+                    <InfoBox
+                      label="Amount Due"
+                      value={formatMoney(selectedRequest.amount_due)}
+                    />
+                    <InfoBox
+                      label="Amount Paid"
+                      value={formatMoney(selectedRequest.amount_paid)}
+                    />
+                    <InfoBox
+                      label="Payment Method"
+                      value={selectedRequest.payment_method || "—"}
+                    />
+                    <InfoBox
+                      label="Receipt Number"
+                      value={selectedRequest.receipt_number || "—"}
+                    />
+                  </div>
+
+                  <div className="request-document-purpose request-document-purpose--modal">
+                    <span>Purpose</span>
+                    <p>{selectedRequest.purpose || "—"}</p>
+                  </div>
+                </section>
+
+                <section className="request-document-modal__section">
+                  <div className="request-document-modal__section-title">
+                    <WalletCards size={18} aria-hidden="true" />
+                    <h3>Payment & Registrar Status</h3>
+                  </div>
+
+                  <div className="request-document-info-grid request-document-info-grid--modal">
+                    <InfoBox
+                      label="Payment Status"
+                      value={selectedRequest.payment_status}
+                    />
+                    <InfoBox
+                      label="Paid At"
+                      value={formatDate(selectedRequest.paid_at)}
+                    />
+                    <InfoBox
+                      label="Registrar Status"
+                      value={selectedRequest.registrar_status}
+                    />
+                    <InfoBox
+                      label="Processing Started"
+                      value={formatDate(selectedRequest.registrar_started_at)}
+                    />
+                    <InfoBox
+                      label="Completed At"
+                      value={formatDate(selectedRequest.registrar_completed_at)}
+                    />
+                  </div>
+
+                  {selectedRequest.cancellation_reason && (
+                    <div className="request-document-cancellation-note">
+                      <strong>Cancellation:</strong>{" "}
+                      {selectedRequest.cancellation_reason}
+                    </div>
+                  )}
+
+                  <RequestProgress
+                    paymentStatus={selectedRequest.payment_status}
+                    registrarStatus={selectedRequest.registrar_status}
+                  />
+                </section>
+              </div>
+
+              <div className="request-document-modal__footer">
+                <button
+                  type="button"
+                  className="request-document-modal__done"
+                  onClick={() => setSelectedRequest(null)}
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </main>
     </DashboardLayout>
   );
