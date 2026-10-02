@@ -599,6 +599,12 @@ export default function EnterGrades() {
 
   const [submittingId, setSubmittingId] = useState<number | null>(null);
 
+  const [submitStudent, setSubmitStudent] = useState<GradebookStudent | null>(
+    null,
+  );
+
+  const [submitModalError, setSubmitModalError] = useState("");
+
   const [studentSearch, setStudentSearch] = useState("");
 
   const [statusFilter, setStatusFilter] = useState("All");
@@ -1169,7 +1175,7 @@ export default function EnterGrades() {
     }
   };
 
-  const submitGrade = async (student: GradebookStudent) => {
+  const submitGrade = (student: GradebookStudent) => {
     if (!selectedOfferingId) {
       return;
     }
@@ -1202,31 +1208,62 @@ export default function EnterGrades() {
       return;
     }
 
-    const preview = calculateGradePreview(form);
+    setSubmitModalError("");
+    setSubmitStudent(student);
+  };
 
-    const outcomeLabel =
-      form.gradingOutcome === "NUMERIC"
-        ? "Numeric Grade"
-        : form.gradingOutcome === "INCOMPLETE"
-          ? "Incomplete"
-          : "Unofficial Drop";
+  const closeSubmitModal = () => {
+    if (
+      submitStudent &&
+      submittingId === submitStudent.enrollment_subject_id
+    ) {
+      return;
+    }
 
-    const confirmed = window.confirm(
-      `Submit the grade for ${student.student_number} - ${student.full_name}?\n\nOutcome: ${outcomeLabel}\nFinal Rating: ${
-        preview.finalRating !== null ? preview.finalRating.toFixed(2) : "—"
-      }\nResult: ${preview.remarks || "—"}${
-        form.gradingOutcome !== "NUMERIC"
-          ? `\nReason: ${form.outcomeReason.trim()}`
-          : ""
-      }\n\nAfter submission, Faculty cannot edit it unless the Program Head returns it.`,
-    );
+    setSubmitStudent(null);
+    setSubmitModalError("");
+  };
 
-    if (!confirmed) {
+  const confirmSubmitGrade = async () => {
+    if (!submitStudent || !selectedOfferingId) {
+      return;
+    }
+
+    const student = submitStudent;
+    const id = student.enrollment_subject_id;
+
+    if (!isEditable(student)) {
+      setSubmitStudent(null);
+      return;
+    }
+
+    const form = forms[id];
+
+    if (!form) {
+      setSubmitModalError("Grade form is unavailable.");
+      return;
+    }
+
+    const validationError = validateForSubmit(form);
+
+    if (validationError) {
+      setSubmitModalError(validationError);
+
+      setRowFeedback((current) => ({
+        ...current,
+
+        [id]: {
+          type: "error",
+          message: validationError,
+        },
+      }));
+
       return;
     }
 
     try {
       setSubmittingId(id);
+      setSubmitModalError("");
 
       setRowFeedback((current) => {
         const next = {
@@ -1282,9 +1319,19 @@ export default function EnterGrades() {
         },
       }));
 
+      setSubmitStudent(null);
+      setSubmitModalError("");
+
       setGradebookRefreshKey((current) => current + 1);
     } catch (requestError) {
       console.error("SUBMIT FACULTY GRADE ERROR:", requestError);
+
+      const message =
+        requestError instanceof Error
+          ? requestError.message
+          : "Unable to submit grade.";
+
+      setSubmitModalError(message);
 
       setRowFeedback((current) => ({
         ...current,
@@ -1292,16 +1339,31 @@ export default function EnterGrades() {
         [id]: {
           type: "error",
 
-          message:
-            requestError instanceof Error
-              ? requestError.message
-              : "Unable to submit grade.",
+          message,
         },
       }));
     } finally {
       setSubmittingId(null);
     }
   };
+
+  const submitModalForm = submitStudent
+    ? forms[submitStudent.enrollment_subject_id] ||
+      createGradeForm(submitStudent.grade)
+    : null;
+
+  const submitModalPreview = submitModalForm
+    ? calculateGradePreview(submitModalForm)
+    : null;
+
+  const submitModalOutcomeLabel =
+    submitModalForm?.gradingOutcome === "NUMERIC"
+      ? "Numeric Grade"
+      : submitModalForm?.gradingOutcome === "INCOMPLETE"
+        ? "Incomplete"
+        : submitModalForm?.gradingOutcome === "UNOFFICIAL_DROP"
+          ? "Unofficial Drop"
+          : "—";
 
   const openIncCompletion = (student: GradebookStudent) => {
     if (!isApprovedIncomplete(student)) {
@@ -2442,6 +2504,160 @@ export default function EnterGrades() {
               </article>
             </div>
           </section>
+        )}
+
+        {submitStudent && submitModalForm && submitModalPreview && (
+          <div
+            className="faculty-inc-modal-backdrop"
+            role="presentation"
+            onMouseDown={(event) => {
+              if (event.target === event.currentTarget) {
+                closeSubmitModal();
+              }
+            }}
+          >
+            <section
+              className="faculty-inc-modal"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="faculty-submit-grade-modal-title"
+            >
+              <header className="faculty-inc-modal__header">
+                <div>
+                  <span>Grade Submission</span>
+                  <h2 id="faculty-submit-grade-modal-title">
+                    Confirm Grade Submission
+                  </h2>
+                  <p>
+                    Review the grade details before sending this record to the
+                    Program Head.
+                  </p>
+                </div>
+
+                <button
+                  type="button"
+                  className="faculty-inc-modal__close"
+                  onClick={closeSubmitModal}
+                  disabled={
+                    submittingId === submitStudent.enrollment_subject_id
+                  }
+                  aria-label="Close grade submission modal"
+                >
+                  <X size={18} />
+                </button>
+              </header>
+
+              <div className="faculty-inc-modal__student">
+                <div>
+                  <small>Student</small>
+                  <strong>{submitStudent.full_name}</strong>
+                  <span>{submitStudent.student_number}</span>
+                </div>
+
+                <div>
+                  <small>Class</small>
+                  <strong>
+                    {selectedClass
+                      ? `${selectedClass.subject.subject_code} — ${selectedClass.section.section_name}`
+                      : "Selected Class"}
+                  </strong>
+                  <span>
+                    {selectedClass
+                      ? `${selectedClass.academic_period.academic_year} / ${selectedClass.academic_period.semester_name}`
+                      : "Current gradebook"}
+                  </span>
+                </div>
+              </div>
+
+              <div className="faculty-inc-modal__preview">
+                <div>
+                  <small>Outcome</small>
+                  <strong>{submitModalOutcomeLabel}</strong>
+                </div>
+
+                <div>
+                  <small>Final Rating</small>
+                  <strong>
+                    {submitModalPreview.finalRating !== null
+                      ? submitModalPreview.finalRating.toFixed(2)
+                      : "—"}
+                  </strong>
+                </div>
+
+                <div>
+                  <small>Result</small>
+                  <strong>{submitModalPreview.remarks || "—"}</strong>
+                </div>
+              </div>
+
+              {submitModalForm.gradingOutcome === "NUMERIC" ? (
+                <div className="faculty-inc-modal__student">
+                  <div>
+                    <small>Midterm Grade</small>
+                    <strong>{submitModalForm.midtermGrade || "—"}</strong>
+                    <span>Percentage grade</span>
+                  </div>
+
+                  <div>
+                    <small>Final Term Grade</small>
+                    <strong>{submitModalForm.finalGrade || "—"}</strong>
+                    <span>Percentage grade</span>
+                  </div>
+                </div>
+              ) : (
+                <div className="faculty-inc-modal__notice">
+                  <MessageSquareText size={17} />
+                  <p>
+                    <strong>Reason:</strong>{" "}
+                    {submitModalForm.outcomeReason.trim() ||
+                      "No reason provided."}
+                  </p>
+                </div>
+              )}
+
+              {submitModalError && (
+                <div className="faculty-inc-modal__error" role="alert">
+                  <AlertCircle size={16} />
+                  <span>{submitModalError}</span>
+                </div>
+              )}
+
+              <div className="faculty-inc-modal__notice">
+                <ShieldCheck size={17} />
+                <p>
+                  After submission, Faculty cannot edit this grade unless the
+                  Program Head returns it for correction.
+                </p>
+              </div>
+
+              <footer className="faculty-inc-modal__footer">
+                <button
+                  type="button"
+                  className="faculty-inc-modal__cancel"
+                  onClick={closeSubmitModal}
+                  disabled={
+                    submittingId === submitStudent.enrollment_subject_id
+                  }
+                >
+                  Cancel
+                </button>
+
+                <button
+                  type="button"
+                  className="faculty-inc-modal__submit"
+                  onClick={() => void confirmSubmitGrade()}
+                  disabled={
+                    submittingId === submitStudent.enrollment_subject_id
+                  }
+                >
+                  <Send size={15} />
+                  {submittingId === submitStudent.enrollment_subject_id
+                    ? "Submitting..."
+                    : "Submit Grade"}
+                </button>
+              </footer>
+            </section>
+          </div>
         )}
 
         {incStudent && (
