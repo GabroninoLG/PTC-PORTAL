@@ -3,10 +3,7 @@ import type { ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   AlertCircle,
-  CalendarDays,
   CheckCircle2,
-  ChevronDown,
-  ChevronUp,
   CircleDollarSign,
   Clock3,
   CreditCard,
@@ -16,6 +13,7 @@ import {
   RefreshCcw,
   Search,
   WalletCards,
+  X,
 } from "lucide-react";
 
 import DashboardLayout from "../../../components/Layout/DashboardLayout";
@@ -201,13 +199,6 @@ function getSourceLabel(source: string) {
     .replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 
-function getWorkflowLabel(workflowType: string) {
-  if (workflowType === "FINANCE_ONLY") return "Finance Transaction";
-  if (workflowType === "DOCUMENT_REQUEST") return "Document Request";
-  if (workflowType === "INCOMPLETE_GRADE") return "Incomplete Grade";
-  return workflowType;
-}
-
 interface SummaryCardProps {
   title: string;
   value: string | number;
@@ -267,9 +258,8 @@ export default function MyTransactions() {
   const [errorMessage, setErrorMessage] = useState("");
   const [searchText, setSearchText] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("All");
-  const [expandedTicketNumber, setExpandedTicketNumber] = useState<
-    string | null
-  >(null);
+  const [selectedTransaction, setSelectedTransaction] =
+    useState<StudentTransaction | null>(null);
 
   useEffect(() => {
     if (!isStudent) {
@@ -345,6 +335,28 @@ export default function MyTransactions() {
     void loadTransactions();
   }, [isStudent, loadTransactions]);
 
+  useEffect(() => {
+    if (!selectedTransaction) {
+      document.body.style.overflow = "";
+      return;
+    }
+
+    document.body.style.overflow = "hidden";
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setSelectedTransaction(null);
+      }
+    };
+
+    window.addEventListener("keydown", handleEscape);
+
+    return () => {
+      document.body.style.overflow = "";
+      window.removeEventListener("keydown", handleEscape);
+    };
+  }, [selectedTransaction]);
+
   const filteredTransactions = useMemo(() => {
     const normalizedSearch = searchText.trim().toLowerCase();
 
@@ -379,12 +391,6 @@ export default function MyTransactions() {
       return searchableText.includes(normalizedSearch);
     });
   }, [transactions, searchText, statusFilter]);
-
-  const toggleDetails = (ticketNumber: string) => {
-    setExpandedTicketNumber((current) =>
-      current === ticketNumber ? null : ticketNumber,
-    );
-  };
 
   if (!isStudent) return null;
 
@@ -545,261 +551,61 @@ export default function MyTransactions() {
         {!loading && filteredTransactions.length > 0 && (
           <section className="my-transactions__list">
             {filteredTransactions.map((item) => {
-              const isExpanded = expandedTicketNumber === item.ticket_number;
               const isFinanceOnly =
                 item.transaction.workflow_type === "FINANCE_ONLY";
-              const documentRequest = item.document_request;
-              const academicPeriod = documentRequest?.academic_period;
 
               return (
-                <article
-                  className="my-transactions__ticket"
+                <button
+                  type="button"
+                  className="my-transactions__transaction-card"
                   key={item.ticket_id}
+                  onClick={() => setSelectedTransaction(item)}
+                  aria-label={`View ${item.transaction.transaction_name} transaction details`}
                 >
-                  <div className="my-transactions__ticket-main">
-                    <div className="my-transactions__ticket-toprow">
-                      <div className="my-transactions__ticket-identity">
-                        <div
-                          className={`my-transactions__ticket-icon ${
-                            isFinanceOnly ? "is-finance" : "is-document"
-                          }`}
-                          aria-hidden="true"
-                        >
-                          {isFinanceOnly ? (
-                            <CreditCard size={22} />
-                          ) : (
-                            <FileText size={22} />
-                          )}
-                        </div>
-
-                        <div className="my-transactions__ticket-copy">
-                          <div className="my-transactions__ticket-title-row">
-                            <h3>{item.transaction.transaction_name}</h3>
-                            <span className="my-transactions__workflow-badge">
-                              {getWorkflowLabel(item.transaction.workflow_type)}
-                            </span>
-                          </div>
-
-                          <p className="my-transactions__ticket-number">
-                            Ticket: <strong>{item.ticket_number}</strong>
-                          </p>
-                          <p className="my-transactions__ticket-source">
-                            {getSourceLabel(item.source_type)}
-                          </p>
-                        </div>
-                      </div>
-
-                      <span
-                        className={`my-transactions__status-badge ${getPaymentStatusClass(
-                          item.payment.payment_status,
-                        )}`}
-                      >
-                        {item.payment.payment_status}
-                      </span>
-                    </div>
-
-                    <div className="my-transactions__main-details">
-                      <DetailItem
-                        label="Amount Due"
-                        value={formatMoney(item.payment.amount_due)}
-                      />
-                      <DetailItem
-                        label="Amount Paid"
-                        value={formatMoney(item.payment.amount_paid)}
-                      />
-                      <DetailItem
-                        label="Payment Method"
-                        value={item.payment.payment_method || "—"}
-                      />
-                      <DetailItem
-                        label="Created"
-                        value={formatDate(item.created_at)}
-                      />
-                    </div>
-
-                    {documentRequest && academicPeriod && (
-                      <div className="my-transactions__academic-period">
-                        <CalendarDays size={15} aria-hidden="true" />
-                        <span>
-                          {academicPeriod.academic_year || "—"} •{" "}
-                          {academicPeriod.semester_name || "—"}
-                        </span>
-                      </div>
+                  <div
+                    className={`my-transactions__transaction-card-icon ${
+                      isFinanceOnly ? "is-finance" : "is-document"
+                    }`}
+                    aria-hidden="true"
+                  >
+                    {isFinanceOnly ? (
+                      <CreditCard size={23} />
+                    ) : (
+                      <FileText size={23} />
                     )}
-
-                    {isFinanceOnly && (
-                      <div className="my-transactions__finance-note">
-                        <CreditCard size={16} aria-hidden="true" />
-                        <span>
-                          This is a Finance-only transaction. Registrar
-                          processing is not required.
-                        </span>
-                      </div>
-                    )}
-
-                    <button
-                      type="button"
-                      className="my-transactions__details-toggle"
-                      onClick={() => toggleDetails(item.ticket_number)}
-                      aria-expanded={isExpanded}
-                    >
-                      {isExpanded ? (
-                        <>
-                          <ChevronUp size={16} aria-hidden="true" />
-                          Hide Details
-                        </>
-                      ) : (
-                        <>
-                          <ChevronDown size={16} aria-hidden="true" />
-                          View Details
-                        </>
-                      )}
-                    </button>
                   </div>
 
-                  {isExpanded && (
-                    <div className="my-transactions__expanded">
-                      <div className="my-transactions__expanded-stack">
-                        <section className="my-transactions__detail-section">
-                          <div className="my-transactions__detail-heading">
-                            <ReceiptText size={17} aria-hidden="true" />
-                            <strong>Payment Details</strong>
-                          </div>
+                  <div className="my-transactions__transaction-card-content">
+                    <h3>{item.transaction.transaction_name}</h3>
+                    <p>
+                      {item.document_request?.requested_at
+                        ? `Requested ${formatDate(
+                            item.document_request.requested_at,
+                          )}`
+                        : `Created ${formatDate(item.created_at)}`}
+                    </p>
+                  </div>
 
-                          <div className="my-transactions__detail-grid">
-                            <DetailItem
-                              label="Ticket Number"
-                              value={item.ticket_number}
-                            />
-                            <DetailItem
-                              label="Transaction Code"
-                              value={item.transaction.transaction_code}
-                            />
-                            <DetailItem
-                              label="Payment Status"
-                              value={
-                                <span
-                                  className={`my-transactions__status-badge my-transactions__status-badge--compact ${getPaymentStatusClass(
-                                    item.payment.payment_status,
-                                  )}`}
-                                >
-                                  {item.payment.payment_status}
-                                </span>
-                              }
-                            />
-                            <DetailItem
-                              label="Receipt Number"
-                              value={item.payment.receipt_number || "—"}
-                            />
-                            <DetailItem
-                              label="Payment Method"
-                              value={item.payment.payment_method || "—"}
-                            />
-                            <DetailItem
-                              label="Paid At"
-                              value={formatDate(item.payment.paid_at)}
-                            />
-                          </div>
-                        </section>
+                  <div className="my-transactions__transaction-card-status">
+                    <span
+                      className={`my-transactions__status-badge ${getPaymentStatusClass(
+                        item.payment.payment_status,
+                      )}`}
+                    >
+                      {item.payment.payment_status}
+                    </span>
 
-                        {documentRequest && (
-                          <section className="my-transactions__detail-section my-transactions__detail-section--divided">
-                            <div className="my-transactions__detail-heading">
-                              <FileText size={17} aria-hidden="true" />
-                              <strong>Document Request</strong>
-                            </div>
-
-                            <div className="my-transactions__detail-grid">
-                              <DetailItem
-                                label="Request Number"
-                                value={documentRequest.request_number}
-                              />
-                              <DetailItem
-                                label="Document"
-                                value={documentRequest.document_type}
-                              />
-                              <DetailItem
-                                label="Copies"
-                                value={documentRequest.copies}
-                              />
-                              <DetailItem
-                                label="Purpose"
-                                value={documentRequest.purpose || "—"}
-                              />
-                              <DetailItem
-                                label="Academic Year"
-                                value={academicPeriod?.academic_year || "—"}
-                              />
-                              <DetailItem
-                                label="Semester"
-                                value={academicPeriod?.semester_name || "—"}
-                              />
-                              <DetailItem
-                                label="Requested At"
-                                value={formatDate(documentRequest.requested_at)}
-                              />
-                            </div>
-
-                            {documentRequest.cancellation_reason && (
-                              <div className="my-transactions__cancellation-note">
-                                <strong>Cancellation:</strong>{" "}
-                                {documentRequest.cancellation_reason}
-                              </div>
-                            )}
-                          </section>
-                        )}
-
-                        {!isFinanceOnly && (
-                          <section className="my-transactions__detail-section my-transactions__detail-section--divided">
-                            <div className="my-transactions__detail-heading">
-                              <GraduationCap size={18} aria-hidden="true" />
-                              <strong>Registrar Processing</strong>
-                            </div>
-
-                            <div className="my-transactions__detail-grid">
-                              <DetailItem
-                                label="Registrar Status"
-                                value={
-                                  <span
-                                    className={`my-transactions__registrar-badge ${getRegistrarStatusClass(
-                                      item.registrar.status,
-                                    )}`}
-                                  >
-                                    {item.registrar.status}
-                                  </span>
-                                }
-                              />
-                              <DetailItem
-                                label="Started"
-                                value={formatDate(item.registrar.started_at)}
-                              />
-                              <DetailItem
-                                label="Completed"
-                                value={formatDate(item.registrar.completed_at)}
-                              />
-                            </div>
-
-                            {item.registrar.remarks && (
-                              <div className="my-transactions__remarks-note">
-                                <strong>Registrar remarks:</strong>{" "}
-                                {item.registrar.remarks}
-                              </div>
-                            )}
-                          </section>
-                        )}
-
-                        {item.finance_remarks && (
-                          <section className="my-transactions__detail-section my-transactions__detail-section--divided">
-                            <DetailItem
-                              label="Finance Remarks"
-                              value={item.finance_remarks}
-                            />
-                          </section>
-                        )}
-                      </div>
-                    </div>
-                  )}
-                </article>
+                    {!isFinanceOnly && (
+                      <span
+                        className={`my-transactions__registrar-badge ${getRegistrarStatusClass(
+                          item.registrar.status,
+                        )}`}
+                      >
+                        {item.registrar.status}
+                      </span>
+                    )}
+                  </div>
+                </button>
               );
             })}
           </section>
@@ -821,6 +627,280 @@ export default function MyTransactions() {
             </div>
           </section>
         )}
+
+        {selectedTransaction && (() => {
+          const item = selectedTransaction;
+          const isFinanceOnly =
+            item.transaction.workflow_type === "FINANCE_ONLY";
+          const documentRequest = item.document_request;
+          const academicPeriod = documentRequest?.academic_period;
+
+          return (
+            <div
+              className="my-transactions__modal-overlay"
+              onMouseDown={(event) => {
+                if (event.target === event.currentTarget) {
+                  setSelectedTransaction(null);
+                }
+              }}
+            >
+              <div
+                className="my-transactions__modal"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="transaction-modal-title"
+              >
+                <div className="my-transactions__modal-header">
+                  <div className="my-transactions__modal-header-left">
+                    <div
+                      className={`my-transactions__modal-icon ${
+                        isFinanceOnly ? "is-finance" : "is-document"
+                      }`}
+                      aria-hidden="true"
+                    >
+                      {isFinanceOnly ? (
+                        <CreditCard size={23} />
+                      ) : (
+                        <FileText size={23} />
+                      )}
+                    </div>
+
+                    <div>
+                      <h2 id="transaction-modal-title">
+                        {item.transaction.transaction_name}
+                      </h2>
+                      <p>
+                        {documentRequest?.requested_at
+                          ? `Requested ${formatDate(documentRequest.requested_at)}`
+                          : `Created ${formatDate(item.created_at)}`}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="my-transactions__modal-header-actions">
+                    <span
+                      className={`my-transactions__status-badge ${getPaymentStatusClass(
+                        item.payment.payment_status,
+                      )}`}
+                    >
+                      {item.payment.payment_status}
+                    </span>
+
+                    {!isFinanceOnly && (
+                      <span
+                        className={`my-transactions__registrar-badge ${getRegistrarStatusClass(
+                          item.registrar.status,
+                        )}`}
+                      >
+                        {item.registrar.status}
+                      </span>
+                    )}
+
+                    <button
+                      type="button"
+                      className="my-transactions__modal-close"
+                      onClick={() => setSelectedTransaction(null)}
+                      aria-label="Close transaction details"
+                    >
+                      <X size={20} />
+                    </button>
+                  </div>
+                </div>
+
+                <div className="my-transactions__modal-body">
+                  <section className="my-transactions__modal-section">
+                    <div className="my-transactions__modal-section-title">
+                      <ReceiptText size={18} aria-hidden="true" />
+                      <h3>Transaction Information</h3>
+                    </div>
+
+                    <div className="my-transactions__modal-grid">
+                      {documentRequest && (
+                        <DetailItem
+                          label="Request Number"
+                          value={documentRequest.request_number}
+                        />
+                      )}
+
+                      <DetailItem
+                        label="Finance Ticket"
+                        value={item.ticket_number}
+                      />
+
+                      {academicPeriod && (
+                        <DetailItem
+                          label="Academic Period"
+                          value={`${academicPeriod.academic_year || "—"} — ${
+                            academicPeriod.semester_name || "—"
+                          }`}
+                        />
+                      )}
+
+                      {documentRequest && (
+                        <DetailItem
+                          label="Copies"
+                          value={documentRequest.copies}
+                        />
+                      )}
+
+                      <DetailItem
+                        label="Amount Due"
+                        value={formatMoney(item.payment.amount_due)}
+                      />
+
+                      <DetailItem
+                        label="Amount Paid"
+                        value={formatMoney(item.payment.amount_paid)}
+                      />
+
+                      <DetailItem
+                        label="Payment Method"
+                        value={item.payment.payment_method || "—"}
+                      />
+
+                      <DetailItem
+                        label="Receipt Number"
+                        value={item.payment.receipt_number || "—"}
+                      />
+
+                      <DetailItem
+                        label="Payment Status"
+                        value={
+                          <span
+                            className={`my-transactions__status-badge my-transactions__status-badge--compact ${getPaymentStatusClass(
+                              item.payment.payment_status,
+                            )}`}
+                          >
+                            {item.payment.payment_status}
+                          </span>
+                        }
+                      />
+
+                      <DetailItem
+                        label="Paid At"
+                        value={formatDate(item.payment.paid_at)}
+                      />
+
+                      <DetailItem
+                        label="Source"
+                        value={getSourceLabel(item.source_type)}
+                      />
+
+                      {!isFinanceOnly && (
+                        <DetailItem
+                          label="Registrar Status"
+                          value={
+                            <span
+                              className={`my-transactions__registrar-badge ${getRegistrarStatusClass(
+                                item.registrar.status,
+                              )}`}
+                            >
+                              {item.registrar.status}
+                            </span>
+                          }
+                        />
+                      )}
+                    </div>
+                  </section>
+
+                  {documentRequest && (
+                    <section className="my-transactions__modal-section">
+                      <div className="my-transactions__modal-section-title">
+                        <FileText size={18} aria-hidden="true" />
+                        <h3>Document Request</h3>
+                      </div>
+
+                      <div className="my-transactions__modal-grid">
+                        <DetailItem
+                          label="Document"
+                          value={documentRequest.document_type}
+                        />
+                        <DetailItem
+                          label="Requested At"
+                          value={formatDate(documentRequest.requested_at)}
+                        />
+                      </div>
+
+                      <div className="my-transactions__modal-purpose">
+                        <span>Purpose</span>
+                        <p>{documentRequest.purpose || "—"}</p>
+                      </div>
+
+                      {documentRequest.cancellation_reason && (
+                        <div className="my-transactions__cancellation-note">
+                          <strong>Cancellation:</strong>{" "}
+                          {documentRequest.cancellation_reason}
+                        </div>
+                      )}
+                    </section>
+                  )}
+
+                  {!isFinanceOnly && (
+                    <section className="my-transactions__modal-section">
+                      <div className="my-transactions__modal-section-title">
+                        <GraduationCap size={18} aria-hidden="true" />
+                        <h3>Registrar Processing</h3>
+                      </div>
+
+                      <div className="my-transactions__modal-grid">
+                        <DetailItem
+                          label="Status"
+                          value={
+                            <span
+                              className={`my-transactions__registrar-badge ${getRegistrarStatusClass(
+                                item.registrar.status,
+                              )}`}
+                            >
+                              {item.registrar.status}
+                            </span>
+                          }
+                        />
+                        <DetailItem
+                          label="Processing Started"
+                          value={formatDate(item.registrar.started_at)}
+                        />
+                        <DetailItem
+                          label="Completed"
+                          value={formatDate(item.registrar.completed_at)}
+                        />
+                      </div>
+
+                      {item.registrar.remarks && (
+                        <div className="my-transactions__remarks-note">
+                          <strong>Registrar Remarks:</strong>{" "}
+                          {item.registrar.remarks}
+                        </div>
+                      )}
+                    </section>
+                  )}
+
+                  {item.finance_remarks && (
+                    <section className="my-transactions__modal-section">
+                      <div className="my-transactions__modal-section-title">
+                        <CreditCard size={18} aria-hidden="true" />
+                        <h3>Finance Remarks</h3>
+                      </div>
+
+                      <div className="my-transactions__remarks-note">
+                        {item.finance_remarks}
+                      </div>
+                    </section>
+                  )}
+                </div>
+
+                <div className="my-transactions__modal-footer">
+                  <button
+                    type="button"
+                    className="my-transactions__modal-done"
+                    onClick={() => setSelectedTransaction(null)}
+                  >
+                    Close
+                  </button>
+                </div>
+              </div>
+            </div>
+          );
+        })()}
       </main>
     </DashboardLayout>
   );

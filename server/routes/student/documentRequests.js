@@ -51,15 +51,17 @@ function publicNumber(prefix, documentType, year, id) {
 //
 // GET /api/student/document-requests
 //
-// Returns:
-// - Student's existing document requests
-// - Student's APPROVED enrollment periods available for
-//   COR / COG requests
+// IMPORTANT:
+// Request Document only shows ACTIVE requests.
 //
-// Parent route:
-// /api/student
-//   -> authenticate
-//   -> requireRole("Student")
+// Visible here:
+// - Pending
+// - Ready for Processing
+// - Processing
+//
+// Hidden here and moved to My Transactions:
+// - Done
+// - Cancelled
 // ============================================================
 
 router.get("/", async (req, res) => {
@@ -92,19 +94,19 @@ router.get("/", async (req, res) => {
 
     const [studentRows] = await db.execute(
       `
-          SELECT
-            s.student_id,
-            s.student_number,
-            s.first_name,
-            s.middle_name,
-            s.last_name
+        SELECT
+          s.student_id,
+          s.student_number,
+          s.first_name,
+          s.middle_name,
+          s.last_name
 
-          FROM students s
+        FROM students s
 
-          WHERE s.user_id = ?
+        WHERE s.user_id = ?
 
-          LIMIT 1
-        `,
+        LIMIT 1
+      `,
       [userId],
     );
 
@@ -117,49 +119,43 @@ router.get("/", async (req, res) => {
     }
 
     const student = studentRows[0];
-
     const studentId = Number(student.student_id);
 
     // ========================================================
     // AVAILABLE APPROVED ENROLLMENTS
-    //
-    // Only official Approved enrollments can be requested
-    // as COR / COG academic periods.
     // ========================================================
 
     const [availableEnrollmentRows] = await db.execute(
       `
-          SELECT
-            e.enrollment_id,
+        SELECT
+          e.enrollment_id,
 
-            e.academic_year_id,
-            ay.academic_year,
+          e.academic_year_id,
+          ay.academic_year,
 
-            e.semester_id,
-            sem.semester_name,
+          e.semester_id,
+          sem.semester_name,
 
-            e.enrollment_status,
+          e.enrollment_status,
 
-            e.approved_at
+          e.approved_at
 
-          FROM enrollments e
+        FROM enrollments e
 
-          INNER JOIN academic_years ay
-            ON ay.academic_year_id =
-               e.academic_year_id
+        INNER JOIN academic_years ay
+          ON ay.academic_year_id = e.academic_year_id
 
-          INNER JOIN semesters sem
-            ON sem.semester_id =
-               e.semester_id
+        INNER JOIN semesters sem
+          ON sem.semester_id = e.semester_id
 
-          WHERE e.student_id = ?
-            AND e.enrollment_status = 'Approved'
+        WHERE e.student_id = ?
+          AND e.enrollment_status = 'Approved'
 
-          ORDER BY
-            e.academic_year_id DESC,
-            e.semester_id DESC,
-            e.enrollment_id DESC
-        `,
+        ORDER BY
+          e.academic_year_id DESC,
+          e.semester_id DESC,
+          e.enrollment_id DESC
+      `,
       [studentId],
     );
 
@@ -180,81 +176,80 @@ router.get("/", async (req, res) => {
     }));
 
     // ========================================================
-    // EXISTING REQUESTS
+    // LOAD ACTIVE DOCUMENT REQUESTS ONLY
     //
-    // LEFT JOIN enrollment period because legacy document
-    // requests may have enrollment_id = NULL.
+    // Done and Cancelled are considered finished transactions,
+    // so they no longer appear on Request Document.
     // ========================================================
 
     const [rows] = await db.execute(
       `
-          SELECT
-            sdr.request_id,
-            sdr.request_number,
+        SELECT
+          sdr.request_id,
+          sdr.request_number,
 
-            sdr.student_id,
+          sdr.student_id,
 
-            sdr.enrollment_id,
+          sdr.enrollment_id,
 
-            ay.academic_year_id,
-            ay.academic_year,
+          ay.academic_year_id,
+          ay.academic_year,
 
-            sem.semester_id,
-            sem.semester_name,
+          sem.semester_id,
+          sem.semester_name,
 
-            e.enrollment_status,
+          e.enrollment_status,
 
-            sdr.document_type,
-            sdr.purpose,
-            sdr.copies,
+          sdr.document_type,
+          sdr.purpose,
+          sdr.copies,
 
-            sdr.requested_at,
-            sdr.cancelled_at,
-            sdr.cancellation_reason,
+          sdr.requested_at,
+          sdr.cancelled_at,
+          sdr.cancellation_reason,
 
-            ft.ticket_id,
-            ft.ticket_number,
+          ft.ticket_id,
+          ft.ticket_number,
 
-            ft.amount_due,
-            ft.amount_paid,
+          ft.amount_due,
+          ft.amount_paid,
 
-            ft.payment_method,
-            ft.receipt_number,
+          ft.payment_method,
+          ft.receipt_number,
 
-            ft.payment_status,
-            ft.registrar_status,
+          ft.payment_status,
+          ft.registrar_status,
 
-            ft.paid_at,
+          ft.paid_at,
 
-            ft.registrar_started_at,
-            ft.registrar_completed_at,
+          ft.registrar_started_at,
+          ft.registrar_completed_at,
 
-            ft.created_at
-              AS ticket_created_at
+          ft.created_at AS ticket_created_at
 
-          FROM student_document_requests sdr
+        FROM student_document_requests sdr
 
-          INNER JOIN finance_tickets ft
-            ON ft.document_request_id =
-               sdr.request_id
+        INNER JOIN finance_tickets ft
+          ON ft.document_request_id = sdr.request_id
 
-          LEFT JOIN enrollments e
-            ON e.enrollment_id =
-               sdr.enrollment_id
+        LEFT JOIN enrollments e
+          ON e.enrollment_id = sdr.enrollment_id
 
-          LEFT JOIN academic_years ay
-            ON ay.academic_year_id =
-               e.academic_year_id
+        LEFT JOIN academic_years ay
+          ON ay.academic_year_id = e.academic_year_id
 
-          LEFT JOIN semesters sem
-            ON sem.semester_id =
-               e.semester_id
+        LEFT JOIN semesters sem
+          ON sem.semester_id = e.semester_id
 
-          WHERE sdr.student_id = ?
+        WHERE sdr.student_id = ?
 
-          ORDER BY
-            sdr.request_id DESC
-        `,
+          AND ft.registrar_status NOT IN ('Done', 'Cancelled')
+
+          AND ft.payment_status <> 'Cancelled'
+
+        ORDER BY
+          sdr.request_id DESC
+      `,
       [studentId],
     );
 
@@ -275,7 +270,9 @@ router.get("/", async (req, res) => {
 
             academic_year: row.academic_year || null,
 
-            semester_id: row.semester_id ? Number(row.semester_id) : null,
+            semester_id: row.semester_id
+              ? Number(row.semester_id)
+              : null,
 
             semester_name: row.semester_name || null,
 
@@ -357,7 +354,10 @@ router.get("/", async (req, res) => {
 
       message: "Failed to load document requests.",
 
-      error: process.env.NODE_ENV === "development" ? error.message : undefined,
+      error:
+        process.env.NODE_ENV === "development"
+          ? error.message
+          : undefined,
     });
   }
 });
@@ -368,21 +368,12 @@ router.get("/", async (req, res) => {
 // POST /api/student/document-requests
 //
 // Body:
-//
 // {
 //   "document_type": "COR" | "COG",
 //   "enrollment_id": 4,
 //   "purpose": "Optional purpose",
 //   "copies": 1
 // }
-//
-// IMPORTANT:
-// - Student identity comes ONLY from req.user.
-// - Frontend never sends student_id / user_id.
-// - enrollment_id MUST belong to authenticated Student.
-// - enrollment MUST be Approved.
-// - Document request + Finance ticket created atomically.
-// - One request creates exactly one Finance ticket.
 // ============================================================
 
 router.post("/", async (req, res) => {
@@ -468,7 +459,8 @@ router.post("/", async (req, res) => {
 
       code: "INVALID_COPY_COUNT",
 
-      message: "Copies must be a whole number greater than or equal to 1.",
+      message:
+        "Copies must be a whole number greater than or equal to 1.",
     });
   }
 
@@ -485,22 +477,22 @@ router.post("/", async (req, res) => {
 
     const [studentRows] = await connection.execute(
       `
-          SELECT
-            s.student_id,
-            s.student_number,
+        SELECT
+          s.student_id,
+          s.student_number,
 
-            s.first_name,
-            s.middle_name,
-            s.last_name
+          s.first_name,
+          s.middle_name,
+          s.last_name
 
-          FROM students s
+        FROM students s
 
-          WHERE s.user_id = ?
+        WHERE s.user_id = ?
 
-          LIMIT 1
+        LIMIT 1
 
-          FOR UPDATE
-        `,
+        FOR UPDATE
+      `,
       [userId],
     );
 
@@ -512,7 +504,8 @@ router.post("/", async (req, res) => {
 
         code: "STUDENT_PROFILE_NOT_FOUND",
 
-        message: "No Student profile is connected to this account.",
+        message:
+          "No Student profile is connected to this account.",
       });
     }
 
@@ -522,52 +515,40 @@ router.post("/", async (req, res) => {
 
     // ========================================================
     // 2. VALIDATE REQUESTED ENROLLMENT
-    //
-    // CRITICAL:
-    //
-    // We do not trust enrollment_id just because it came from
-    // the frontend.
-    //
-    // It must:
-    // - exist
-    // - belong to this authenticated Student
-    // - be officially Approved
     // ========================================================
 
     const [enrollmentRows] = await connection.execute(
       `
-          SELECT
-            e.enrollment_id,
-            e.student_id,
+        SELECT
+          e.enrollment_id,
+          e.student_id,
 
-            e.academic_year_id,
-            ay.academic_year,
+          e.academic_year_id,
+          ay.academic_year,
 
-            e.semester_id,
-            sem.semester_name,
+          e.semester_id,
+          sem.semester_name,
 
-            e.enrollment_status,
+          e.enrollment_status,
 
-            e.approved_by,
-            e.approved_at
+          e.approved_by,
+          e.approved_at
 
-          FROM enrollments e
+        FROM enrollments e
 
-          INNER JOIN academic_years ay
-            ON ay.academic_year_id =
-               e.academic_year_id
+        INNER JOIN academic_years ay
+          ON ay.academic_year_id = e.academic_year_id
 
-          INNER JOIN semesters sem
-            ON sem.semester_id =
-               e.semester_id
+        INNER JOIN semesters sem
+          ON sem.semester_id = e.semester_id
 
-          WHERE e.enrollment_id = ?
-            AND e.student_id = ?
+        WHERE e.enrollment_id = ?
+          AND e.student_id = ?
 
-          LIMIT 1
+        LIMIT 1
 
-          FOR UPDATE
-        `,
+        FOR UPDATE
+      `,
       [enrollmentId, studentId],
     );
 
@@ -611,19 +592,19 @@ router.post("/", async (req, res) => {
 
     const [typeRows] = await connection.execute(
       `
-          SELECT
-            transaction_type_id,
-            transaction_code,
-            transaction_name,
-            default_amount
+        SELECT
+          transaction_type_id,
+          transaction_code,
+          transaction_name,
+          default_amount
 
-          FROM finance_transaction_types
+        FROM finance_transaction_types
 
-          WHERE transaction_code = ?
-            AND is_active = 1
+        WHERE transaction_code = ?
+          AND is_active = 1
 
-          LIMIT 1
-        `,
+        LIMIT 1
+      `,
       [documentType],
     );
 
@@ -635,7 +616,8 @@ router.post("/", async (req, res) => {
 
         code: "TRANSACTION_TYPE_UNAVAILABLE",
 
-        message: `${documentType} requests are currently unavailable.`,
+        message:
+          `${documentType} requests are currently unavailable.`,
       });
     }
 
@@ -644,81 +626,70 @@ router.post("/", async (req, res) => {
     // ========================================================
     // 4. PREVENT DUPLICATE ACTIVE REQUEST
     //
-    // New behavior:
-    //
-    // Same Student + same document type + same enrollment
-    // cannot have two active requests.
-    //
-    // Different approved academic periods may have separate
-    // requests.
-    //
-    // Legacy active request with enrollment_id = NULL also
-    // blocks creation because its period is unknown.
+    // Done / Cancelled no longer count as active requests.
     // ========================================================
 
     const [activeRows] = await connection.execute(
       `
-          SELECT
-            sdr.request_id,
-            sdr.request_number,
+        SELECT
+          sdr.request_id,
+          sdr.request_number,
 
-            sdr.enrollment_id,
+          sdr.enrollment_id,
 
-            ay.academic_year,
-            sem.semester_name,
+          ay.academic_year,
+          sem.semester_name,
 
-            ft.ticket_number,
+          ft.ticket_number,
 
-            ft.payment_status,
-            ft.registrar_status
+          ft.payment_status,
+          ft.registrar_status
 
-          FROM student_document_requests sdr
+        FROM student_document_requests sdr
 
-          INNER JOIN finance_tickets ft
-            ON ft.document_request_id =
-               sdr.request_id
+        INNER JOIN finance_tickets ft
+          ON ft.document_request_id = sdr.request_id
 
-          LEFT JOIN enrollments existing_enrollment
-            ON existing_enrollment.enrollment_id =
-               sdr.enrollment_id
+        LEFT JOIN enrollments existing_enrollment
+          ON existing_enrollment.enrollment_id =
+             sdr.enrollment_id
 
-          LEFT JOIN academic_years ay
-            ON ay.academic_year_id =
-               existing_enrollment.academic_year_id
+        LEFT JOIN academic_years ay
+          ON ay.academic_year_id =
+             existing_enrollment.academic_year_id
 
-          LEFT JOIN semesters sem
-            ON sem.semester_id =
-               existing_enrollment.semester_id
+        LEFT JOIN semesters sem
+          ON sem.semester_id =
+             existing_enrollment.semester_id
 
-          WHERE sdr.student_id = ?
+        WHERE sdr.student_id = ?
 
-            AND sdr.document_type = ?
+          AND sdr.document_type = ?
 
-            AND (
-              sdr.enrollment_id = ?
-              OR sdr.enrollment_id IS NULL
-            )
+          AND (
+            sdr.enrollment_id = ?
+            OR sdr.enrollment_id IS NULL
+          )
 
-            AND sdr.cancelled_at IS NULL
+          AND sdr.cancelled_at IS NULL
 
-            AND ft.payment_status NOT IN (
-              'Cancelled',
-              'Refunded'
-            )
+          AND ft.payment_status NOT IN (
+            'Cancelled',
+            'Refunded'
+          )
 
-            AND ft.registrar_status NOT IN (
-              'Done',
-              'Rejected',
-              'Cancelled'
-            )
+          AND ft.registrar_status NOT IN (
+            'Done',
+            'Cancelled'
+          )
 
-          ORDER BY
-            sdr.request_id DESC
+        ORDER BY
+          sdr.request_id DESC
 
-          LIMIT 1
+        LIMIT 1
 
-          FOR UPDATE
-        `,
+        FOR UPDATE
+      `,
       [studentId, documentType, enrollmentId],
     );
 
@@ -760,29 +731,25 @@ router.post("/", async (req, res) => {
 
     // ========================================================
     // 5. CREATE STUDENT DOCUMENT REQUEST
-    //
-    // request_number is NOT NULL.
-    //
-    // Create with unique temporary number first, then replace
-    // it after insertId becomes available.
     // ========================================================
 
-    const tempRequestNumber = temporaryRequestNumber(documentType);
+    const tempRequestNumber =
+      temporaryRequestNumber(documentType);
 
     const [requestResult] = await connection.execute(
       `
-          INSERT INTO student_document_requests
-          (
-            request_number,
-            student_id,
-            enrollment_id,
-            document_type,
-            purpose,
-            copies
-          )
+        INSERT INTO student_document_requests
+        (
+          request_number,
+          student_id,
+          enrollment_id,
+          document_type,
+          purpose,
+          copies
+        )
 
-          VALUES (?, ?, ?, ?, ?, ?)
-        `,
+        VALUES (?, ?, ?, ?, ?, ?)
+      `,
       [
         tempRequestNumber,
         studentId,
@@ -797,7 +764,12 @@ router.post("/", async (req, res) => {
 
     const year = new Date().getFullYear();
 
-    const requestNumber = publicNumber("REQ", documentType, year, requestId);
+    const requestNumber = publicNumber(
+      "REQ",
+      documentType,
+      year,
+      requestId,
+    );
 
     await connection.execute(
       `
@@ -811,10 +783,15 @@ router.post("/", async (req, res) => {
     );
 
     // ========================================================
-    // 6. CREATE EXACTLY ONE FINANCE TICKET
+    // 6. CREATE FINANCE TICKET
     // ========================================================
 
-    const ticketNumber = publicNumber("FIN", documentType, year, requestId);
+    const ticketNumber = publicNumber(
+      "FIN",
+      documentType,
+      year,
+      requestId,
+    );
 
     const amountDue =
       transactionType.default_amount === null ||
@@ -824,40 +801,40 @@ router.post("/", async (req, res) => {
 
     const [ticketResult] = await connection.execute(
       `
-         INSERT INTO finance_tickets
-(
-  ticket_number,
-  student_id,
+        INSERT INTO finance_tickets
+        (
+          ticket_number,
+          student_id,
 
-  transaction_type_id,
-  document_request_id,
+          transaction_type_id,
+          document_request_id,
 
-  grade_id,
-  source_type,
+          grade_id,
+          source_type,
 
-  amount_due,
-  amount_paid,
+          amount_due,
+          amount_paid,
 
-  payment_status,
-  registrar_status,
+          payment_status,
+          registrar_status,
 
-  created_by
-)
+          created_by
+        )
 
-VALUES (
-  ?,
-  ?,
-  ?,
-  ?,
-  NULL,
-  'STUDENT_REQUEST',
-  ?,
-  0.00,
-  'Pending Payment',
-  'Pending',
-  ?
-)
-        `,
+        VALUES (
+          ?,
+          ?,
+          ?,
+          ?,
+          NULL,
+          'STUDENT_REQUEST',
+          ?,
+          0.00,
+          'Pending Payment',
+          'Pending',
+          ?
+        )
+      `,
       [
         ticketNumber,
         studentId,
@@ -897,7 +874,8 @@ VALUES (
 
       code: "DOCUMENT_REQUEST_CREATED",
 
-      message: `${documentType} request for ${enrollment.academic_year} — ${enrollment.semester_name} created successfully. Present the Finance ticket to the Cashier for payment.`,
+      message:
+        `${documentType} request for ${enrollment.academic_year} — ${enrollment.semester_name} created successfully. Present the Finance ticket to the Cashier for payment.`,
 
       request: {
         request_id: requestId,
@@ -909,7 +887,9 @@ VALUES (
         enrollment_id: enrollmentId,
 
         academic_period: {
-          academic_year_id: Number(enrollment.academic_year_id),
+          academic_year_id: Number(
+            enrollment.academic_year_id,
+          ),
 
           academic_year: enrollment.academic_year,
 
@@ -917,7 +897,8 @@ VALUES (
 
           semester_name: enrollment.semester_name,
 
-          enrollment_status: enrollment.enrollment_status,
+          enrollment_status:
+            enrollment.enrollment_status,
         },
 
         purpose,
@@ -950,28 +931,34 @@ VALUES (
       },
     });
   } catch (error) {
-    // ========================================================
-    // ROLLBACK
-    // ========================================================
-
     if (connection) {
       try {
         await connection.rollback();
       } catch (rollbackError) {
-        console.error("CREATE DOCUMENT REQUEST ROLLBACK ERROR:", rollbackError);
+        console.error(
+          "CREATE DOCUMENT REQUEST ROLLBACK ERROR:",
+          rollbackError,
+        );
       }
     }
 
-    console.error("CREATE STUDENT DOCUMENT REQUEST ERROR:", error);
+    console.error(
+      "CREATE STUDENT DOCUMENT REQUEST ERROR:",
+      error,
+    );
 
     return res.status(500).json({
       success: false,
 
       code: "DOCUMENT_REQUEST_CREATE_FAILED",
 
-      message: "Failed to create the document request and Finance ticket.",
+      message:
+        "Failed to create the document request and Finance ticket.",
 
-      error: process.env.NODE_ENV === "development" ? error.message : undefined,
+      error:
+        process.env.NODE_ENV === "development"
+          ? error.message
+          : undefined,
     });
   } finally {
     if (connection) {
