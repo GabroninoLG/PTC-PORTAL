@@ -3,25 +3,23 @@ import type { FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   CheckCircle2,
+  ClipboardList,
   Clock3,
   FileText,
+  GraduationCap,
   Loader2,
   ReceiptText,
-  RefreshCcw,
+  RefreshCw,
   Send,
   WalletCards,
   X,
 } from "lucide-react";
-
 import DashboardLayout from "../../../components/Layout/DashboardLayout";
 import { authService } from "../../../services/auth.service";
-import { apiUrl } from "../../../services/api";
 import "../../../styles/StudentRequestDocument.css";
-
-const DOCUMENT_REQUEST_API = apiUrl("/api/student/document-requests");
-
+const DOCUMENT_REQUEST_API =
+  "http://localhost:3000/api/student/document-requests";
 type DocumentType = "COR" | "COG";
-
 interface AcademicPeriod {
   academic_year_id: number | null;
   academic_year: string | null;
@@ -29,7 +27,6 @@ interface AcademicPeriod {
   semester_name: string | null;
   enrollment_status: string | null;
 }
-
 interface AvailableEnrollment {
   enrollment_id: number;
   academic_year_id: number;
@@ -39,13 +36,11 @@ interface AvailableEnrollment {
   enrollment_status: string;
   approved_at: string | null;
 }
-
 interface StudentSummary {
   student_id: number;
   student_number: string;
   student_name: string;
 }
-
 interface DocumentRequest {
   request_id: number;
   request_number: string;
@@ -71,7 +66,6 @@ interface DocumentRequest {
   registrar_completed_at: string | null;
   ticket_created_at: string | null;
 }
-
 interface RequestsResponse {
   success?: boolean;
   code?: string;
@@ -80,7 +74,6 @@ interface RequestsResponse {
   available_enrollments?: AvailableEnrollment[];
   requests?: DocumentRequest[];
 }
-
 interface CreateRequestResponse {
   success?: boolean;
   code?: string;
@@ -111,18 +104,14 @@ interface CreateRequestResponse {
   };
   student?: StudentSummary;
 }
-
 function formatDate(value: string | null | undefined) {
   if (!value) {
     return "—";
   }
-
   const date = new Date(value);
-
   if (Number.isNaN(date.getTime())) {
     return value;
   }
-
   return date.toLocaleString("en-PH", {
     timeZone: "Asia/Manila",
     year: "numeric",
@@ -132,25 +121,20 @@ function formatDate(value: string | null | undefined) {
     minute: "2-digit",
   });
 }
-
 function formatMoney(value: number | string | null | undefined) {
   if (value === null || value === undefined || value === "") {
     return "Not assigned yet";
   }
-
   const amount = Number(value);
-
   if (!Number.isFinite(amount)) {
     return String(value);
   }
-
   return new Intl.NumberFormat("en-PH", {
     style: "currency",
     currency: "PHP",
     minimumFractionDigits: 2,
   }).format(amount);
 }
-
 function formatAcademicPeriod(
   period:
     | Pick<AvailableEnrollment, "academic_year" | "semester_name">
@@ -161,53 +145,41 @@ function formatAcademicPeriod(
   if (!period?.academic_year || !period?.semester_name) {
     return "Not recorded (legacy request)";
   }
-
   return `${period.academic_year} — ${period.semester_name}`;
 }
-
 function paymentStatusClass(status: string) {
   if (status === "Paid") {
     return "document-status document-status--success";
   }
-
   if (status === "Pending Payment") {
     return "document-status document-status--warning";
   }
-
   if (status === "Cancelled" || status === "Refunded") {
     return "document-status document-status--danger";
   }
-
   return "document-status document-status--neutral";
 }
-
 function registrarStatusClass(status: string) {
   if (status === "Done") {
     return "document-status document-status--success";
   }
-
   if (status === "Processing") {
     return "document-status document-status--info";
   }
-
   if (status === "Ready for Processing") {
     return "document-status document-status--purple";
   }
-
   if (status === "Rejected" || status === "Cancelled") {
     return "document-status document-status--danger";
   }
-
   return "document-status document-status--neutral";
 }
-
 export default function RequestDocument() {
   const navigate = useNavigate();
   const session = authService.getSession();
   const token = authService.getToken();
   const role = session?.role ?? null;
   const isStudent = role === "Student" && Boolean(token);
-
   const [documentType, setDocumentType] = useState<DocumentType>("COR");
   const [availableEnrollments, setAvailableEnrollments] = useState<
     AvailableEnrollment[]
@@ -226,7 +198,6 @@ export default function RequestDocument() {
     useState<CreateRequestResponse | null>(null);
   const [selectedRequest, setSelectedRequest] =
     useState<DocumentRequest | null>(null);
-
   useEffect(() => {
     if (!isStudent) {
       navigate("/login", {
@@ -234,15 +205,12 @@ export default function RequestDocument() {
       });
     }
   }, [isStudent, navigate]);
-
   const loadRequests = useCallback(async () => {
     if (!isStudent) {
       return;
     }
-
     setLoading(true);
     setErrorMessage("");
-
     try {
       const response = await authService.authFetch(DOCUMENT_REQUEST_API, {
         method: "GET",
@@ -250,7 +218,6 @@ export default function RequestDocument() {
           Accept: "application/json",
         },
       });
-
       if (response.status === 401) {
         authService.logout();
         navigate("/login", {
@@ -258,26 +225,20 @@ export default function RequestDocument() {
         });
         return;
       }
-
       if (response.status === 403) {
         navigate("/login", {
           replace: true,
         });
         return;
       }
-
       const data = (await response.json()) as RequestsResponse;
-
       if (!response.ok || !data.success) {
         throw new Error(data.message || "Unable to load document requests.");
       }
-
       const loadedEnrollments = Array.isArray(data.available_enrollments)
         ? data.available_enrollments
         : [];
-
       setAvailableEnrollments(loadedEnrollments);
-
       setSelectedEnrollmentId((currentEnrollmentId) => {
         if (
           currentEnrollmentId &&
@@ -288,10 +249,8 @@ export default function RequestDocument() {
         ) {
           return currentEnrollmentId;
         }
-
         return null;
       });
-
       setRequests(Array.isArray(data.requests) ? data.requests : []);
     } catch (error) {
       console.error("LOAD DOCUMENT REQUESTS ERROR:", error);
@@ -304,75 +263,59 @@ export default function RequestDocument() {
       setLoading(false);
     }
   }, [isStudent, navigate]);
-
   useEffect(() => {
     if (!isStudent) {
       return;
     }
-
     void loadRequests();
   }, [isStudent, loadRequests]);
-
   useEffect(() => {
     if (!selectedRequest) {
       document.body.style.overflow = "";
       return;
     }
-
     document.body.style.overflow = "hidden";
-
     const handleEscape = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         setSelectedRequest(null);
       }
     };
-
     window.addEventListener("keydown", handleEscape);
-
     return () => {
       document.body.style.overflow = "";
       window.removeEventListener("keydown", handleEscape);
     };
   }, [selectedRequest]);
-
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-
     if (submitting) {
       return;
     }
-
     setErrorMessage("");
     setSuccessMessage("");
     setCreatedRequest(null);
-
     if (!selectedEnrollmentId) {
       setErrorMessage(
         "Please select the academic year and semester for this document request.",
       );
       return;
     }
-
     const selectedEnrollmentExists = availableEnrollments.some(
       (enrollment) =>
         Number(enrollment.enrollment_id) === Number(selectedEnrollmentId),
     );
-
     if (!selectedEnrollmentExists) {
       setErrorMessage(
         "The selected academic period is no longer available. Refresh the page and choose again.",
       );
       return;
     }
-
     if (!Number.isInteger(copies) || copies < 1) {
       setErrorMessage("Copies must be at least 1.");
       return;
     }
-
     try {
       setSubmitting(true);
-
       const response = await authService.authFetch(DOCUMENT_REQUEST_API, {
         method: "POST",
         headers: {
@@ -386,7 +329,6 @@ export default function RequestDocument() {
           copies,
         }),
       });
-
       if (response.status === 401) {
         authService.logout();
         navigate("/login", {
@@ -394,16 +336,13 @@ export default function RequestDocument() {
         });
         return;
       }
-
       if (response.status === 403) {
         navigate("/login", {
           replace: true,
         });
         return;
       }
-
       const data = (await response.json()) as CreateRequestResponse;
-
       if (!response.ok || !data.success) {
         if (data.code === "ACTIVE_DOCUMENT_REQUEST_EXISTS") {
           throw new Error(
@@ -411,10 +350,8 @@ export default function RequestDocument() {
               `You already have an active ${documentType} request.`,
           );
         }
-
         throw new Error(data.message || "Unable to create document request.");
       }
-
       setCreatedRequest(data);
       setSuccessMessage(
         data.message || `${documentType} request created successfully.`,
@@ -434,11 +371,12 @@ export default function RequestDocument() {
       setSubmitting(false);
     }
   };
-
+  const handleRefresh = () => {
+    void loadRequests();
+  };
   if (!isStudent) {
     return null;
   }
-
   return (
     <DashboardLayout>
       <main className="request-document-page">
@@ -446,49 +384,48 @@ export default function RequestDocument() {
           <div className="request-document-hero__content">
             <div className="request-document-kicker">
               <span className="request-document-kicker__icon">
-                <FileText size={17} aria-hidden="true" />
+                <FileText size={16} aria-hidden="true" />
               </span>
-              <span>Student Documents</span>
+              <span>Student · Documents</span>
             </div>
-
-            <h1>Request a Document</h1>
+            <h1>Request Document</h1>
             <p>
-              Request your Certificate of Registration or Certificate of Grades
-              and track the Finance and Registrar status from this page.
+              Request your Certificate of Registration or Certificate of Grades,
+              then track payment and Registrar processing from one place.
             </p>
           </div>
-
-          <div className="request-document-hero__icon" aria-hidden="true">
-            <ReceiptText size={34} />
-          </div>
+          <button
+            type="button"
+            className="request-document-refresh"
+            onClick={handleRefresh}
+          >
+            <RefreshCw size={16} />
+            <span>Refresh</span>
+          </button>
         </section>
-
         <section className="request-document-panel request-document-panel--form">
           <header className="request-document-section-header">
             <div>
               <span className="request-document-section-eyebrow">
                 New Request
               </span>
-              <h2>New Document Request</h2>
+              <h2>Choose a Document</h2>
               <p>
-                A Finance ticket will automatically be generated after a
-                successful request.
+                Select the document and approved academic period you need. A
+                Finance ticket is created automatically after submission.
               </p>
             </div>
           </header>
-
           {errorMessage && (
             <div className="request-document-alert request-document-alert--error">
               {errorMessage}
             </div>
           )}
-
           {successMessage && (
             <div className="request-document-alert request-document-alert--success">
               {successMessage}
             </div>
           )}
-
           {!loading && availableEnrollments.length === 0 && (
             <div className="request-document-alert request-document-alert--warning">
               No approved enrollment period is available for document requests.
@@ -496,24 +433,72 @@ export default function RequestDocument() {
               enrollment.
             </div>
           )}
-
           <form className="request-document-form" onSubmit={handleSubmit}>
-            <label className="request-document-field">
+            <div className="request-document-field request-document-field--documents">
               <span className="request-document-field__label">
-                Document Type
+                Available Documents
               </span>
-              <select
-                value={documentType}
-                onChange={(event) =>
-                  setDocumentType(event.target.value as DocumentType)
-                }
-                disabled={submitting}
+              <div
+                className="request-document-type-options"
+                role="radiogroup"
+                aria-label="Available documents"
               >
-                <option value="COR">Certificate of Registration (COR)</option>
-                <option value="COG">Certificate of Grades (COG)</option>
-              </select>
-            </label>
-
+                <button
+                  type="button"
+                  role="radio"
+                  aria-checked={documentType === "COR"}
+                  className={`request-document-type-option ${
+                    documentType === "COR"
+                      ? "request-document-type-option--selected"
+                      : ""
+                  }`}
+                  onClick={() => setDocumentType("COR")}
+                  disabled={submitting}
+                >
+                  <span className="request-document-type-option__icon">
+                    <ClipboardList size={18} aria-hidden="true" />
+                  </span>
+                  <span className="request-document-type-option__copy">
+                    <strong>Certificate of Registration</strong>
+                    <small>COR · Official enrollment and registered subjects</small>
+                  </span>
+                  {documentType === "COR" && (
+                    <CheckCircle2
+                      size={17}
+                      className="request-document-type-option__check"
+                      aria-hidden="true"
+                    />
+                  )}
+                </button>
+                <button
+                  type="button"
+                  role="radio"
+                  aria-checked={documentType === "COG"}
+                  className={`request-document-type-option ${
+                    documentType === "COG"
+                      ? "request-document-type-option--selected"
+                      : ""
+                  }`}
+                  onClick={() => setDocumentType("COG")}
+                  disabled={submitting}
+                >
+                  <span className="request-document-type-option__icon">
+                    <GraduationCap size={18} aria-hidden="true" />
+                  </span>
+                  <span className="request-document-type-option__copy">
+                    <strong>Certificate of Grades</strong>
+                    <small>COG · Official grades for the selected period</small>
+                  </span>
+                  {documentType === "COG" && (
+                    <CheckCircle2
+                      size={17}
+                      className="request-document-type-option__check"
+                      aria-hidden="true"
+                    />
+                  )}
+                </button>
+              </div>
+            </div>
             <label className="request-document-field">
               <span className="request-document-field__label">
                 Academic Period
@@ -539,7 +524,6 @@ export default function RequestDocument() {
                       ? "No approved academic periods available"
                       : "Select academic year and semester"}
                 </option>
-
                 {availableEnrollments.map((enrollment) => (
                   <option
                     key={enrollment.enrollment_id}
@@ -554,7 +538,6 @@ export default function RequestDocument() {
                 the Registrar when generating your COR or COG.
               </span>
             </label>
-
             <label className="request-document-field">
               <span className="request-document-field__label">
                 Number of Copies
@@ -573,7 +556,6 @@ export default function RequestDocument() {
                 }}
               />
             </label>
-
             <label className="request-document-field request-document-field--full">
               <span className="request-document-field__label">Purpose</span>
               <textarea
@@ -588,7 +570,6 @@ export default function RequestDocument() {
                 {purpose.length}/255
               </span>
             </label>
-
             <div className="request-document-form__actions">
               <button
                 type="submit"
@@ -619,7 +600,6 @@ export default function RequestDocument() {
             </div>
           </form>
         </section>
-
         {createdRequest?.request && createdRequest.ticket && (
           <section className="request-document-created">
             <div className="request-document-created__heading">
@@ -631,7 +611,6 @@ export default function RequestDocument() {
                 <p>Present the Finance ticket number to the Cashier.</p>
               </div>
             </div>
-
             <div className="request-document-info-grid">
               <InfoBox
                 label="Request Number"
@@ -658,7 +637,6 @@ export default function RequestDocument() {
             </div>
           </section>
         )}
-
         <section className="request-document-panel request-document-panel--history">
           <header className="request-document-history-header">
             <div>
@@ -668,22 +646,7 @@ export default function RequestDocument() {
               <h2>My Document Requests</h2>
               <p>Track payment and Registrar processing here.</p>
             </div>
-
-            <button
-              type="button"
-              className="request-document-refresh"
-              onClick={() => void loadRequests()}
-              disabled={loading}
-            >
-              <RefreshCcw
-                size={15}
-                className={loading ? "request-document-spin" : undefined}
-                aria-hidden="true"
-              />
-              Refresh
-            </button>
           </header>
-
           {loading ? (
             <div className="request-document-loading">
               <Loader2
@@ -721,10 +684,9 @@ export default function RequestDocument() {
                             ? "Certificate of Registration"
                             : "Certificate of Grades"}
                         </h3>
-                        <p>Requested {formatDate(request.requested_at)}</p>
+                        <p>{request.request_number}</p>
                       </div>
                     </div>
-
                     <div className="request-document-statuses">
                       <StatusBadge
                         label={request.payment_status}
@@ -738,12 +700,27 @@ export default function RequestDocument() {
                       />
                     </div>
                   </div>
+                  <div className="request-document-history-card__details">
+                    <div>
+                      <span>Academic Period</span>
+                      <strong>
+                        {formatAcademicPeriod(request.academic_period)}
+                      </strong>
+                    </div>
+                    <div>
+                      <span>Finance Ticket</span>
+                      <strong>{request.ticket_number || "Not generated"}</strong>
+                    </div>
+                    <div>
+                      <span>Requested</span>
+                      <strong>{formatDate(request.requested_at)}</strong>
+                    </div>
+                  </div>
                 </button>
               ))}
             </div>
           )}
         </section>
-
         {selectedRequest && (
           <div
             className="request-document-modal-overlay"
@@ -764,7 +741,6 @@ export default function RequestDocument() {
                   <span className="request-document-modal__icon">
                     <FileText size={22} aria-hidden="true" />
                   </span>
-
                   <div>
                     <h2 id="request-document-modal-title">
                       {selectedRequest.document_type === "COR"
@@ -776,7 +752,6 @@ export default function RequestDocument() {
                     </p>
                   </div>
                 </div>
-
                 <div className="request-document-modal__actions">
                   <StatusBadge
                     label={selectedRequest.payment_status}
@@ -790,7 +765,6 @@ export default function RequestDocument() {
                       selectedRequest.registrar_status,
                     )}
                   />
-
                   <button
                     type="button"
                     className="request-document-modal__close"
@@ -801,14 +775,12 @@ export default function RequestDocument() {
                   </button>
                 </div>
               </div>
-
               <div className="request-document-modal__body">
                 <section className="request-document-modal__section">
                   <div className="request-document-modal__section-title">
                     <ReceiptText size={18} aria-hidden="true" />
                     <h3>Request Information</h3>
                   </div>
-
                   <div className="request-document-info-grid request-document-info-grid--modal">
                     <InfoBox
                       label="Request Number"
@@ -845,19 +817,16 @@ export default function RequestDocument() {
                       value={selectedRequest.receipt_number || "—"}
                     />
                   </div>
-
                   <div className="request-document-purpose request-document-purpose--modal">
                     <span>Purpose</span>
                     <p>{selectedRequest.purpose || "—"}</p>
                   </div>
                 </section>
-
                 <section className="request-document-modal__section">
                   <div className="request-document-modal__section-title">
                     <WalletCards size={18} aria-hidden="true" />
                     <h3>Payment & Registrar Status</h3>
                   </div>
-
                   <div className="request-document-info-grid request-document-info-grid--modal">
                     <InfoBox
                       label="Payment Status"
@@ -880,21 +849,18 @@ export default function RequestDocument() {
                       value={formatDate(selectedRequest.registrar_completed_at)}
                     />
                   </div>
-
                   {selectedRequest.cancellation_reason && (
                     <div className="request-document-cancellation-note">
                       <strong>Cancellation:</strong>{" "}
                       {selectedRequest.cancellation_reason}
                     </div>
                   )}
-
                   <RequestProgress
                     paymentStatus={selectedRequest.payment_status}
                     registrarStatus={selectedRequest.registrar_status}
                   />
                 </section>
               </div>
-
               <div className="request-document-modal__footer">
                 <button
                   type="button"
@@ -911,7 +877,6 @@ export default function RequestDocument() {
     </DashboardLayout>
   );
 }
-
 function InfoBox({ label, value }: { label: string; value: string }) {
   return (
     <div className="request-document-info-box">
@@ -920,7 +885,6 @@ function InfoBox({ label, value }: { label: string; value: string }) {
     </div>
   );
 }
-
 function StatusBadge({
   label,
   className,
@@ -930,7 +894,6 @@ function StatusBadge({
 }) {
   return <span className={className}>{label}</span>;
 }
-
 function RequestProgress({
   paymentStatus,
   registrarStatus,
@@ -946,7 +909,6 @@ function RequestProgress({
   const processing =
     registrarStatus === "Processing" || registrarStatus === "Done";
   const done = registrarStatus === "Done";
-
   const steps = [
     {
       title: "Request Submitted",
@@ -974,12 +936,10 @@ function RequestProgress({
       icon: CheckCircle2,
     },
   ];
-
   return (
     <div className="request-document-progress">
       {steps.map((step) => {
         const Icon = step.icon;
-
         return (
           <div
             key={step.title}
