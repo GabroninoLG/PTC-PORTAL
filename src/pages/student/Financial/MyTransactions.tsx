@@ -11,31 +11,27 @@ import {
   GraduationCap,
   ReceiptText,
   RefreshCcw,
+  RefreshCw,
   Search,
   WalletCards,
   X,
 } from "lucide-react";
-
 import DashboardLayout from "../../../components/Layout/DashboardLayout";
 import { authService } from "../../../services/auth.service";
-import { apiUrl } from "../../../services/api";
+import { api } from "../../../services/api";
 import "../../../styles/StudentTransactions.css";
-
-const STUDENT_TRANSACTIONS_API = apiUrl("/api/student/transactions");
-
+const STUDENT_TRANSACTIONS_API = `${api.baseUrl}/api/student/transactions`;
 type PaymentStatus =
   | "Pending Payment"
   | "Paid"
   | "Cancelled"
   | "Refunded"
   | string;
-
 interface StudentSummary {
   student_id: number;
   student_number: string;
   student_name: string;
 }
-
 interface TransactionSummary {
   total: number;
   pending_payment: number;
@@ -45,7 +41,6 @@ interface TransactionSummary {
   total_outstanding: number;
   total_paid: number;
 }
-
 interface TransactionTypeInfo {
   transaction_type_id: number;
   transaction_code: string;
@@ -57,13 +52,11 @@ interface TransactionTypeInfo {
     | "INCOMPLETE_GRADE"
     | string;
 }
-
 interface AcademicPeriod {
   academic_year: string | null;
   semester_name: string | null;
   enrollment_status: string | null;
 }
-
 interface DocumentRequestInfo {
   request_id: number;
   request_number: string;
@@ -76,7 +69,6 @@ interface DocumentRequestInfo {
   cancelled_at: string | null;
   cancellation_reason: string | null;
 }
-
 interface PaymentInfo {
   amount_due: number | null;
   amount_paid: number;
@@ -85,14 +77,12 @@ interface PaymentInfo {
   payment_status: PaymentStatus;
   paid_at: string | null;
 }
-
 interface RegistrarInfo {
   status: string;
   remarks: string | null;
   started_at: string | null;
   completed_at: string | null;
 }
-
 interface StudentTransaction {
   ticket_id: number;
   ticket_number: string;
@@ -111,7 +101,6 @@ interface StudentTransaction {
   created_at: string;
   updated_at: string;
 }
-
 interface TransactionsResponse {
   success?: boolean;
   code?: string;
@@ -120,43 +109,34 @@ interface TransactionsResponse {
   summary?: TransactionSummary;
   transactions?: StudentTransaction[];
 }
-
 type StatusFilter =
   | "All"
   | "Pending Payment"
   | "Paid"
   | "Cancelled"
   | "Refunded";
-
 function formatMoney(value: number | string | null | undefined) {
   if (value === null || value === undefined || value === "") {
     return "Not set";
   }
-
   const numericValue = Number(value);
-
   if (!Number.isFinite(numericValue)) {
     return "—";
   }
-
   return new Intl.NumberFormat("en-PH", {
     style: "currency",
     currency: "PHP",
     minimumFractionDigits: 2,
   }).format(numericValue);
 }
-
 function formatDate(value: string | null | undefined) {
   if (!value) {
     return "—";
   }
-
   const date = new Date(value);
-
   if (Number.isNaN(date.getTime())) {
     return value;
   }
-
   return date.toLocaleString("en-PH", {
     timeZone: "Asia/Manila",
     year: "numeric",
@@ -166,7 +146,6 @@ function formatDate(value: string | null | undefined) {
     minute: "2-digit",
   });
 }
-
 function getPaymentStatusClass(status: string) {
   if (status === "Paid") return "is-paid";
   if (status === "Pending Payment") return "is-pending";
@@ -174,7 +153,6 @@ function getPaymentStatusClass(status: string) {
   if (status === "Refunded") return "is-refunded";
   return "is-default";
 }
-
 function getRegistrarStatusClass(status: string) {
   if (status === "Done") return "is-done";
   if (status === "Ready for Processing" || status === "Processing") {
@@ -186,26 +164,22 @@ function getRegistrarStatusClass(status: string) {
   }
   return "is-default";
 }
-
 function getSourceLabel(source: string) {
   if (source === "FINANCE_MANUAL") return "Assigned by Finance";
   if (source === "STUDENT_REQUEST") return "Student Request";
   if (source === "FACULTY_VERIFIED") return "Faculty Verified";
   if (source === "SYSTEM") return "System";
-
   return source
     .replaceAll("_", " ")
     .toLowerCase()
     .replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
-
 interface SummaryCardProps {
   title: string;
   value: string | number;
   subtitle: string;
   icon: ReactNode;
 }
-
 function SummaryCard({ title, value, subtitle, icon }: SummaryCardProps) {
   return (
     <article className="my-transactions__summary-card">
@@ -214,17 +188,14 @@ function SummaryCard({ title, value, subtitle, icon }: SummaryCardProps) {
         <div className="my-transactions__summary-value">{value}</div>
         <p className="my-transactions__summary-subtitle">{subtitle}</p>
       </div>
-
       <div className="my-transactions__summary-icon">{icon}</div>
     </article>
   );
 }
-
 interface DetailItemProps {
   label: string;
   value: ReactNode;
 }
-
 function DetailItem({ label, value }: DetailItemProps) {
   return (
     <div className="my-transactions__detail-item">
@@ -233,15 +204,12 @@ function DetailItem({ label, value }: DetailItemProps) {
     </div>
   );
 }
-
 export default function MyTransactions() {
   const navigate = useNavigate();
-
   const session = authService.getSession();
   const token = authService.getToken();
   const role = session?.role ?? null;
   const isStudent = role === "Student" && Boolean(token);
-
   const [student, setStudent] = useState<StudentSummary | null>(null);
   const [summary, setSummary] = useState<TransactionSummary>({
     total: 0,
@@ -260,48 +228,38 @@ export default function MyTransactions() {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("All");
   const [selectedTransaction, setSelectedTransaction] =
     useState<StudentTransaction | null>(null);
-
   useEffect(() => {
     if (!isStudent) {
       navigate("/login", { replace: true });
     }
   }, [isStudent, navigate]);
-
   const loadTransactions = useCallback(
     async (showMainLoading = true) => {
       if (!isStudent) return;
-
       if (showMainLoading) {
         setLoading(true);
       } else {
         setRefreshing(true);
       }
-
       setErrorMessage("");
-
       try {
         const response = await authService.authFetch(STUDENT_TRANSACTIONS_API, {
           method: "GET",
           headers: { Accept: "application/json" },
         });
-
         if (response.status === 401) {
           authService.logout();
           navigate("/login", { replace: true });
           return;
         }
-
         if (response.status === 403) {
           navigate("/login", { replace: true });
           return;
         }
-
         const data = (await response.json()) as TransactionsResponse;
-
         if (!response.ok || !data.success) {
           throw new Error(data.message || "Unable to load your transactions.");
         }
-
         setStudent(data.student ?? null);
         setSummary({
           total: Number(data.summary?.total ?? 0),
@@ -329,37 +287,29 @@ export default function MyTransactions() {
     },
     [isStudent, navigate],
   );
-
   useEffect(() => {
     if (!isStudent) return;
     void loadTransactions();
   }, [isStudent, loadTransactions]);
-
   useEffect(() => {
     if (!selectedTransaction) {
       document.body.style.overflow = "";
       return;
     }
-
     document.body.style.overflow = "hidden";
-
     const handleEscape = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         setSelectedTransaction(null);
       }
     };
-
     window.addEventListener("keydown", handleEscape);
-
     return () => {
       document.body.style.overflow = "";
       window.removeEventListener("keydown", handleEscape);
     };
   }, [selectedTransaction]);
-
   const filteredTransactions = useMemo(() => {
     const normalizedSearch = searchText.trim().toLowerCase();
-
     return transactions.filter((item) => {
       if (
         statusFilter !== "All" &&
@@ -367,9 +317,7 @@ export default function MyTransactions() {
       ) {
         return false;
       }
-
       if (!normalizedSearch) return true;
-
       const academicPeriod = item.document_request?.academic_period;
       const searchableText = [
         item.ticket_number,
@@ -387,13 +335,10 @@ export default function MyTransactions() {
       ]
         .join(" ")
         .toLowerCase();
-
       return searchableText.includes(normalizedSearch);
     });
   }, [transactions, searchText, statusFilter]);
-
   if (!isStudent) return null;
-
   return (
     <DashboardLayout>
       <main className="my-transactions">
@@ -401,17 +346,16 @@ export default function MyTransactions() {
           <div className="my-transactions__hero-content">
             <div className="my-transactions__hero-copy">
               <div className="my-transactions__eyebrow">
-                <WalletCards size={16} aria-hidden="true" />
-                <span>Student Finance</span>
+                <span className="my-transactions__eyebrow-icon">
+                  <WalletCards size={16} aria-hidden="true" />
+                </span>
+                <span>Student · Transactions</span>
               </div>
-
               <h1>My Transactions</h1>
               <p>
-                View your school transactions, payment status, receipts,
-                document request payments, and other charges assigned to your
-                account.
+                Review your payment records, Finance tickets, receipts, document
+                requests, and Registrar processing status in one place.
               </p>
-
               {student && (
                 <div className="my-transactions__student-meta">
                   <span className="my-transactions__student-number">
@@ -423,13 +367,17 @@ export default function MyTransactions() {
                 </div>
               )}
             </div>
-
-            <div className="my-transactions__hero-icon" aria-hidden="true">
-              <ReceiptText size={31} />
-            </div>
+            <button
+              type="button"
+              className="my-transactions__hero-refresh"
+              onClick={() => void loadTransactions(false)}
+              disabled={refreshing}
+            >
+              <RefreshCw size={16} className={refreshing ? "is-spinning" : ""} />
+              {refreshing ? "Refreshing..." : "Refresh"}
+            </button>
           </div>
         </section>
-
         <section className="my-transactions__summary-grid">
           <SummaryCard
             title="Total Transactions"
@@ -456,14 +404,12 @@ export default function MyTransactions() {
             icon={<CircleDollarSign size={21} />}
           />
         </section>
-
         {errorMessage && (
           <section className="my-transactions__alert my-transactions__alert--error">
             <AlertCircle size={19} aria-hidden="true" />
             <div>{errorMessage}</div>
           </section>
         )}
-
         <section className="my-transactions__history-card">
           <div className="my-transactions__history-heading">
             <div>
@@ -472,26 +418,11 @@ export default function MyTransactions() {
               </span>
               <h2>Transaction History</h2>
               <p>
-                {filteredTransactions.length} transaction
-                {filteredTransactions.length === 1 ? "" : "s"} shown
+                Search and review {filteredTransactions.length} transaction
+                {filteredTransactions.length === 1 ? "" : "s"} currently shown.
               </p>
             </div>
-
-            <button
-              type="button"
-              className="my-transactions__refresh-button"
-              onClick={() => void loadTransactions(false)}
-              disabled={refreshing}
-            >
-              <RefreshCcw
-                size={16}
-                className={refreshing ? "is-spinning" : ""}
-                aria-hidden="true"
-              />
-              {refreshing ? "Refreshing..." : "Refresh"}
-            </button>
           </div>
-
           <div className="my-transactions__filters">
             <label className="my-transactions__search">
               <Search size={17} aria-hidden="true" />
@@ -503,7 +434,6 @@ export default function MyTransactions() {
                 aria-label="Search transactions"
               />
             </label>
-
             <select
               className="my-transactions__status-select"
               value={statusFilter}
@@ -520,7 +450,6 @@ export default function MyTransactions() {
             </select>
           </div>
         </section>
-
         {loading && (
           <section className="my-transactions__state-card" aria-live="polite">
             <div className="my-transactions__state-content">
@@ -534,7 +463,6 @@ export default function MyTransactions() {
             </div>
           </section>
         )}
-
         {!loading && filteredTransactions.length === 0 && (
           <section className="my-transactions__state-card">
             <div className="my-transactions__empty-icon" aria-hidden="true">
@@ -547,13 +475,11 @@ export default function MyTransactions() {
             </p>
           </section>
         )}
-
         {!loading && filteredTransactions.length > 0 && (
           <section className="my-transactions__list">
             {filteredTransactions.map((item) => {
               const isFinanceOnly =
                 item.transaction.workflow_type === "FINANCE_ONLY";
-
               return (
                 <button
                   type="button"
@@ -574,9 +500,18 @@ export default function MyTransactions() {
                       <FileText size={23} />
                     )}
                   </div>
-
                   <div className="my-transactions__transaction-card-content">
-                    <h3>{item.transaction.transaction_name}</h3>
+                    <div className="my-transactions__transaction-card-heading">
+                      <div>
+                        <span className="my-transactions__transaction-code">
+                          {item.transaction.transaction_code}
+                        </span>
+                        <h3>{item.transaction.transaction_name}</h3>
+                      </div>
+                      <span className="my-transactions__ticket-number">
+                        {item.ticket_number}
+                      </span>
+                    </div>
                     <p>
                       {item.document_request?.requested_at
                         ? `Requested ${formatDate(
@@ -584,8 +519,21 @@ export default function MyTransactions() {
                           )}`
                         : `Created ${formatDate(item.created_at)}`}
                     </p>
+                    <div className="my-transactions__transaction-meta">
+                      <span>
+                        <CircleDollarSign size={13} aria-hidden="true" />
+                        Due {formatMoney(item.payment.amount_due)}
+                      </span>
+                      <span>
+                        <WalletCards size={13} aria-hidden="true" />
+                        Paid {formatMoney(item.payment.amount_paid)}
+                      </span>
+                      <span>
+                        <ReceiptText size={13} aria-hidden="true" />
+                        {getSourceLabel(item.source_type)}
+                      </span>
+                    </div>
                   </div>
-
                   <div className="my-transactions__transaction-card-status">
                     <span
                       className={`my-transactions__status-badge ${getPaymentStatusClass(
@@ -594,7 +542,6 @@ export default function MyTransactions() {
                     >
                       {item.payment.payment_status}
                     </span>
-
                     {!isFinanceOnly && (
                       <span
                         className={`my-transactions__registrar-badge ${getRegistrarStatusClass(
@@ -610,7 +557,6 @@ export default function MyTransactions() {
             })}
           </section>
         )}
-
         {!loading && (
           <section className="my-transactions__guide">
             <div className="my-transactions__guide-icon" aria-hidden="true">
@@ -619,22 +565,20 @@ export default function MyTransactions() {
             <div>
               <strong>Transaction Status Guide</strong>
               <p>
-                Pending Payment means payment has not yet been completed. Paid
-                means Finance has confirmed the payment. Document-related
-                transactions may continue to Registrar processing after payment.
-                Finance-only transactions do not require Registrar processing.
+                Pending Payment means the transaction still needs payment. Paid
+                means Finance has confirmed it. Document requests may continue
+                to Registrar processing after payment, while Finance-only
+                transactions finish with Finance.
               </p>
             </div>
           </section>
         )}
-
         {selectedTransaction && (() => {
           const item = selectedTransaction;
           const isFinanceOnly =
             item.transaction.workflow_type === "FINANCE_ONLY";
           const documentRequest = item.document_request;
           const academicPeriod = documentRequest?.academic_period;
-
           return (
             <div
               className="my-transactions__modal-overlay"
@@ -664,7 +608,6 @@ export default function MyTransactions() {
                         <FileText size={23} />
                       )}
                     </div>
-
                     <div>
                       <h2 id="transaction-modal-title">
                         {item.transaction.transaction_name}
@@ -676,7 +619,6 @@ export default function MyTransactions() {
                       </p>
                     </div>
                   </div>
-
                   <div className="my-transactions__modal-header-actions">
                     <span
                       className={`my-transactions__status-badge ${getPaymentStatusClass(
@@ -685,7 +627,6 @@ export default function MyTransactions() {
                     >
                       {item.payment.payment_status}
                     </span>
-
                     {!isFinanceOnly && (
                       <span
                         className={`my-transactions__registrar-badge ${getRegistrarStatusClass(
@@ -695,7 +636,6 @@ export default function MyTransactions() {
                         {item.registrar.status}
                       </span>
                     )}
-
                     <button
                       type="button"
                       className="my-transactions__modal-close"
@@ -706,14 +646,12 @@ export default function MyTransactions() {
                     </button>
                   </div>
                 </div>
-
                 <div className="my-transactions__modal-body">
                   <section className="my-transactions__modal-section">
                     <div className="my-transactions__modal-section-title">
                       <ReceiptText size={18} aria-hidden="true" />
                       <h3>Transaction Information</h3>
                     </div>
-
                     <div className="my-transactions__modal-grid">
                       {documentRequest && (
                         <DetailItem
@@ -721,12 +659,10 @@ export default function MyTransactions() {
                           value={documentRequest.request_number}
                         />
                       )}
-
                       <DetailItem
                         label="Finance Ticket"
                         value={item.ticket_number}
                       />
-
                       {academicPeriod && (
                         <DetailItem
                           label="Academic Period"
@@ -735,34 +671,28 @@ export default function MyTransactions() {
                           }`}
                         />
                       )}
-
                       {documentRequest && (
                         <DetailItem
                           label="Copies"
                           value={documentRequest.copies}
                         />
                       )}
-
                       <DetailItem
                         label="Amount Due"
                         value={formatMoney(item.payment.amount_due)}
                       />
-
                       <DetailItem
                         label="Amount Paid"
                         value={formatMoney(item.payment.amount_paid)}
                       />
-
                       <DetailItem
                         label="Payment Method"
                         value={item.payment.payment_method || "—"}
                       />
-
                       <DetailItem
                         label="Receipt Number"
                         value={item.payment.receipt_number || "—"}
                       />
-
                       <DetailItem
                         label="Payment Status"
                         value={
@@ -775,17 +705,14 @@ export default function MyTransactions() {
                           </span>
                         }
                       />
-
                       <DetailItem
                         label="Paid At"
                         value={formatDate(item.payment.paid_at)}
                       />
-
                       <DetailItem
                         label="Source"
                         value={getSourceLabel(item.source_type)}
                       />
-
                       {!isFinanceOnly && (
                         <DetailItem
                           label="Registrar Status"
@@ -802,14 +729,12 @@ export default function MyTransactions() {
                       )}
                     </div>
                   </section>
-
                   {documentRequest && (
                     <section className="my-transactions__modal-section">
                       <div className="my-transactions__modal-section-title">
                         <FileText size={18} aria-hidden="true" />
                         <h3>Document Request</h3>
                       </div>
-
                       <div className="my-transactions__modal-grid">
                         <DetailItem
                           label="Document"
@@ -820,12 +745,10 @@ export default function MyTransactions() {
                           value={formatDate(documentRequest.requested_at)}
                         />
                       </div>
-
                       <div className="my-transactions__modal-purpose">
                         <span>Purpose</span>
                         <p>{documentRequest.purpose || "—"}</p>
                       </div>
-
                       {documentRequest.cancellation_reason && (
                         <div className="my-transactions__cancellation-note">
                           <strong>Cancellation:</strong>{" "}
@@ -834,14 +757,12 @@ export default function MyTransactions() {
                       )}
                     </section>
                   )}
-
                   {!isFinanceOnly && (
                     <section className="my-transactions__modal-section">
                       <div className="my-transactions__modal-section-title">
                         <GraduationCap size={18} aria-hidden="true" />
                         <h3>Registrar Processing</h3>
                       </div>
-
                       <div className="my-transactions__modal-grid">
                         <DetailItem
                           label="Status"
@@ -864,7 +785,6 @@ export default function MyTransactions() {
                           value={formatDate(item.registrar.completed_at)}
                         />
                       </div>
-
                       {item.registrar.remarks && (
                         <div className="my-transactions__remarks-note">
                           <strong>Registrar Remarks:</strong>{" "}
@@ -873,21 +793,18 @@ export default function MyTransactions() {
                       )}
                     </section>
                   )}
-
                   {item.finance_remarks && (
                     <section className="my-transactions__modal-section">
                       <div className="my-transactions__modal-section-title">
                         <CreditCard size={18} aria-hidden="true" />
                         <h3>Finance Remarks</h3>
                       </div>
-
                       <div className="my-transactions__remarks-note">
                         {item.finance_remarks}
                       </div>
                     </section>
                   )}
                 </div>
-
                 <div className="my-transactions__modal-footer">
                   <button
                     type="button"

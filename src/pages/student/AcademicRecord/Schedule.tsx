@@ -1,9 +1,11 @@
-import DashboardLayout from "../../../components/Layout/DashboardLayout";
-import { authService } from "../../../services/auth.service";
-import { apiUrl } from "../../../services/api";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useNavigate } from "react-router-dom";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import "../../../styles/StudentSchedule.css";
 
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
@@ -11,67 +13,64 @@ import interactionPlugin from "@fullcalendar/interaction";
 import type { EventClickArg, EventInput } from "@fullcalendar/core";
 
 import {
+  AlertTriangle,
   BookOpen,
   CalendarDays,
   CheckCircle2,
+  ChevronLeft,
+  ChevronRight,
   Clock3,
   GraduationCap,
+  Info,
+  LoaderCircle,
+  RefreshCw,
   UserRound,
   X,
 } from "lucide-react";
 
-const SCHEDULE_API_URL = apiUrl("/api/student/enrollments/schedule");
+import DashboardLayout from "../../../components/Layout/DashboardLayout";
+import { authService } from "../../../services/auth.service";
+import "../../../styles/StudentSchedule.css";
+
+const SCHEDULE_API_URL =
+  "http://localhost:3000/api/student/enrollments/schedule";
 
 interface Holiday {
   date: string;
   localName: string;
   name: string;
-  countryCode: string;
-  fixed: boolean;
-  global: boolean;
-  counties: string[] | null;
-  launchYear: number | null;
-  types: string[];
 }
 
 interface ScheduleSubject {
   enrollment_subject_id: number;
   enrollment_id: number;
-
   subject_id: number;
   subject_code: string;
   subject_name: string;
   units: number;
-
   enrollment_type: string;
   status: string;
-
   section: {
     section_id: number | null;
     section_name: string | null;
   };
-
   section_subject_id: number | null;
-
   offering: {
     offering_id: number | null;
     status: string | null;
     schedule_days: string | null;
     schedule_time: string | null;
   };
-
   faculty: {
     faculty_id: number | null;
     faculty_name: string | null;
   };
-
   schedule_ready: boolean;
 }
 
 interface ScheduleResponse {
   success: boolean;
   message?: string;
-
   student?: {
     student_id: number;
     student_number: string;
@@ -82,7 +81,6 @@ interface ScheduleResponse {
       course_name: string;
     };
   };
-
   enrollment: {
     enrollment_id: number;
     academic_year_id: number;
@@ -92,9 +90,7 @@ interface ScheduleResponse {
     enrollment_status: string;
     approved_at: string | null;
   } | null;
-
   subjects: ScheduleSubject[];
-
   summary?: {
     total_enrolled_subjects: number;
     scheduled_subjects: number;
@@ -108,7 +104,7 @@ interface ApiErrorResponse {
   error?: string;
 }
 
-type ViewMode = "month" | "week";
+type ViewMode = "week" | "month";
 
 interface WeeklyMeeting {
   key: string;
@@ -121,7 +117,7 @@ interface WeeklyMeeting {
 }
 
 const SUBJECT_COLORS = [
-  "#15803d",
+  "#0f7a45",
   "#2563eb",
   "#7c3aed",
   "#0f766e",
@@ -131,34 +127,22 @@ const SUBJECT_COLORS = [
   "#0369a1",
 ];
 
-function getSubjectColorClass(color: string): string {
-  const index = SUBJECT_COLORS.indexOf(color);
-
-  return `schedule-subject-color-${index >= 0 ? index : 0}`;
-}
-
 const DAY_ALIASES: Record<string, number> = {
   sunday: 0,
   sun: 0,
-
   monday: 1,
   mon: 1,
-
   tuesday: 2,
   tue: 2,
   tues: 2,
-
   wednesday: 3,
   wed: 3,
-
   thursday: 4,
   thu: 4,
   thur: 4,
   thurs: 4,
-
   friday: 5,
   fri: 5,
-
   saturday: 6,
   sat: 6,
 };
@@ -181,7 +165,7 @@ function parseScheduleDays(value: string | null): number[] {
   return [
     ...new Set(
       value
-        .split(/[,/&]+/)
+        .split(/[,/&;]+/)
         .map((part) => part.trim().toLowerCase().replace(/\./g, ""))
         .map((part) => DAY_ALIASES[part])
         .filter((day): day is number => Number.isInteger(day)),
@@ -204,9 +188,7 @@ function parseClockTime(value: string): number | null {
     }
 
     if (meridiem === "AM") {
-      if (hour === 12) {
-        hour = 0;
-      }
+      if (hour === 12) hour = 0;
     } else if (hour !== 12) {
       hour += 12;
     }
@@ -242,26 +224,9 @@ function parseClockTime(value: string): number | null {
   return null;
 }
 
-function formatMinutesAsTime(totalMinutes: number): string {
-  const hour = Math.floor(totalMinutes / 60);
-  const minute = totalMinutes % 60;
-
-  return `${String(hour).padStart(2, "0")}:${String(minute).padStart(
-    2,
-    "0",
-  )}:00`;
-}
-
-function formatMinutesForDisplay(totalMinutes: number): string {
-  const hour24 = Math.floor(totalMinutes / 60);
-  const minute = totalMinutes % 60;
-  const meridiem = hour24 >= 12 ? "PM" : "AM";
-  const hour12 = hour24 % 12 || 12;
-
-  return `${hour12}:${String(minute).padStart(2, "0")} ${meridiem}`;
-}
-
-function parseScheduleTimeRange(value: string | null): {
+function parseScheduleTimeRange(
+  value: string | null,
+): {
   startTime: string;
   endTime: string;
   startMinutes: number;
@@ -285,21 +250,79 @@ function parseScheduleTimeRange(value: string | null): {
     return null;
   }
 
+  const formatCalendarTime = (minutes: number) => {
+    const hour = Math.floor(minutes / 60);
+    const minute = minutes % 60;
+
+    return `${String(hour).padStart(2, "0")}:${String(minute).padStart(
+      2,
+      "0",
+    )}:00`;
+  };
+
   return {
-    startTime: formatMinutesAsTime(start),
-    endTime: formatMinutesAsTime(end),
+    startTime: formatCalendarTime(start),
+    endTime: formatCalendarTime(end),
     startMinutes: start,
     endMinutes: end,
   };
 }
 
+function formatMinutesForDisplay(totalMinutes: number): string {
+  const hour24 = Math.floor(totalMinutes / 60);
+  const minute = totalMinutes % 60;
+  const meridiem = hour24 >= 12 ? "PM" : "AM";
+  const hour12 = hour24 % 12 || 12;
+
+  return `${hour12}:${String(minute).padStart(2, "0")} ${meridiem}`;
+}
+
+function formatHolidayDate(value: string): string {
+  return new Date(`${value}T00:00:00`).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+  });
+}
+
+async function readJsonResponse<T>(response: Response): Promise<T> {
+  const contentType = response.headers.get("content-type") || "";
+
+  if (!contentType.includes("application/json")) {
+    const text = await response.text();
+
+    throw new Error(
+      `Server returned a non-JSON response (${response.status}): ${text.slice(
+        0,
+        180,
+      )}`,
+    );
+  }
+
+  return response.json() as Promise<T>;
+}
+
 export default function StudentSchedule() {
   const navigate = useNavigate();
-  const user = authService.getSession();
-  const isStudent = user?.role === "Student";
+
+  const session = authService.getSession();
+  const token = authService.getToken();
+  const isStudent = session?.role === "Student";
+  const authenticated = Boolean(session && token);
 
   const calendarRef = useRef<FullCalendar | null>(null);
 
+  const [scheduleData, setScheduleData] = useState<ScheduleResponse | null>(
+    null,
+  );
+  const [scheduleLoading, setScheduleLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [scheduleError, setScheduleError] = useState("");
+
+  const [viewMode, setViewMode] = useState<ViewMode>("week");
+  const [selectedSubject, setSelectedSubject] =
+    useState<ScheduleSubject | null>(null);
+
+  const [currentDate, setCurrentDate] = useState(new Date());
   const [currentMonth, setCurrentMonth] = useState(() =>
     new Date().toLocaleDateString("en-US", {
       month: "long",
@@ -307,50 +330,54 @@ export default function StudentSchedule() {
     }),
   );
 
-  const [currentDate, setCurrentDate] = useState(new Date());
-
   const [holidays, setHolidays] = useState<Holiday[]>([]);
-
-  const [scheduleData, setScheduleData] = useState<ScheduleResponse | null>(
-    null,
-  );
-
-  const [scheduleLoading, setScheduleLoading] = useState(true);
-  const [scheduleError, setScheduleError] = useState("");
-
-  const [viewMode, setViewMode] = useState<ViewMode>("week");
-  const [selectedSubject, setSelectedSubject] =
-    useState<ScheduleSubject | null>(null);
+  const [holidayLoading, setHolidayLoading] = useState(true);
+  const [holidayError, setHolidayError] = useState("");
 
   useEffect(() => {
-    if (!isStudent) {
-      navigate("/login");
-    }
-  }, [isStudent, navigate]);
-
-  useEffect(() => {
-    if (!isStudent) {
+    if (!authenticated) {
+      authService.logout();
+      navigate("/login", { replace: true });
       return;
     }
 
-    const controller = new AbortController();
+    if (!isStudent) {
+      if (session?.role) {
+        navigate(authService.getDashboardRoute(session.role), {
+          replace: true,
+        });
+      } else {
+        navigate("/login", { replace: true });
+      }
+    }
+  }, [authenticated, isStudent, navigate, session?.role]);
 
-    const loadSchedule = async () => {
+  const loadSchedule = useCallback(
+    async (isRefresh = false, signal?: AbortSignal) => {
+      if (!authenticated || !isStudent) {
+        return;
+      }
+
       try {
-        setScheduleLoading(true);
+        if (isRefresh) {
+          setRefreshing(true);
+        } else {
+          setScheduleLoading(true);
+        }
+
         setScheduleError("");
 
         const response = await authService.authFetch(SCHEDULE_API_URL, {
           method: "GET",
-          signal: controller.signal,
+          signal,
           headers: {
             Accept: "application/json",
           },
         });
 
-        const responseData = (await response.json()) as
-          | ScheduleResponse
-          | ApiErrorResponse;
+        const data = await readJsonResponse<ScheduleResponse | ApiErrorResponse>(
+          response,
+        );
 
         if (response.status === 401) {
           authService.logout();
@@ -360,28 +387,30 @@ export default function StudentSchedule() {
 
         if (response.status === 403) {
           throw new Error(
-            responseData.message ||
-              ("error" in responseData ? responseData.error : undefined) ||
+            data.message ||
+              ("error" in data ? data.error : undefined) ||
               "You are not authorized to view the Student schedule.",
           );
         }
 
         if (!response.ok) {
           throw new Error(
-            responseData.message ||
-              ("error" in responseData ? responseData.error : undefined) ||
+            data.message ||
+              ("error" in data ? data.error : undefined) ||
               `Schedule request failed (${response.status}).`,
           );
         }
 
-        const data = responseData as ScheduleResponse;
+        const schedule = data as ScheduleResponse;
 
-        if (!data.success || !Array.isArray(data.subjects)) {
-          throw new Error(data.message || "Invalid Student schedule response.");
+        if (!schedule.success || !Array.isArray(schedule.subjects)) {
+          throw new Error(
+            schedule.message || "Invalid Student schedule response.",
+          );
         }
 
-        setScheduleData(data);
-      } catch (error: unknown) {
+        setScheduleData(schedule);
+      } catch (error) {
         if (error instanceof DOMException && error.name === "AbortError") {
           return;
         }
@@ -394,35 +423,72 @@ export default function StudentSchedule() {
             : "Unable to load the official Student schedule.",
         );
       } finally {
-        if (!controller.signal.aborted) {
+        if (!signal?.aborted) {
           setScheduleLoading(false);
+          setRefreshing(false);
+        }
+      }
+    },
+    [authenticated, isStudent, navigate],
+  );
+
+  useEffect(() => {
+    if (!authenticated || !isStudent) {
+      return;
+    }
+
+    const controller = new AbortController();
+    void loadSchedule(false, controller.signal);
+
+    return () => controller.abort();
+  }, [authenticated, isStudent, loadSchedule]);
+
+  const holidayYear = currentDate.getFullYear();
+
+  useEffect(() => {
+    const controller = new AbortController();
+
+    const loadHolidays = async () => {
+      try {
+        setHolidayLoading(true);
+        setHolidayError("");
+
+        const response = await fetch(
+          `https://date.nager.at/api/v3/PublicHolidays/${holidayYear}/PH`,
+          {
+            signal: controller.signal,
+          },
+        );
+
+        if (!response.ok) {
+          throw new Error("Holiday calendar is temporarily unavailable.");
+        }
+
+        const data = (await response.json()) as Holiday[];
+        setHolidays(Array.isArray(data) ? data : []);
+      } catch (error) {
+        if (error instanceof DOMException && error.name === "AbortError") {
+          return;
+        }
+
+        console.error("LOAD PH HOLIDAYS ERROR:", error);
+        setHolidays([]);
+        setHolidayError(
+          error instanceof Error
+            ? error.message
+            : "Holiday calendar is temporarily unavailable.",
+        );
+      } finally {
+        if (!controller.signal.aborted) {
+          setHolidayLoading(false);
         }
       }
     };
 
-    void loadSchedule();
+    void loadHolidays();
 
-    return () => {
-      controller.abort();
-    };
-  }, [isStudent, navigate]);
-
-  useEffect(() => {
-    fetch("https://date.nager.at/api/v3/PublicHolidays/2026/PH")
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Failed to fetch holidays");
-        }
-
-        return response.json();
-      })
-      .then((data: Holiday[]) => {
-        setHolidays(data);
-      })
-      .catch((error: unknown) => {
-        console.error("Error fetching holidays:", error);
-      });
-  }, []);
+    return () => controller.abort();
+  }, [holidayYear]);
 
   useEffect(() => {
     if (!selectedSubject) {
@@ -435,9 +501,11 @@ export default function StudentSchedule() {
       }
     };
 
+    document.body.classList.add("student-schedule-modal-open");
     window.addEventListener("keydown", handleEscape);
 
     return () => {
+      document.body.classList.remove("student-schedule-modal-open");
       window.removeEventListener("keydown", handleEscape);
     };
   }, [selectedSubject]);
@@ -451,6 +519,17 @@ export default function StudentSchedule() {
           subject.offering.status !== "Cancelled" &&
           Boolean(subject.offering.schedule_days?.trim()) &&
           Boolean(subject.offering.schedule_time?.trim()),
+      ),
+    [scheduleData],
+  );
+
+  const unscheduledSubjects = useMemo(
+    () =>
+      (scheduleData?.subjects || []).filter(
+        (subject) =>
+          subject.status === "Enrolled" &&
+          subject.offering.status !== "Cancelled" &&
+          !subject.schedule_ready,
       ),
     [scheduleData],
   );
@@ -475,9 +554,9 @@ export default function StudentSchedule() {
 
     scheduledSubjects.forEach((subject) => {
       const days = parseScheduleDays(subject.offering.schedule_days);
-      const parsedTime = parseScheduleTimeRange(subject.offering.schedule_time);
+      const time = parseScheduleTimeRange(subject.offering.schedule_time);
 
-      if (!parsedTime) {
+      if (days.length === 0 || !time) {
         return;
       }
 
@@ -489,8 +568,8 @@ export default function StudentSchedule() {
           key: `${subject.enrollment_subject_id}-${dayNumber}`,
           dayNumber,
           dayName: DAY_NAMES[dayNumber],
-          startMinutes: parsedTime.startMinutes,
-          endMinutes: parsedTime.endMinutes,
+          startMinutes: time.startMinutes,
+          endMinutes: time.endMinutes,
           subject,
           color,
         });
@@ -498,11 +577,11 @@ export default function StudentSchedule() {
     });
 
     return meetings.sort((a, b) => {
-      if (a.dayNumber !== b.dayNumber) {
-        const aSort = a.dayNumber === 0 ? 7 : a.dayNumber;
-        const bSort = b.dayNumber === 0 ? 7 : b.dayNumber;
+      const aDay = a.dayNumber === 0 ? 7 : a.dayNumber;
+      const bDay = b.dayNumber === 0 ? 7 : b.dayNumber;
 
-        return aSort - bSort;
+      if (aDay !== bDay) {
+        return aDay - bDay;
       }
 
       return a.startMinutes - b.startMinutes;
@@ -510,38 +589,39 @@ export default function StudentSchedule() {
   }, [scheduledSubjects, subjectColorMap]);
 
   const weeklyDays = useMemo(() => {
-    const baseDays = [1, 2, 3, 4, 5, 6];
+    const usedDays = new Set(weeklyMeetings.map((meeting) => meeting.dayNumber));
+    const orderedDays = [1, 2, 3, 4, 5, 6, 0];
 
-    if (weeklyMeetings.some((meeting) => meeting.dayNumber === 0)) {
-      baseDays.push(0);
+    if (usedDays.size === 0) {
+      return [1, 2, 3, 4, 5, 6];
     }
 
-    return baseDays;
+    return orderedDays.filter((day) => usedDays.has(day));
   }, [weeklyMeetings]);
 
   const scheduleEvents = useMemo<EventInput[]>(() => {
-    const generatedEvents: EventInput[] = [];
+    const events: EventInput[] = [];
 
     scheduledSubjects.forEach((subject) => {
       const daysOfWeek = parseScheduleDays(subject.offering.schedule_days);
-      const parsedTime = parseScheduleTimeRange(subject.offering.schedule_time);
+      const time = parseScheduleTimeRange(subject.offering.schedule_time);
 
-      if (daysOfWeek.length === 0 || !parsedTime) {
+      if (daysOfWeek.length === 0 || !time) {
         return;
       }
 
       const color =
         subjectColorMap.get(subject.subject_id) || SUBJECT_COLORS[0];
 
-      generatedEvents.push({
+      events.push({
         id: `subject-${subject.enrollment_subject_id}`,
-        title: `${subject.subject_code} - ${subject.subject_name}`,
+        title: `${subject.subject_code} · ${subject.subject_name}`,
         daysOfWeek,
-        startTime: parsedTime.startTime,
-        endTime: parsedTime.endTime,
+        startTime: time.startTime,
+        endTime: time.endTime,
         backgroundColor: color,
         borderColor: color,
-        classNames: ["official-class-event"],
+        classNames: ["student-schedule__calendar-class"],
         extendedProps: {
           kind: "subject",
           enrollment_subject_id: subject.enrollment_subject_id,
@@ -549,25 +629,16 @@ export default function StudentSchedule() {
       });
     });
 
-    return generatedEvents;
+    return events;
   }, [scheduledSubjects, subjectColorMap]);
-
-  const currentMonthHolidays = holidays.filter((holiday) => {
-    const holidayDate = new Date(`${holiday.date}T00:00:00`);
-
-    return (
-      holidayDate.getMonth() === currentDate.getMonth() &&
-      holidayDate.getFullYear() === currentDate.getFullYear()
-    );
-  });
 
   const holidayEvents = useMemo<EventInput[]>(
     () =>
       holidays.map((holiday) => ({
-        title: holiday.localName,
+        title: holiday.localName || holiday.name,
         start: holiday.date,
         allDay: true,
-        className: "holiday-event",
+        classNames: ["student-schedule__holiday-event"],
         extendedProps: {
           kind: "holiday",
         },
@@ -575,47 +646,70 @@ export default function StudentSchedule() {
     [holidays],
   );
 
-  const calendarEvents = useMemo<EventInput[]>(
+  const calendarEvents = useMemo(
     () => [...scheduleEvents, ...holidayEvents],
     [scheduleEvents, holidayEvents],
   );
 
-  const totalWeeklyMeetings = weeklyMeetings.length;
+  const currentMonthHolidays = useMemo(
+    () =>
+      holidays.filter((holiday) => {
+        const date = new Date(`${holiday.date}T00:00:00`);
+
+        return (
+          date.getMonth() === currentDate.getMonth() &&
+          date.getFullYear() === currentDate.getFullYear()
+        );
+      }),
+    [holidays, currentDate],
+  );
+
+  const sectionNames = useMemo(
+    () =>
+      Array.from(
+        new Set(
+          scheduledSubjects
+            .map((subject) => subject.section.section_name?.trim())
+            .filter((value): value is string => Boolean(value)),
+        ),
+      ),
+    [scheduledSubjects],
+  );
+
   const activeSection =
-    scheduledSubjects.find((subject) => subject.section.section_name)?.section
-      .section_name || "Not assigned";
+    sectionNames.length === 0
+      ? "Not assigned"
+      : sectionNames.length === 1
+        ? sectionNames[0]
+        : `${sectionNames.length} sections`;
+
+  const totalWeeklyMeetings = weeklyMeetings.length;
 
   const handlePreviousMonth = () => {
-    const calendarApi = calendarRef.current?.getApi();
+    const api = calendarRef.current?.getApi();
+    if (!api) return;
 
-    if (!calendarApi) return;
-
-    calendarApi.prev();
-
-    setCurrentMonth(calendarApi.view.title);
-    setCurrentDate(calendarApi.getDate());
+    api.prev();
+    setCurrentMonth(api.view.title);
+    setCurrentDate(api.getDate());
   };
 
   const handleToday = () => {
-    const calendarApi = calendarRef.current?.getApi();
+    const api = calendarRef.current?.getApi();
+    if (!api) return;
 
-    if (!calendarApi) return;
-
-    calendarApi.today();
-
-    setCurrentMonth(calendarApi.view.title);
-    setCurrentDate(calendarApi.getDate());
+    api.today();
+    setCurrentMonth(api.view.title);
+    setCurrentDate(api.getDate());
   };
 
   const handleNextMonth = () => {
-    const calendarApi = calendarRef.current?.getApi();
+    const api = calendarRef.current?.getApi();
+    if (!api) return;
 
-    if (!calendarApi) return;
-
-    calendarApi.next();
-
-    setCurrentMonth(calendarApi.view.title);
-    setCurrentDate(calendarApi.getDate());
+    api.next();
+    setCurrentMonth(api.view.title);
+    setCurrentDate(api.getDate());
   };
 
   const handleDatesSet = useCallback(
@@ -625,15 +719,8 @@ export default function StudentSchedule() {
         currentStart: Date;
       };
     }) => {
-      setCurrentMonth((previous) =>
-        previous === info.view.title ? previous : info.view.title,
-      );
-
-      const nextDate = info.view.currentStart;
-
-      setCurrentDate((previous) =>
-        previous.getTime() === nextDate.getTime() ? previous : nextDate,
-      );
+      setCurrentMonth(info.view.title);
+      setCurrentDate(info.view.currentStart);
     },
     [],
   );
@@ -659,382 +746,496 @@ export default function StudentSchedule() {
     [scheduledSubjects],
   );
 
-  if (!isStudent) {
+  if (!authenticated || !session || !isStudent) {
     return null;
   }
 
+  const totalEnrolled =
+    scheduleData?.summary?.total_enrolled_subjects ??
+    scheduleData?.subjects.length ??
+    0;
+  const scheduledCount =
+    scheduleData?.summary?.scheduled_subjects ?? scheduledSubjects.length;
+
   return (
     <DashboardLayout>
-      <div className="student-schedule-page">
-        <section className="schedule-header">
-          <div className="schedule-heading">
-            <span className="schedule-eyebrow">
-              <CalendarDays size={15} />
-              STUDENT · ACADEMIC RECORDS
-            </span>
-
-            <h1>Student Schedule</h1>
-
-            <div className="schedule-subtitle-row">
-              <span>{currentMonth || "Official Class Schedule"}</span>
-
-              {scheduleData?.enrollment && (
-                <>
-                  <span className="schedule-dot" aria-hidden="true">
-                    •
-                  </span>
-
-                  <span>
-                    {scheduleData.enrollment.academic_year} ·{" "}
-                    {scheduleData.enrollment.semester_name}
-                  </span>
-                </>
-              )}
+      <main className="student-schedule">
+        <section className="student-schedule__hero">
+          <div className="student-schedule__hero-copy">
+            <div className="student-schedule__eyebrow">
+              <span>
+                <CalendarDays size={16} aria-hidden="true" />
+              </span>
+              Student · Academic Records
             </div>
+
+            <h1>Class Schedule</h1>
+
+            <p>
+              View the official classes connected to your latest approved
+              enrollment.
+            </p>
+
+            {scheduleData?.student && (
+              <div className="student-schedule__student-line">
+                <strong>{scheduleData.student.student_name}</strong>
+                <span>{scheduleData.student.student_number}</span>
+                <span>{scheduleData.student.course.course_code}</span>
+              </div>
+            )}
           </div>
 
-          <div className="schedule-header-actions">
-            {viewMode === "month" && (
-              <div className="month-navigation">
-                <button
-                  type="button"
-                  onClick={handlePreviousMonth}
-                  aria-label="Previous month"
-                >
-                  &lt;
-                </button>
-
-                <button type="button" onClick={handleToday}>
-                  Today
-                </button>
-
-                <button
-                  type="button"
-                  onClick={handleNextMonth}
-                  aria-label="Next month"
-                >
-                  &gt;
-                </button>
+          <div className="student-schedule__hero-actions">
+            {scheduleData?.enrollment && (
+              <div className="student-schedule__term-card">
+                <small>Current official term</small>
+                <strong>{scheduleData.enrollment.academic_year}</strong>
+                <span>{scheduleData.enrollment.semester_name}</span>
               </div>
             )}
 
-            <div className="schedule-header-icon" aria-hidden="true">
-              <CalendarDays size={28} strokeWidth={1.9} />
-            </div>
+            <button
+              type="button"
+              className="student-schedule__refresh"
+              onClick={() => void loadSchedule(true)}
+              disabled={scheduleLoading || refreshing}
+            >
+              <RefreshCw
+                size={16}
+                className={refreshing ? "student-schedule__spinner" : ""}
+                aria-hidden="true"
+              />
+              {refreshing ? "Refreshing..." : "Refresh"}
+            </button>
           </div>
         </section>
+
+        {scheduleError && (
+          <div className="student-schedule__error" role="status">
+            <CircleAlertIcon />
+            <div>
+              <strong>Schedule could not be loaded</strong>
+              <span>{scheduleError}</span>
+            </div>
+          </div>
+        )}
 
         <section
-          className="schedule-summary-grid"
-          aria-label="Schedule summary"
+          className="student-schedule__summary"
+          aria-label="Schedule overview"
         >
-          <div className="schedule-summary-card">
-            <span className="schedule-summary-icon">
-              <BookOpen size={19} />
+          <article>
+            <span className="student-schedule__summary-icon">
+              <BookOpen size={19} aria-hidden="true" />
             </span>
+            <div>
+              <small>Enrolled Subjects</small>
+              <strong>{scheduleLoading ? "…" : totalEnrolled}</strong>
+            </div>
+          </article>
 
+          <article>
+            <span className="student-schedule__summary-icon">
+              <CheckCircle2 size={19} aria-hidden="true" />
+            </span>
             <div>
               <small>Scheduled Subjects</small>
-              <strong>{scheduledSubjects.length}</strong>
+              <strong>{scheduleLoading ? "…" : scheduledCount}</strong>
             </div>
-          </div>
+          </article>
 
-          <div className="schedule-summary-card">
-            <span className="schedule-summary-icon">
-              <Clock3 size={19} />
+          <article>
+            <span className="student-schedule__summary-icon">
+              <Clock3 size={19} aria-hidden="true" />
             </span>
-
             <div>
               <small>Weekly Meetings</small>
-              <strong>{totalWeeklyMeetings}</strong>
+              <strong>{scheduleLoading ? "…" : totalWeeklyMeetings}</strong>
             </div>
-          </div>
+          </article>
 
-          <div className="schedule-summary-card">
-            <span className="schedule-summary-icon">
-              <GraduationCap size={19} />
+          <article>
+            <span className="student-schedule__summary-icon">
+              <GraduationCap size={19} aria-hidden="true" />
             </span>
-
             <div>
               <small>Section</small>
-              <strong>{activeSection}</strong>
+              <strong>{scheduleLoading ? "…" : activeSection}</strong>
             </div>
-          </div>
-
-          <div className="schedule-summary-card">
-            <span className="schedule-summary-icon">
-              <CheckCircle2 size={19} />
-            </span>
-
-            <div>
-              <small>Enrollment</small>
-              <strong>
-                {scheduleData?.enrollment?.enrollment_status || "Not available"}
-              </strong>
-            </div>
-          </div>
+          </article>
         </section>
 
-        <section className="schedule-main-card">
-          <div className="schedule-card-toolbar">
+        <section className="student-schedule__workspace">
+          <header className="student-schedule__workspace-header">
             <div>
-              <span className="schedule-section-kicker">OFFICIAL CLASSES</span>
+              <span className="student-schedule__section-kicker">
+                Official Schedule
+              </span>
               <h2>
-                {viewMode === "month" ? "Monthly Calendar" : "Weekly Schedule"}
+                {viewMode === "week" ? "Weekly Classes" : currentMonth}
               </h2>
-            </div>
-
-            <div className="schedule-view-switch" role="tablist">
-              <button
-                type="button"
-                className={viewMode === "week" ? "active" : ""}
-                onClick={() => setViewMode("week")}
-                role="tab"
-                aria-selected={viewMode === "week"}
-              >
-                <Clock3 size={16} />
-                Weekly
-              </button>
-
-              <button
-                type="button"
-                className={viewMode === "month" ? "active" : ""}
-                onClick={() => setViewMode("month")}
-                role="tab"
-                aria-selected={viewMode === "month"}
-              >
-                <CalendarDays size={16} />
-                Monthly
-              </button>
-            </div>
-          </div>
-
-          {scheduleLoading && !scheduleData && (
-            <div className="schedule-state schedule-state-loading">
-              <span className="schedule-state-spinner" />
-              <div>
-                <strong>Loading official class schedule</strong>
-                <p>Please wait while your approved enrollment is checked.</p>
-              </div>
-            </div>
-          )}
-
-          {!scheduleLoading && scheduleError && (
-            <div className="schedule-state schedule-state-error">
-              <strong>Schedule could not be loaded</strong>
-              <p>{scheduleError}</p>
-            </div>
-          )}
-
-          {!scheduleLoading && !scheduleError && !scheduleData?.enrollment && (
-            <div className="schedule-state">
-              <strong>No approved enrollment yet</strong>
               <p>
-                Your official class schedule will appear after Registrar
-                approval.
+                {scheduleData?.enrollment
+                  ? `${scheduleData.enrollment.academic_year} · ${scheduleData.enrollment.semester_name} · ${scheduleData.enrollment.enrollment_status}`
+                  : "Your official schedule appears after enrollment approval."}
               </p>
             </div>
-          )}
 
-          {!scheduleLoading &&
-            !scheduleError &&
-            scheduleData?.enrollment &&
-            scheduledSubjects.length === 0 && (
-              <div className="schedule-state">
-                <strong>No official schedule assigned yet</strong>
-                <p>
-                  Your enrollment is approved, but your class schedule has not
-                  been completely assigned.
-                </p>
-              </div>
-            )}
+            <div className="student-schedule__toolbar">
+              {viewMode === "month" && (
+                <div className="student-schedule__month-nav">
+                  <button
+                    type="button"
+                    onClick={handlePreviousMonth}
+                    aria-label="Previous month"
+                  >
+                    <ChevronLeft size={16} aria-hidden="true" />
+                  </button>
 
-          {!scheduleLoading &&
-            !scheduleError &&
-            Number(scheduleData?.summary?.unscheduled_subjects || 0) > 0 && (
-              <div className="schedule-warning">
-                <Clock3 size={17} />
-                <span>
-                  {scheduleData?.summary?.unscheduled_subjects} enrolled
-                  subject(s) do not have a complete schedule yet.
-                </span>
-              </div>
-            )}
+                  <button type="button" onClick={handleToday}>
+                    Today
+                  </button>
 
-          {viewMode === "month" ? (
-            <div className="schedule-calendar-wrap">
-              <FullCalendar
-                ref={calendarRef}
-                plugins={[dayGridPlugin, interactionPlugin]}
-                initialView="dayGridMonth"
-                headerToolbar={false}
-                height="auto"
-                events={calendarEvents}
-                displayEventTime
-                eventTimeFormat={{
-                  hour: "numeric",
-                  minute: "2-digit",
-                  meridiem: "short",
-                }}
-                dayMaxEvents={3}
-                fixedWeekCount={false}
-                eventClick={handleCalendarEventClick}
-                eventDidMount={(info) => {
-                  if (info.event.extendedProps.kind === "subject") {
-                    info.el.title = "Click to view class details";
-                  }
-                }}
-                datesSet={handleDatesSet}
-              />
-            </div>
-          ) : (
-            <div className="weekly-schedule-wrap">
-              <div className="weekly-schedule-grid">
-                {weeklyDays.map((dayNumber) => {
-                  const dayMeetings = weeklyMeetings.filter(
-                    (meeting) => meeting.dayNumber === dayNumber,
-                  );
+                  <button
+                    type="button"
+                    onClick={handleNextMonth}
+                    aria-label="Next month"
+                  >
+                    <ChevronRight size={16} aria-hidden="true" />
+                  </button>
+                </div>
+              )}
 
-                  return (
-                    <div className="weekly-day-column" key={dayNumber}>
-                      <div className="weekly-day-header">
-                        <span>{DAY_NAMES[dayNumber]}</span>
-                        <small>
-                          {dayMeetings.length}{" "}
-                          {dayMeetings.length === 1 ? "class" : "classes"}
-                        </small>
-                      </div>
-
-                      <div className="weekly-day-list">
-                        {dayMeetings.length === 0 ? (
-                          <div className="weekly-empty">
-                            No classes scheduled
-                          </div>
-                        ) : (
-                          dayMeetings.map((meeting) => (
-                            <button
-                              type="button"
-                              className={`weekly-class-card ${getSubjectColorClass(
-                                meeting.color,
-                              )}`}
-                              key={meeting.key}
-                              onClick={() =>
-                                setSelectedSubject(meeting.subject)
-                              }
-                            >
-                              <span className="weekly-class-time">
-                                {formatMinutesForDisplay(meeting.startMinutes)}{" "}
-                                – {formatMinutesForDisplay(meeting.endMinutes)}
-                              </span>
-
-                              <strong>{meeting.subject.subject_code}</strong>
-
-                              <span className="weekly-class-name">
-                                {meeting.subject.subject_name}
-                              </span>
-
-                              <span className="weekly-class-meta">
-                                {meeting.subject.section.section_name ||
-                                  "Section not assigned"}
-                              </span>
-                            </button>
-                          ))
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-        </section>
-
-        <section className="holiday-container">
-          <div className="section-heading-row">
-            <div>
-              <span className="schedule-section-kicker holiday-kicker">
-                CALENDAR NOTICE
-              </span>
-              <h3>Holidays This Month</h3>
-            </div>
-
-            <span className="section-count">{currentMonthHolidays.length}</span>
-          </div>
-
-          {holidays.length === 0 ? (
-            <p>Loading holidays...</p>
-          ) : currentMonthHolidays.length === 0 ? (
-            <p>No holidays this month.</p>
-          ) : (
-            <ul>
-              {currentMonthHolidays.map((holiday) => (
-                <li key={holiday.date}>
-                  <strong>
-                    {new Date(`${holiday.date}T00:00:00`).toLocaleDateString(
-                      "en-US",
-                      {
-                        month: "long",
-                        day: "numeric",
-                      },
-                    )}
-                  </strong>
-
-                  {" — "}
-
-                  {holiday.localName}
-                </li>
-              ))}
-            </ul>
-          )}
-        </section>
-
-        <section className="legend-container">
-          <div className="section-heading-row">
-            <div>
-              <span className="schedule-section-kicker">COLOR GUIDE</span>
-              <h3>Subject Legend</h3>
-            </div>
-
-            <span className="section-count">{scheduledSubjects.length}</span>
-          </div>
-
-          <div className="legend-items">
-            {scheduledSubjects.length === 0 ? (
-              <p>No scheduled subjects to display.</p>
-            ) : (
-              scheduledSubjects.map((subject) => (
+              <div className="student-schedule__view-switch" role="tablist">
                 <button
                   type="button"
-                  className="legend-item"
-                  key={subject.enrollment_subject_id}
-                  onClick={() => setSelectedSubject(subject)}
+                  className={viewMode === "week" ? "is-active" : ""}
+                  onClick={() => setViewMode("week")}
+                  role="tab"
+                  aria-selected={viewMode === "week"}
                 >
-                  <span
-                    className={`legend-color ${getSubjectColorClass(
-                      subjectColorMap.get(subject.subject_id) ||
-                        SUBJECT_COLORS[0],
-                    )}`}
-                  />
-
-                  <span>
-                    <strong>{subject.subject_code}</strong>
-                    {" · "}
-                    {subject.subject_name}
-                  </span>
+                  <Clock3 size={15} aria-hidden="true" />
+                  Week
                 </button>
-              ))
-            )}
 
-            <div className="legend-item legend-item-static">
-              <span className="legend-color holiday-legend-color" />
-              <span>Holiday</span>
+                <button
+                  type="button"
+                  className={viewMode === "month" ? "is-active" : ""}
+                  onClick={() => setViewMode("month")}
+                  role="tab"
+                  aria-selected={viewMode === "month"}
+                >
+                  <CalendarDays size={15} aria-hidden="true" />
+                  Month
+                </button>
+              </div>
             </div>
-          </div>
+          </header>
+
+          {scheduleLoading && !scheduleData ? (
+            <div className="student-schedule__state">
+              <LoaderCircle
+                size={25}
+                className="student-schedule__spinner"
+                aria-hidden="true"
+              />
+              <strong>Loading official class schedule...</strong>
+              <span>Please wait while your approved enrollment is checked.</span>
+            </div>
+          ) : !scheduleError && !scheduleData?.enrollment ? (
+            <div className="student-schedule__state">
+              <Info size={25} aria-hidden="true" />
+              <strong>No approved enrollment yet</strong>
+              <span>
+                Your official class schedule will appear after Registrar
+                approval.
+              </span>
+            </div>
+          ) : !scheduleError && scheduledSubjects.length === 0 ? (
+            <div className="student-schedule__state">
+              <CalendarDays size={25} aria-hidden="true" />
+              <strong>No official schedule assigned yet</strong>
+              <span>
+                Your enrollment is approved, but class days and times have not
+                been completely assigned.
+              </span>
+            </div>
+          ) : !scheduleError ? (
+            <>
+              {unscheduledSubjects.length > 0 && (
+                <div className="student-schedule__warning">
+                  <AlertTriangle size={17} aria-hidden="true" />
+                  <div>
+                    <strong>
+                      {unscheduledSubjects.length} enrolled{" "}
+                      {unscheduledSubjects.length === 1
+                        ? "subject is"
+                        : "subjects are"}{" "}
+                      still waiting for a complete schedule.
+                    </strong>
+                    <span>
+                      They remain part of your approved enrollment and will
+                      appear here once class days and times are assigned.
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              {viewMode === "week" ? (
+                <div className="student-schedule__weekly-wrap">
+                  <div
+                    className="student-schedule__weekly-grid"
+                    style={{
+                      gridTemplateColumns: `repeat(${Math.max(
+                        weeklyDays.length,
+                        1,
+                      )}, minmax(210px, 1fr))`,
+                    }}
+                  >
+                    {weeklyDays.map((dayNumber) => {
+                      const dayMeetings = weeklyMeetings.filter(
+                        (meeting) => meeting.dayNumber === dayNumber,
+                      );
+
+                      return (
+                        <section
+                          className="student-schedule__day"
+                          key={dayNumber}
+                        >
+                          <header className="student-schedule__day-header">
+                            <div>
+                              <strong>{DAY_NAMES[dayNumber]}</strong>
+                              <span>
+                                {dayMeetings.length}{" "}
+                                {dayMeetings.length === 1 ? "class" : "classes"}
+                              </span>
+                            </div>
+                          </header>
+
+                          <div className="student-schedule__day-list">
+                            {dayMeetings.length === 0 ? (
+                              <div className="student-schedule__day-empty">
+                                No classes
+                              </div>
+                            ) : (
+                              dayMeetings.map((meeting) => (
+                                <button
+                                  type="button"
+                                  className="student-schedule__class-card"
+                                  key={meeting.key}
+                                  onClick={() =>
+                                    setSelectedSubject(meeting.subject)
+                                  }
+                                  style={{
+                                    borderLeftColor: meeting.color,
+                                  }}
+                                >
+                                  <span className="student-schedule__class-time">
+                                    {formatMinutesForDisplay(
+                                      meeting.startMinutes,
+                                    )}{" "}
+                                    –{" "}
+                                    {formatMinutesForDisplay(
+                                      meeting.endMinutes,
+                                    )}
+                                  </span>
+
+                                  <strong>
+                                    {meeting.subject.subject_code}
+                                  </strong>
+
+                                  <span className="student-schedule__class-name">
+                                    {meeting.subject.subject_name}
+                                  </span>
+
+                                  <span className="student-schedule__class-meta">
+                                    {meeting.subject.section.section_name ||
+                                      "Section not assigned"}
+                                  </span>
+
+                                  <span className="student-schedule__class-faculty">
+                                    {meeting.subject.faculty.faculty_name ||
+                                      "Faculty not assigned"}
+                                  </span>
+                                </button>
+                              ))
+                            )}
+                          </div>
+                        </section>
+                      );
+                    })}
+                  </div>
+                </div>
+              ) : (
+                <div className="student-schedule__calendar-wrap">
+                  <FullCalendar
+                    ref={calendarRef}
+                    plugins={[dayGridPlugin, interactionPlugin]}
+                    initialView="dayGridMonth"
+                    headerToolbar={false}
+                    height="auto"
+                    events={calendarEvents}
+                    displayEventTime
+                    eventTimeFormat={{
+                      hour: "numeric",
+                      minute: "2-digit",
+                      meridiem: "short",
+                    }}
+                    dayMaxEvents={3}
+                    fixedWeekCount={false}
+                    eventClick={handleCalendarEventClick}
+                    eventDidMount={(info) => {
+                      if (info.event.extendedProps.kind === "subject") {
+                        info.el.title = "Click to view class details";
+                      }
+                    }}
+                    datesSet={handleDatesSet}
+                  />
+                </div>
+              )}
+            </>
+          ) : null}
         </section>
+
+        <div className="student-schedule__lower-grid">
+          <section className="student-schedule__panel">
+            <header className="student-schedule__panel-header">
+              <div>
+                <span className="student-schedule__section-kicker">
+                  Subject Guide
+                </span>
+                <h2>Scheduled Subjects</h2>
+              </div>
+
+              <span className="student-schedule__count">
+                {scheduledSubjects.length}
+              </span>
+            </header>
+
+            <div className="student-schedule__legend">
+              {scheduledSubjects.length === 0 ? (
+                <p className="student-schedule__panel-empty">
+                  No scheduled subjects to display.
+                </p>
+              ) : (
+                scheduledSubjects.map((subject) => (
+                  <button
+                    type="button"
+                    className="student-schedule__legend-item"
+                    key={subject.enrollment_subject_id}
+                    onClick={() => setSelectedSubject(subject)}
+                  >
+                    <span
+                      className="student-schedule__legend-color"
+                      style={{
+                        backgroundColor:
+                          subjectColorMap.get(subject.subject_id) ||
+                          SUBJECT_COLORS[0],
+                      }}
+                    />
+
+                    <span>
+                      <strong>{subject.subject_code}</strong>
+                      <small>{subject.subject_name}</small>
+                    </span>
+                  </button>
+                ))
+              )}
+            </div>
+          </section>
+
+          <section className="student-schedule__panel">
+            <header className="student-schedule__panel-header">
+              <div>
+                <span className="student-schedule__section-kicker">
+                  Calendar Notice
+                </span>
+                <h2>Holidays This Month</h2>
+              </div>
+
+              <span className="student-schedule__count">
+                {holidayLoading ? "…" : currentMonthHolidays.length}
+              </span>
+            </header>
+
+            {holidayLoading ? (
+              <div className="student-schedule__panel-loading">
+                <LoaderCircle
+                  size={17}
+                  className="student-schedule__spinner"
+                  aria-hidden="true"
+                />
+                Loading holidays...
+              </div>
+            ) : holidayError ? (
+              <p className="student-schedule__panel-empty">
+                Holiday information is unavailable right now.
+              </p>
+            ) : currentMonthHolidays.length === 0 ? (
+              <p className="student-schedule__panel-empty">
+                No listed Philippine holidays this month.
+              </p>
+            ) : (
+              <div className="student-schedule__holidays">
+                {currentMonthHolidays.map((holiday) => (
+                  <div
+                    className="student-schedule__holiday"
+                    key={holiday.date}
+                  >
+                    <span>{formatHolidayDate(holiday.date)}</span>
+                    <div>
+                      <strong>{holiday.localName || holiday.name}</strong>
+                      {holiday.localName !== holiday.name && holiday.name && (
+                        <small>{holiday.name}</small>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
+        </div>
+
+        {unscheduledSubjects.length > 0 && (
+          <section className="student-schedule__unscheduled">
+            <header className="student-schedule__panel-header">
+              <div>
+                <span className="student-schedule__section-kicker">
+                  Pending Schedule
+                </span>
+                <h2>Enrolled Subjects Without Complete Schedule</h2>
+              </div>
+
+              <span className="student-schedule__count">
+                {unscheduledSubjects.length}
+              </span>
+            </header>
+
+            <div className="student-schedule__unscheduled-list">
+              {unscheduledSubjects.map((subject) => (
+                <article
+                  className="student-schedule__unscheduled-item"
+                  key={subject.enrollment_subject_id}
+                >
+                  <span className="student-schedule__unscheduled-icon">
+                    <Clock3 size={16} aria-hidden="true" />
+                  </span>
+                  <div>
+                    <strong>{subject.subject_code}</strong>
+                    <span>{subject.subject_name}</span>
+                  </div>
+                  <small>
+                    {subject.section.section_name || "Section not assigned"}
+                  </small>
+                </article>
+              ))}
+            </div>
+          </section>
+        )}
 
         {selectedSubject && (
           <div
-            className="schedule-modal-backdrop"
+            className="student-schedule__modal-backdrop"
             role="presentation"
             onMouseDown={(event) => {
               if (event.currentTarget === event.target) {
@@ -1043,36 +1244,36 @@ export default function StudentSchedule() {
             }}
           >
             <div
-              className="schedule-modal"
+              className="student-schedule__modal"
               role="dialog"
               aria-modal="true"
-              aria-labelledby="schedule-modal-title"
+              aria-labelledby="student-schedule-modal-title"
             >
-              <div className="schedule-modal-header">
+              <header className="student-schedule__modal-header">
                 <div>
-                  <span className="schedule-section-kicker">
-                    OFFICIAL CLASS
+                  <span className="student-schedule__section-kicker">
+                    Official Class
                   </span>
-                  <h3 id="schedule-modal-title">
+                  <h2 id="student-schedule-modal-title">
                     {selectedSubject.subject_code}
-                  </h3>
+                  </h2>
                   <p>{selectedSubject.subject_name}</p>
                 </div>
 
                 <button
                   type="button"
-                  className="schedule-modal-close"
+                  className="student-schedule__modal-close"
                   onClick={() => setSelectedSubject(null)}
                   aria-label="Close class details"
                 >
-                  <X size={19} />
+                  <X size={18} aria-hidden="true" />
                 </button>
-              </div>
+              </header>
 
-              <div className="schedule-modal-body">
-                <div className="schedule-detail-row">
-                  <span className="schedule-detail-icon">
-                    <CalendarDays size={18} />
+              <div className="student-schedule__modal-body">
+                <div className="student-schedule__detail">
+                  <span className="student-schedule__detail-icon">
+                    <CalendarDays size={17} aria-hidden="true" />
                   </span>
                   <div>
                     <small>Class Schedule</small>
@@ -1085,9 +1286,9 @@ export default function StudentSchedule() {
                   </div>
                 </div>
 
-                <div className="schedule-detail-row">
-                  <span className="schedule-detail-icon">
-                    <GraduationCap size={18} />
+                <div className="student-schedule__detail">
+                  <span className="student-schedule__detail-icon">
+                    <GraduationCap size={17} aria-hidden="true" />
                   </span>
                   <div>
                     <small>Section</small>
@@ -1097,9 +1298,9 @@ export default function StudentSchedule() {
                   </div>
                 </div>
 
-                <div className="schedule-detail-row">
-                  <span className="schedule-detail-icon">
-                    <UserRound size={18} />
+                <div className="student-schedule__detail">
+                  <span className="student-schedule__detail-icon">
+                    <UserRound size={17} aria-hidden="true" />
                   </span>
                   <div>
                     <small>Faculty</small>
@@ -1109,12 +1310,12 @@ export default function StudentSchedule() {
                   </div>
                 </div>
 
-                <div className="schedule-detail-row">
-                  <span className="schedule-detail-icon">
-                    <BookOpen size={18} />
+                <div className="student-schedule__detail">
+                  <span className="student-schedule__detail-icon">
+                    <BookOpen size={17} aria-hidden="true" />
                   </span>
                   <div>
-                    <small>Enrollment Type</small>
+                    <small>Enrollment</small>
                     <strong>{selectedSubject.enrollment_type}</strong>
                     <span>
                       {selectedSubject.units}{" "}
@@ -1124,19 +1325,27 @@ export default function StudentSchedule() {
                 </div>
               </div>
 
-              <div className="schedule-modal-footer">
+              <footer className="student-schedule__modal-footer">
                 <span>
-                  This schedule comes from your approved official enrollment.
+                  This schedule comes from your latest approved official
+                  enrollment.
                 </span>
 
-                <button type="button" onClick={() => setSelectedSubject(null)}>
+                <button
+                  type="button"
+                  onClick={() => setSelectedSubject(null)}
+                >
                   Close
                 </button>
-              </div>
+              </footer>
             </div>
           </div>
         )}
-      </div>
+      </main>
     </DashboardLayout>
   );
+}
+
+function CircleAlertIcon() {
+  return <Info size={18} aria-hidden="true" />;
 }
