@@ -16,9 +16,11 @@ import {
 } from "lucide-react";
 import DashboardLayout from "../../../components/Layout/DashboardLayout";
 import { authService } from "../../../services/auth.service";
+import { apiUrl } from "../../../services/api";
 import "../../../styles/registrar-document-request.css";
-const REGISTRAR_DOCUMENT_REQUESTS_API =
-  "http://localhost:3000/api/registrar/document-requests";
+const REGISTRAR_DOCUMENT_REQUESTS_API = apiUrl(
+  "/api/registrar/document-requests",
+);
 type RegistrarStatus =
   | "Pending"
   | "Ready for Processing"

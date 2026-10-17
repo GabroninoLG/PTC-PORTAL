@@ -20,9 +20,10 @@ import {
 
 import DashboardLayout from "../../components/Layout/DashboardLayout";
 import { authService } from "../../services/auth.service";
+import { apiUrl } from "../../services/api";
 import "../styles/dashboard.css";
 
-const API_BASE_URL = "http://localhost:3000";
+const API_BASE_URL = apiUrl("http://localhost:3000");
 
 type DataSource = "users" | "students" | "activity" | "announcements";
 
@@ -369,10 +370,7 @@ export default function AdminDashboard() {
     void loadDashboard(true);
   }, [authenticated, userRole, loadDashboard]);
 
-  const activeUsers = useMemo(
-    () => users.filter(isActiveUser).length,
-    [users],
-  );
+  const activeUsers = useMemo(() => users.filter(isActiveUser).length, [users]);
 
   const inactiveUsers = Math.max(users.length - activeUsers, 0);
 
@@ -576,7 +574,9 @@ export default function AdminDashboard() {
             </span>
             <span className="admin-dashboard__stat-copy">
               <small>Total Accounts</small>
-              <strong>{loading ? "…" : metricValue("users", users.length)}</strong>
+              <strong>
+                {loading ? "…" : metricValue("users", users.length)}
+              </strong>
               <span>
                 {sourceErrors.users
                   ? "Account data unavailable"
@@ -596,7 +596,9 @@ export default function AdminDashboard() {
             </span>
             <span className="admin-dashboard__stat-copy">
               <small>Active Accounts</small>
-              <strong>{loading ? "…" : metricValue("users", activeUsers)}</strong>
+              <strong>
+                {loading ? "…" : metricValue("users", activeUsers)}
+              </strong>
               <span>
                 {sourceErrors.users
                   ? "Account status unavailable"
@@ -850,7 +852,9 @@ export default function AdminDashboard() {
                   Communications
                 </span>
                 <h2>Recent Announcements</h2>
-                <p>Latest portal announcements available to the administrator.</p>
+                <p>
+                  Latest portal announcements available to the administrator.
+                </p>
               </div>
 
               <button
@@ -885,7 +889,9 @@ export default function AdminDashboard() {
                 <div className="admin-dashboard__empty">
                   <Megaphone size={22} />
                   <strong>No announcements yet</strong>
-                  <p>Create an announcement when portal communication is needed.</p>
+                  <p>
+                    Create an announcement when portal communication is needed.
+                  </p>
                 </div>
               ) : (
                 recentAnnouncements.map((announcement) => (
