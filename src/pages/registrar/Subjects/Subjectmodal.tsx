@@ -10,9 +10,10 @@ import {
 } from "lucide-react";
 
 import { authService } from "../../../services/auth.service";
+import { apiUrl } from "../../../services/api";
 import "../../../styles/SubjectmodalR.css";
 
-const API_BASE_URL = "http://localhost:3000/api/registrar/subjects";
+const API_BASE_URL = apiUrl("/api/registrar/subjects");
 
 export interface Subject {
   subject_id: number;
@@ -129,18 +130,19 @@ export default function SubjectModal({
     if (mode === "add") {
       return Boolean(
         subjectCode.trim() ||
-          subjectName.trim() ||
-          units ||
-          lectureHours !== "3" ||
-          laboratoryHours !== "0" ||
-          description.trim(),
+        subjectName.trim() ||
+        units ||
+        lectureHours !== "3" ||
+        laboratoryHours !== "0" ||
+        description.trim(),
       );
     }
 
     if (!subject) return false;
 
     return (
-      subjectCode.trim().toUpperCase() !== subject.subject_code.trim().toUpperCase() ||
+      subjectCode.trim().toUpperCase() !==
+        subject.subject_code.trim().toUpperCase() ||
       subjectName.trim() !== subject.subject_name.trim() ||
       Number(units) !== Number(subject.units) ||
       Number(lectureHours) !== Number(subject.lecture_hours ?? 0) ||
@@ -399,7 +401,9 @@ export default function SubjectModal({
             <section className="registrar-subject-modal__section">
               <div className="registrar-subject-modal__section-heading">
                 <span>Units & Contact Hours</span>
-                <p>Define the standard academic load for this master subject.</p>
+                <p>
+                  Define the standard academic load for this master subject.
+                </p>
               </div>
 
               <div className="registrar-subject-modal__grid registrar-subject-modal__grid--load">
@@ -445,7 +449,9 @@ export default function SubjectModal({
                       min="0"
                       step="1"
                       value={laboratoryHours}
-                      onChange={(event) => setLaboratoryHours(event.target.value)}
+                      onChange={(event) =>
+                        setLaboratoryHours(event.target.value)
+                      }
                       disabled={saving}
                     />
                   </div>
@@ -454,7 +460,9 @@ export default function SubjectModal({
 
               <div className="registrar-subject-modal__load-preview">
                 <span>
-                  <strong>{Number.isFinite(parsedUnits) ? parsedUnits : 0}</strong>
+                  <strong>
+                    {Number.isFinite(parsedUnits) ? parsedUnits : 0}
+                  </strong>
                   Units
                 </span>
                 <span>
@@ -467,7 +475,9 @@ export default function SubjectModal({
             <section className="registrar-subject-modal__section">
               <div className="registrar-subject-modal__section-heading">
                 <span>Description</span>
-                <p>Optional context to help identify the subject in the catalog.</p>
+                <p>
+                  Optional context to help identify the subject in the catalog.
+                </p>
               </div>
 
               <label className="registrar-subject-modal__field">
@@ -511,7 +521,11 @@ export default function SubjectModal({
               >
                 {saving ? (
                   <>
-                    <Loader2 size={16} className="is-spinning" aria-hidden="true" />
+                    <Loader2
+                      size={16}
+                      className="is-spinning"
+                      aria-hidden="true"
+                    />
                     Saving...
                   </>
                 ) : (

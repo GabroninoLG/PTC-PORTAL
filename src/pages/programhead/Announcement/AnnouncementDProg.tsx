@@ -13,11 +13,11 @@ import {
 
 import DashboardLayout from "../../../components/Layout/DashboardLayout";
 import { authService } from "../../../services/auth.service";
+import { api } from "../../../services/api";
 import "../../../styles/announcementDetailsProgramHead.css";
 
-const API_BASE_URL = "http://localhost:3000";
-const FILE_BASE_URL = "http://localhost:3000";
-
+const API_BASE_URL = api.baseUrl;
+const FILE_BASE_URL = api.baseUrl;
 interface Attachment {
   file_id: number;
   original_name: string;
@@ -74,16 +74,16 @@ function formatAuthor(value: string | null | undefined) {
   return value?.trim() || "PTC Administration";
 }
 
-function includesProgramHeadAudience(
-  recipients: Recipient[] | undefined,
-) {
-  return Array.isArray(recipients) &&
+function includesProgramHeadAudience(recipients: Recipient[] | undefined) {
+  return (
+    Array.isArray(recipients) &&
     recipients.some(
       (recipient) =>
         String(recipient.role_name || "")
           .trim()
           .toLowerCase() === "program head",
-    );
+    )
+  );
 }
 
 function formatFileSize(bytes: number) {
@@ -193,18 +193,14 @@ export default function AnnouncementProgD() {
 
         if (response.status === 403) {
           const message =
-            "announcement_id" in data
-              ? undefined
-              : data.message || data.error;
+            "announcement_id" in data ? undefined : data.message || data.error;
 
           throw new Error(message || "Program Head access is required.");
         }
 
         if (!response.ok) {
           const message =
-            "announcement_id" in data
-              ? undefined
-              : data.message || data.error;
+            "announcement_id" in data ? undefined : data.message || data.error;
 
           throw new Error(message || "Announcement could not be loaded.");
         }
@@ -249,7 +245,10 @@ export default function AnnouncementProgD() {
           return;
         }
 
-        console.error("LOAD PROGRAM HEAD ANNOUNCEMENT DETAIL ERROR:", requestError);
+        console.error(
+          "LOAD PROGRAM HEAD ANNOUNCEMENT DETAIL ERROR:",
+          requestError,
+        );
         setAnnouncement(null);
 
         if (requestError instanceof TypeError) {

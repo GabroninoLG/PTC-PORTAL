@@ -29,10 +29,10 @@ import {
 
 import DashboardLayout from "../../../components/Layout/DashboardLayout";
 import { authService } from "../../../services/auth.service";
+import { api } from "../../../services/api";
 import "../../../styles/ProgramHeadTransferEvaluation.css";
 
-const API_BASE_URL =
-  "http://localhost:3000/api/program-head/transfer-evaluations";
+const API_BASE_URL = api.url("/api/program-head/transfer-evaluations");
 
 type CreditStatus = "Pending" | "Credited" | "Not Credited";
 type DecisionStatus = Exclude<CreditStatus, "Pending">;
@@ -359,15 +359,11 @@ function getReviewProgress(item: TransferEvaluationQueueItem) {
     return 0;
   }
 
-  const decided =
-    item.summary.total_subjects - item.summary.pending_subjects;
+  const decided = item.summary.total_subjects - item.summary.pending_subjects;
 
   return Math.max(
     0,
-    Math.min(
-      100,
-      Math.round((decided / item.summary.total_subjects) * 100),
-    ),
+    Math.min(100, Math.round((decided / item.summary.total_subjects) * 100)),
   );
 }
 
@@ -379,11 +375,10 @@ export default function TransferEvaluationReview() {
   const authenticated = Boolean(session && token);
   const userRole = session?.role;
 
-  const [programHead, setProgramHead] =
-    useState<ProgramHeadInfo | null>(null);
-  const [evaluations, setEvaluations] = useState<
-    TransferEvaluationQueueItem[]
-  >([]);
+  const [programHead, setProgramHead] = useState<ProgramHeadInfo | null>(null);
+  const [evaluations, setEvaluations] = useState<TransferEvaluationQueueItem[]>(
+    [],
+  );
   const [queueSummary, setQueueSummary] =
     useState<TransferQueueResponse["summary"]>();
   const [loading, setLoading] = useState(true);
@@ -394,13 +389,12 @@ export default function TransferEvaluationReview() {
   const [search, setSearch] = useState("");
   const [courseFilter, setCourseFilter] = useState("All");
   const [semesterFilter, setSemesterFilter] = useState("All");
-  const [reviewFilter, setReviewFilter] =
-    useState<ReviewFilter>("All");
+  const [reviewFilter, setReviewFilter] = useState<ReviewFilter>("All");
 
-  const [selectedEvaluationId, setSelectedEvaluationId] =
-    useState<number | null>(null);
-  const [detail, setDetail] =
-    useState<ReviewDetailResponse | null>(null);
+  const [selectedEvaluationId, setSelectedEvaluationId] = useState<
+    number | null
+  >(null);
+  const [detail, setDetail] = useState<ReviewDetailResponse | null>(null);
   const [detailLoading, setDetailLoading] = useState(false);
   const [detailError, setDetailError] = useState("");
 
@@ -415,16 +409,14 @@ export default function TransferEvaluationReview() {
   const [returnReason, setReturnReason] = useState("");
   const [returnError, setReturnError] = useState("");
 
-  const [completeModalOpen, setCompleteModalOpen] =
-    useState(false);
+  const [completeModalOpen, setCompleteModalOpen] = useState(false);
   const [completionRemarks, setCompletionRemarks] = useState("");
   const [completionError, setCompletionError] = useState("");
 
   const [busyAction, setBusyAction] = useState<
     "decision" | "return" | "complete" | null
   >(null);
-  const [actionNotice, setActionNotice] =
-    useState<ActionNotice | null>(null);
+  const [actionNotice, setActionNotice] = useState<ActionNotice | null>(null);
 
   useEffect(() => {
     if (!authenticated) {
@@ -468,8 +460,7 @@ export default function TransferEvaluationReview() {
           },
         );
 
-        const data =
-          await readJsonResponse<TransferQueueResponse>(response);
+        const data = await readJsonResponse<TransferQueueResponse>(response);
 
         if (response.status === 401) {
           authService.logout();
@@ -494,9 +485,7 @@ export default function TransferEvaluationReview() {
 
         setProgramHead(data.program_head || null);
         setQueueSummary(data.summary);
-        setEvaluations(
-          Array.isArray(data.evaluations) ? data.evaluations : [],
-        );
+        setEvaluations(Array.isArray(data.evaluations) ? data.evaluations : []);
       } catch (requestError) {
         if (
           requestError instanceof DOMException &&
@@ -584,15 +573,9 @@ export default function TransferEvaluationReview() {
     return evaluations.filter((item) => {
       const matchesSearch =
         !normalizedSearch ||
-        item.student.student_number
-          .toLowerCase()
-          .includes(normalizedSearch) ||
-        item.student.student_name
-          .toLowerCase()
-          .includes(normalizedSearch) ||
-        item.source.school
-          .toLowerCase()
-          .includes(normalizedSearch) ||
+        item.student.student_number.toLowerCase().includes(normalizedSearch) ||
+        item.student.student_name.toLowerCase().includes(normalizedSearch) ||
+        item.source.school.toLowerCase().includes(normalizedSearch) ||
         String(item.source.course || "")
           .toLowerCase()
           .includes(normalizedSearch) ||
@@ -616,28 +599,15 @@ export default function TransferEvaluationReview() {
 
       const matchesReview =
         reviewFilter === "All" ||
-        (reviewFilter === "Pending" &&
-          item.summary.pending_subjects > 0) ||
+        (reviewFilter === "Pending" && item.summary.pending_subjects > 0) ||
         (reviewFilter === "Ready" &&
           item.summary.total_subjects > 0 &&
           item.summary.pending_subjects === 0) ||
-        (reviewFilter === "Unmapped" &&
-          item.summary.unmapped_subjects > 0);
+        (reviewFilter === "Unmapped" && item.summary.unmapped_subjects > 0);
 
-      return (
-        matchesSearch &&
-        matchesCourse &&
-        matchesSemester &&
-        matchesReview
-      );
+      return matchesSearch && matchesCourse && matchesSemester && matchesReview;
     });
-  }, [
-    evaluations,
-    search,
-    courseFilter,
-    semesterFilter,
-    reviewFilter,
-  ]);
+  }, [evaluations, search, courseFilter, semesterFilter, reviewFilter]);
 
   const hasActiveFilters =
     search.trim() !== "" ||
@@ -678,8 +648,7 @@ export default function TransferEvaluationReview() {
         },
       );
 
-      const data =
-        await readJsonResponse<ReviewDetailResponse>(response);
+      const data = await readJsonResponse<ReviewDetailResponse>(response);
 
       if (response.status === 401) {
         authService.logout();
@@ -785,9 +754,7 @@ export default function TransferEvaluationReview() {
     }
 
     if (reason.length > 500) {
-      setDecisionError(
-        "Decision reason cannot exceed 500 characters.",
-      );
+      setDecisionError("Decision reason cannot exceed 500 characters.");
       return;
     }
 
@@ -810,8 +777,7 @@ export default function TransferEvaluationReview() {
         },
       );
 
-      const data =
-        await readJsonResponse<MutationResponse>(response);
+      const data = await readJsonResponse<MutationResponse>(response);
 
       if (response.status === 401) {
         authService.logout();
@@ -905,8 +871,7 @@ export default function TransferEvaluationReview() {
         },
       );
 
-      const data =
-        await readJsonResponse<MutationResponse>(response);
+      const data = await readJsonResponse<MutationResponse>(response);
 
       if (response.status === 401) {
         authService.logout();
@@ -916,9 +881,7 @@ export default function TransferEvaluationReview() {
 
       if (!response.ok || !data.success) {
         throw new Error(
-          data.message ||
-            data.error ||
-            "Unable to return transfer evaluation.",
+          data.message || data.error || "Unable to return transfer evaluation.",
         );
       }
 
@@ -928,8 +891,7 @@ export default function TransferEvaluationReview() {
       setActionNotice({
         type: "success",
         message:
-          data.message ||
-          "Transfer evaluation returned to the Registrar.",
+          data.message || "Transfer evaluation returned to the Registrar.",
       });
       setRefreshKey((current) => current + 1);
     } catch (requestError) {
@@ -980,9 +942,7 @@ export default function TransferEvaluationReview() {
     const remarks = completionRemarks.trim();
 
     if (remarks.length > 500) {
-      setCompletionError(
-        "Review remarks cannot exceed 500 characters.",
-      );
+      setCompletionError("Review remarks cannot exceed 500 characters.");
       return;
     }
 
@@ -1003,8 +963,7 @@ export default function TransferEvaluationReview() {
         },
       );
 
-      const data =
-        await readJsonResponse<MutationResponse>(response);
+      const data = await readJsonResponse<MutationResponse>(response);
 
       if (response.status === 401) {
         authService.logout();
@@ -1025,9 +984,7 @@ export default function TransferEvaluationReview() {
       setDetail(null);
       setActionNotice({
         type: "success",
-        message:
-          data.message ||
-          "Transfer evaluation completed successfully.",
+        message: data.message || "Transfer evaluation completed successfully.",
       });
       setRefreshKey((current) => current + 1);
     } catch (requestError) {
@@ -1051,11 +1008,7 @@ export default function TransferEvaluationReview() {
   const detailEvaluation = detail?.evaluation;
   const subjects = detail?.subjects || [];
 
-  if (
-    !authenticated ||
-    !session ||
-    userRole !== "Program Head"
-  ) {
+  if (!authenticated || !session || userRole !== "Program Head") {
     return null;
   }
 
@@ -1074,9 +1027,9 @@ export default function TransferEvaluationReview() {
             <h1>Transfer Evaluation Review</h1>
 
             <p>
-              Review Registrar-submitted transferee evaluations,
-              verify proposed PTC equivalencies, and record the
-              academic credit decision for each previous-school subject.
+              Review Registrar-submitted transferee evaluations, verify proposed
+              PTC equivalencies, and record the academic credit decision for
+              each previous-school subject.
             </p>
 
             {programHead && (
@@ -1115,9 +1068,7 @@ export default function TransferEvaluationReview() {
               <RefreshCw
                 size={15}
                 className={
-                  refreshing
-                    ? "program-head-transfer-review__spin"
-                    : ""
+                  refreshing ? "program-head-transfer-review__spin" : ""
                 }
               />
               {refreshing ? "Refreshing..." : "Refresh Queue"}
@@ -1163,8 +1114,7 @@ export default function TransferEvaluationReview() {
               <strong>
                 {loading
                   ? "…"
-                  : queueSummary?.total_submitted ??
-                    evaluations.length}
+                  : (queueSummary?.total_submitted ?? evaluations.length)}
               </strong>
               <p>Waiting for Program Head review</p>
             </div>
@@ -1178,7 +1128,7 @@ export default function TransferEvaluationReview() {
             <div>
               <small>Transfer Subjects</small>
               <strong>
-                {loading ? "…" : queueSummary?.total_subjects ?? 0}
+                {loading ? "…" : (queueSummary?.total_subjects ?? 0)}
               </strong>
               <p>Previous-school subjects submitted</p>
             </div>
@@ -1192,7 +1142,7 @@ export default function TransferEvaluationReview() {
             <div>
               <small>Pending Decisions</small>
               <strong>
-                {loading ? "…" : queueSummary?.pending_subjects ?? 0}
+                {loading ? "…" : (queueSummary?.pending_subjects ?? 0)}
               </strong>
               <p>Still require academic decisions</p>
             </div>
@@ -1206,7 +1156,7 @@ export default function TransferEvaluationReview() {
             <div>
               <small>Unmapped Subjects</small>
               <strong>
-                {loading ? "…" : queueSummary?.unmapped_subjects ?? 0}
+                {loading ? "…" : (queueSummary?.unmapped_subjects ?? 0)}
               </strong>
               <p>No proposed PTC equivalency yet</p>
             </div>
@@ -1223,8 +1173,8 @@ export default function TransferEvaluationReview() {
               <div>
                 <strong>Review Queue Filters</strong>
                 <p>
-                  Search transferees and narrow the queue by
-                  course, entry semester, or review readiness.
+                  Search transferees and narrow the queue by course, entry
+                  semester, or review readiness.
                 </p>
               </div>
             </div>
@@ -1247,9 +1197,7 @@ export default function TransferEvaluationReview() {
                 <input
                   type="search"
                   value={search}
-                  onChange={(event) =>
-                    setSearch(event.target.value)
-                  }
+                  onChange={(event) => setSearch(event.target.value)}
                   placeholder="Student, school, curriculum, transcript..."
                 />
               </div>
@@ -1259,9 +1207,7 @@ export default function TransferEvaluationReview() {
               <span>PTC Course</span>
               <select
                 value={courseFilter}
-                onChange={(event) =>
-                  setCourseFilter(event.target.value)
-                }
+                onChange={(event) => setCourseFilter(event.target.value)}
               >
                 <option value="All">All Courses</option>
 
@@ -1277,9 +1223,7 @@ export default function TransferEvaluationReview() {
               <span>Entry Semester</span>
               <select
                 value={semesterFilter}
-                onChange={(event) =>
-                  setSemesterFilter(event.target.value)
-                }
+                onChange={(event) => setSemesterFilter(event.target.value)}
               >
                 <option value="All">All Semesters</option>
 
@@ -1296,9 +1240,7 @@ export default function TransferEvaluationReview() {
               <select
                 value={reviewFilter}
                 onChange={(event) =>
-                  setReviewFilter(
-                    event.target.value as ReviewFilter,
-                  )
+                  setReviewFilter(event.target.value as ReviewFilter)
                 }
               >
                 <option value="All">All Submitted</option>
@@ -1311,18 +1253,13 @@ export default function TransferEvaluationReview() {
         </section>
 
         {queueError && !loading && (
-          <section
-            className="program-head-transfer-review__error"
-            role="alert"
-          >
+          <section className="program-head-transfer-review__error" role="alert">
             <span>
               <AlertCircle size={20} />
             </span>
 
             <div>
-              <strong>
-                Transfer evaluation queue could not be loaded
-              </strong>
+              <strong>Transfer evaluation queue could not be loaded</strong>
               <p>{queueError}</p>
             </div>
 
@@ -1338,9 +1275,7 @@ export default function TransferEvaluationReview() {
               <div>
                 <span>Academic Review Queue</span>
                 <h2>Submitted Transfer Evaluations</h2>
-                <p>
-                  Retrieving evaluations assigned to your department.
-                </p>
+                <p>Retrieving evaluations assigned to your department.</p>
               </div>
             </header>
 
@@ -1363,207 +1298,190 @@ export default function TransferEvaluationReview() {
           </section>
         )}
 
-        {!loading &&
-          !queueError &&
-          filteredEvaluations.length === 0 && (
-            <section className="program-head-transfer-review__empty">
-              <span>
-                <CheckCircle2 size={24} />
-              </span>
+        {!loading && !queueError && filteredEvaluations.length === 0 && (
+          <section className="program-head-transfer-review__empty">
+            <span>
+              <CheckCircle2 size={24} />
+            </span>
+
+            <strong>
+              {evaluations.length === 0
+                ? "No submitted transfer evaluations"
+                : "No evaluations match the current filters"}
+            </strong>
+
+            <p>
+              {evaluations.length === 0
+                ? "There are currently no transferee evaluations waiting for Program Head academic review in your department."
+                : "Adjust or clear the current filters to view other submitted transfer evaluations."}
+            </p>
+
+            {hasActiveFilters && (
+              <button type="button" onClick={clearFilters}>
+                <RotateCcw size={14} />
+                Clear Filters
+              </button>
+            )}
+          </section>
+        )}
+
+        {!loading && !queueError && filteredEvaluations.length > 0 && (
+          <section className="program-head-transfer-review__panel">
+            <header className="program-head-transfer-review__panel-header">
+              <div>
+                <span>Academic Review Queue</span>
+                <h2>Submitted Transfer Evaluations</h2>
+                <p>
+                  Review Registrar-submitted evaluations and record academic
+                  decisions for each subject.
+                </p>
+              </div>
 
               <strong>
-                {evaluations.length === 0
-                  ? "No submitted transfer evaluations"
-                  : "No evaluations match the current filters"}
+                {filteredEvaluations.length}{" "}
+                {filteredEvaluations.length === 1
+                  ? "evaluation"
+                  : "evaluations"}
               </strong>
+            </header>
 
-              <p>
-                {evaluations.length === 0
-                  ? "There are currently no transferee evaluations waiting for Program Head academic review in your department."
-                  : "Adjust or clear the current filters to view other submitted transfer evaluations."}
-              </p>
+            <div className="program-head-transfer-review__table-wrap">
+              <table className="program-head-transfer-review__table">
+                <thead>
+                  <tr>
+                    <th>Student</th>
+                    <th>Previous School</th>
+                    <th>PTC Curriculum</th>
+                    <th>PTC Entry</th>
+                    <th>Subject Review</th>
+                    <th>Submitted</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
 
-              {hasActiveFilters && (
-                <button type="button" onClick={clearFilters}>
-                  <RotateCcw size={14} />
-                  Clear Filters
-                </button>
-              )}
-            </section>
-          )}
+                <tbody>
+                  {filteredEvaluations.map((item) => {
+                    const progress = getReviewProgress(item);
 
-        {!loading &&
-          !queueError &&
-          filteredEvaluations.length > 0 && (
-            <section className="program-head-transfer-review__panel">
-              <header className="program-head-transfer-review__panel-header">
-                <div>
-                  <span>Academic Review Queue</span>
-                  <h2>Submitted Transfer Evaluations</h2>
-                  <p>
-                    Review Registrar-submitted evaluations and
-                    record academic decisions for each subject.
-                  </p>
-                </div>
+                    return (
+                      <tr key={item.transfer_evaluation_id}>
+                        <td>
+                          <div className="program-head-transfer-review__student">
+                            <span>
+                              <GraduationCap size={16} />
+                            </span>
 
-                <strong>
-                  {filteredEvaluations.length}{" "}
-                  {filteredEvaluations.length === 1
-                    ? "evaluation"
-                    : "evaluations"}
-                </strong>
-              </header>
-
-              <div className="program-head-transfer-review__table-wrap">
-                <table className="program-head-transfer-review__table">
-                  <thead>
-                    <tr>
-                      <th>Student</th>
-                      <th>Previous School</th>
-                      <th>PTC Curriculum</th>
-                      <th>PTC Entry</th>
-                      <th>Subject Review</th>
-                      <th>Submitted</th>
-                      <th>Action</th>
-                    </tr>
-                  </thead>
-
-                  <tbody>
-                    {filteredEvaluations.map((item) => {
-                      const progress = getReviewProgress(item);
-
-                      return (
-                        <tr key={item.transfer_evaluation_id}>
-                          <td>
-                            <div className="program-head-transfer-review__student">
-                              <span>
-                                <GraduationCap size={16} />
-                              </span>
-
-                              <div>
-                                <strong>
-                                  {item.student.student_name}
-                                </strong>
-                                <small>
-                                  {item.student.student_number}
-                                </small>
-                                <em>
-                                  {formatYearLevel(
-                                    item.student.current_year_level,
-                                  )}
-                                </em>
-                              </div>
-                            </div>
-                          </td>
-
-                          <td>
-                            <div className="program-head-transfer-review__school">
-                              <strong>{item.source.school}</strong>
-                              <span>
-                                {item.source.course ||
-                                  "Source course not recorded"}
-                              </span>
-                              <small>
-                                {item.source.transcript_reference
-                                  ? `TOR: ${item.source.transcript_reference}`
-                                  : "No transcript reference"}
-                              </small>
-                            </div>
-                          </td>
-
-                          <td>
-                            <div className="program-head-transfer-review__curriculum">
-                              <strong>
-                                {item.curriculum.course.course_code}
-                              </strong>
-                              <span>
-                                {item.curriculum.curriculum_name}
-                              </span>
-                              <small>
-                                {item.curriculum.effective_year
-                                  ? `Effective ${item.curriculum.effective_year}`
-                                  : item.curriculum.course.course_name}
-                              </small>
-                            </div>
-                          </td>
-
-                          <td>
-                            <div className="program-head-transfer-review__entry">
-                              <strong>
+                            <div>
+                              <strong>{item.student.student_name}</strong>
+                              <small>{item.student.student_number}</small>
+                              <em>
                                 {formatYearLevel(
-                                  item.ptc_entry.year_level,
+                                  item.student.current_year_level,
                                 )}
-                              </strong>
-                              <small>
-                                {item.ptc_entry.semester_name ||
-                                  "Semester not recorded"}
-                              </small>
+                              </em>
                             </div>
-                          </td>
+                          </div>
+                        </td>
 
-                          <td>
-                            <div className="program-head-transfer-review__progress-block">
-                              <div>
-                                <strong>{progress}% reviewed</strong>
-                                <span>
-                                  {item.summary.pending_subjects} pending
-                                </span>
-                              </div>
+                        <td>
+                          <div className="program-head-transfer-review__school">
+                            <strong>{item.source.school}</strong>
+                            <span>
+                              {item.source.course ||
+                                "Source course not recorded"}
+                            </span>
+                            <small>
+                              {item.source.transcript_reference
+                                ? `TOR: ${item.source.transcript_reference}`
+                                : "No transcript reference"}
+                            </small>
+                          </div>
+                        </td>
 
-                              <div className="program-head-transfer-review__progress">
-                                <span
-                                  style={{
-                                    width: `${progress}%`,
-                                  }}
-                                />
-                              </div>
+                        <td>
+                          <div className="program-head-transfer-review__curriculum">
+                            <strong>
+                              {item.curriculum.course.course_code}
+                            </strong>
+                            <span>{item.curriculum.curriculum_name}</span>
+                            <small>
+                              {item.curriculum.effective_year
+                                ? `Effective ${item.curriculum.effective_year}`
+                                : item.curriculum.course.course_name}
+                            </small>
+                          </div>
+                        </td>
 
-                              <small>
-                                {item.summary.mapped_subjects} mapped ·{" "}
-                                {item.summary.unmapped_subjects} unmapped
-                              </small>
-                            </div>
-                          </td>
+                        <td>
+                          <div className="program-head-transfer-review__entry">
+                            <strong>
+                              {formatYearLevel(item.ptc_entry.year_level)}
+                            </strong>
+                            <small>
+                              {item.ptc_entry.semester_name ||
+                                "Semester not recorded"}
+                            </small>
+                          </div>
+                        </td>
 
-                          <td>
-                            <div className="program-head-transfer-review__submitted">
-                              <CalendarDays size={13} />
+                        <td>
+                          <div className="program-head-transfer-review__progress-block">
+                            <div>
+                              <strong>{progress}% reviewed</strong>
                               <span>
-                                {formatDateTime(
-                                  item.workflow.submitted_at,
-                                )}
+                                {item.summary.pending_subjects} pending
                               </span>
-                              <small>
-                                by{" "}
-                                {item.workflow
-                                  .submitted_by_username ||
-                                  "Registrar"}
-                              </small>
                             </div>
-                          </td>
 
-                          <td>
-                            <button
-                              type="button"
-                              className="program-head-transfer-review__review-btn"
-                              onClick={() =>
-                                void openReview(
-                                  item.transfer_evaluation_id,
-                                )
-                              }
-                            >
-                              Review
-                              <ChevronRight size={14} />
-                            </button>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            </section>
-          )}
+                            <div className="program-head-transfer-review__progress">
+                              <span
+                                style={{
+                                  width: `${progress}%`,
+                                }}
+                              />
+                            </div>
+
+                            <small>
+                              {item.summary.mapped_subjects} mapped ·{" "}
+                              {item.summary.unmapped_subjects} unmapped
+                            </small>
+                          </div>
+                        </td>
+
+                        <td>
+                          <div className="program-head-transfer-review__submitted">
+                            <CalendarDays size={13} />
+                            <span>
+                              {formatDateTime(item.workflow.submitted_at)}
+                            </span>
+                            <small>
+                              by{" "}
+                              {item.workflow.submitted_by_username ||
+                                "Registrar"}
+                            </small>
+                          </div>
+                        </td>
+
+                        <td>
+                          <button
+                            type="button"
+                            className="program-head-transfer-review__review-btn"
+                            onClick={() =>
+                              void openReview(item.transfer_evaluation_id)
+                            }
+                          >
+                            Review
+                            <ChevronRight size={14} />
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        )}
 
         <section className="program-head-transfer-review__academic-note">
           <ShieldCheck size={18} />
@@ -1571,9 +1489,9 @@ export default function TransferEvaluationReview() {
             <strong>Academic effect is controlled by completion</strong>
             <p>
               A subject-level Credited decision is not official by itself.
-              Transfer credit satisfies a PTC curriculum requirement only
-              after the whole evaluation is marked Completed. This workflow
-              does not create or change normal PTC grades.
+              Transfer credit satisfies a PTC curriculum requirement only after
+              the whole evaluation is marked Completed. This workflow does not
+              create or change normal PTC grades.
             </p>
           </div>
         </section>
@@ -1631,8 +1549,8 @@ export default function TransferEvaluationReview() {
                   />
                   <strong>Loading review details</strong>
                   <p>
-                    Retrieving transcript subjects and proposed
-                    PTC equivalencies.
+                    Retrieving transcript subjects and proposed PTC
+                    equivalencies.
                   </p>
                 </div>
               )}
@@ -1646,9 +1564,7 @@ export default function TransferEvaluationReview() {
                   <button
                     type="button"
                     onClick={() =>
-                      void loadEvaluationDetail(
-                        selectedEvaluationId,
-                      )
+                      void loadEvaluationDetail(selectedEvaluationId)
                     }
                   >
                     Try Again
@@ -1656,508 +1572,472 @@ export default function TransferEvaluationReview() {
                 </div>
               )}
 
-              {!detailLoading &&
-                !detailError &&
-                detailEvaluation && (
-                  <>
-                    <div className="program-head-transfer-detail__body">
-                      <section className="program-head-transfer-detail__info-grid">
-                        <article>
-                          <span>
-                            <GraduationCap size={18} />
-                          </span>
-
-                          <div>
-                            <small>Student</small>
-                            <strong>
-                              {detailEvaluation.student.student_name}
-                            </strong>
-                            <p>
-                              {detailEvaluation.student.student_number} ·{" "}
-                              {formatYearLevel(
-                                detailEvaluation.student.current_year_level,
-                              )}
-                            </p>
-                          </div>
-                        </article>
-
-                        <article>
-                          <span>
-                            <School size={18} />
-                          </span>
-
-                          <div>
-                            <small>Previous School</small>
-                            <strong>
-                              {detailEvaluation.source.school}
-                            </strong>
-                            <p>
-                              {detailEvaluation.source.course ||
-                                "Source course not recorded"}
-                            </p>
-                          </div>
-                        </article>
-
-                        <article>
-                          <span>
-                            <BookCheck size={18} />
-                          </span>
-
-                          <div>
-                            <small>PTC Curriculum</small>
-                            <strong>
-                              {
-                                detailEvaluation.curriculum.course
-                                  .course_code
-                              }{" "}
-                              ·{" "}
-                              {detailEvaluation.curriculum.curriculum_name}
-                            </strong>
-                            <p>
-                              {detailEvaluation.curriculum.effective_year
-                                ? `Effective ${detailEvaluation.curriculum.effective_year}`
-                                : detailEvaluation.curriculum.course
-                                    .course_name}
-                            </p>
-                          </div>
-                        </article>
-
-                        <article>
-                          <span>
-                            <FileText size={18} />
-                          </span>
-
-                          <div>
-                            <small>Transcript</small>
-                            <strong>
-                              {detailEvaluation.source.transcript_reference ||
-                                "No reference"}
-                            </strong>
-                            <p>
-                              {detailEvaluation.source.transcript_document
-                                ? `${
-                                    detailEvaluation.source
-                                      .transcript_document
-                                      .verification_status || "Unverified"
-                                  } · ${
-                                    detailEvaluation.source
-                                      .transcript_document.file_name ||
-                                    "Document on file"
-                                  }`
-                                : "No transcript document linked"}
-                            </p>
-                          </div>
-                        </article>
-                      </section>
-
-                      <section className="program-head-transfer-detail__review-status">
-                        <div>
-                          <span>
-                            <ShieldCheck size={17} />
-                          </span>
-
-                          <div>
-                            <strong>
-                              {reviewReadiness?.all_subjects_decided
-                                ? "All subject decisions recorded"
-                                : "Academic review in progress"}
-                            </strong>
-                            <p>
-                              {reviewReadiness?.note ||
-                                "Review each previous-school subject before completing the evaluation."}
-                            </p>
-                          </div>
-                        </div>
-
-                        <div className="program-head-transfer-detail__review-counts">
-                          <span>
-                            <small>Total</small>
-                            <strong>
-                              {detailSummary?.total_subjects ?? 0}
-                            </strong>
-                          </span>
-
-                          <span>
-                            <small>Pending</small>
-                            <strong>
-                              {detailSummary?.pending_subjects ?? 0}
-                            </strong>
-                          </span>
-
-                          <span>
-                            <small>Credited</small>
-                            <strong>
-                              {detailSummary?.credited_subjects ?? 0}
-                            </strong>
-                          </span>
-
-                          <span>
-                            <small>Not Credited</small>
-                            <strong>
-                              {detailSummary?.not_credited_subjects ?? 0}
-                            </strong>
-                          </span>
-                        </div>
-                      </section>
-
-                      <section className="program-head-transfer-detail__context-grid">
-                        <div>
-                          <small>PTC Entry Point</small>
-                          <strong>
-                            {formatYearLevel(
-                              detailEvaluation.ptc_entry.year_level,
-                            )}
-                          </strong>
-                          <span>
-                            {detailEvaluation.ptc_entry.semester_name ||
-                              "Semester not recorded"}
-                          </span>
-                        </div>
+              {!detailLoading && !detailError && detailEvaluation && (
+                <>
+                  <div className="program-head-transfer-detail__body">
+                    <section className="program-head-transfer-detail__info-grid">
+                      <article>
+                        <span>
+                          <GraduationCap size={18} />
+                        </span>
 
                         <div>
-                          <small>Submitted By</small>
+                          <small>Student</small>
                           <strong>
-                            {detailEvaluation.workflow
-                              .submitted_by_username || "Registrar"}
-                          </strong>
-                          <span>
-                            {formatDateTime(
-                              detailEvaluation.workflow.submitted_at,
-                            )}
-                          </span>
-                        </div>
-
-                        <div>
-                          <small>Evaluation Status</small>
-                          <strong>
-                            {detailEvaluation.evaluation_status}
-                          </strong>
-                          <span>
-                            Evaluation #
-                            {detailEvaluation.transfer_evaluation_id}
-                          </span>
-                        </div>
-
-                        <div>
-                          <small>Source Student No.</small>
-                          <strong>
-                            {detailEvaluation.source.student_number ||
-                              "Not recorded"}
-                          </strong>
-                          <span>
-                            {detailEvaluation.remarks ||
-                              "No evaluation remarks"}
-                          </span>
-                        </div>
-                      </section>
-
-                      <section className="program-head-transfer-detail__subjects">
-                        <header>
-                          <div>
-                            <span>Transcript Subject Review</span>
-                            <h3>Academic Credit Decisions</h3>
-                            <p>
-                              Compare each previous-school subject
-                              with the Registrar-proposed PTC
-                              equivalency before recording a decision.
-                            </p>
-                          </div>
-
-                          <strong>
-                            {subjects.length}{" "}
-                            {subjects.length === 1
-                              ? "subject"
-                              : "subjects"}
-                          </strong>
-                        </header>
-
-                        {subjects.length === 0 ? (
-                          <div className="program-head-transfer-detail__subjects-empty">
-                            <AlertCircle size={22} />
-                            <strong>
-                              No transfer subjects available
-                            </strong>
-                            <p>
-                              This evaluation cannot be completed
-                              until transcript subjects exist.
-                            </p>
-                          </div>
-                        ) : (
-                          <div className="program-head-transfer-detail__table-wrap">
-                            <table className="program-head-transfer-detail__table">
-                              <thead>
-                                <tr>
-                                  <th>Previous-School Subject</th>
-                                  <th>Source Record</th>
-                                  <th>Proposed PTC Equivalency</th>
-                                  <th>PTC Placement</th>
-                                  <th>Decision</th>
-                                  <th>Reason / Review</th>
-                                  <th>Action</th>
-                                </tr>
-                              </thead>
-
-                              <tbody>
-                                {subjects.map((subject) => {
-                                  const mapping =
-                                    subject.proposed_ptc_equivalency;
-
-                                  return (
-                                    <tr
-                                      key={subject.transfer_subject_id}
-                                    >
-                                      <td>
-                                        <div className="program-head-transfer-detail__source-subject">
-                                          <strong>
-                                            {subject.source.subject_code ||
-                                              "No code"}
-                                          </strong>
-                                          <span>
-                                            {subject.source.subject_name}
-                                          </span>
-                                          <small>
-                                            {formatUnits(
-                                              subject.source.units,
-                                            )}
-                                          </small>
-                                        </div>
-                                      </td>
-
-                                      <td>
-                                        <div className="program-head-transfer-detail__source-record">
-                                          <strong>
-                                            Grade:{" "}
-                                            {subject.source.grade || "—"}
-                                          </strong>
-                                          <span>
-                                            {subject.source
-                                              .academic_year ||
-                                              "Academic year not recorded"}
-                                          </span>
-                                          <small>
-                                            {subject.source.semester ||
-                                              "Semester not recorded"}{" "}
-                                            ·{" "}
-                                            {formatYearLevel(
-                                              subject.source.year_level,
-                                            )}
-                                          </small>
-                                        </div>
-                                      </td>
-
-                                      <td>
-                                        {mapping ? (
-                                          <div className="program-head-transfer-detail__mapping">
-                                            <span>
-                                              <CheckCircle2 size={13} />
-                                              Mapped
-                                            </span>
-                                            <strong>
-                                              {mapping.subject_code}
-                                            </strong>
-                                            <small>
-                                              {mapping.subject_name} ·{" "}
-                                              {formatUnits(mapping.units)}
-                                            </small>
-                                          </div>
-                                        ) : (
-                                          <div className="program-head-transfer-detail__unmapped">
-                                            <AlertCircle size={14} />
-                                            <strong>
-                                              No PTC mapping
-                                            </strong>
-                                            <small>
-                                              Cannot be marked Credited
-                                            </small>
-                                          </div>
-                                        )}
-                                      </td>
-
-                                      <td>
-                                        {mapping ? (
-                                          <div className="program-head-transfer-detail__placement">
-                                            <strong>
-                                              {formatYearLevel(
-                                                mapping.curriculum
-                                                  .year_level,
-                                              )}
-                                            </strong>
-                                            <span>
-                                              {mapping.curriculum
-                                                .semester_name ||
-                                                "Semester not recorded"}
-                                            </span>
-                                            <small>
-                                              {mapping.curriculum.is_required
-                                                ? "Required subject"
-                                                : "Elective subject"}
-                                            </small>
-                                          </div>
-                                        ) : (
-                                          "—"
-                                        )}
-                                      </td>
-
-                                      <td>
-                                        <span
-                                          className={`program-head-transfer-detail__decision ${getStatusClass(
-                                            subject.decision.credit_status,
-                                          )}`}
-                                        >
-                                          {subject.decision.credit_status ===
-                                          "Credited" ? (
-                                            <Check size={12} />
-                                          ) : subject.decision
-                                              .credit_status ===
-                                            "Not Credited" ? (
-                                            <XCircle size={12} />
-                                          ) : (
-                                            <Clock3 size={12} />
-                                          )}
-
-                                          {subject.decision.credit_status}
-                                        </span>
-
-                                        {subject.decision.credited_units !==
-                                          null && (
-                                          <small className="program-head-transfer-detail__credited-units">
-                                            {formatUnits(
-                                              subject.decision
-                                                .credited_units,
-                                            )}{" "}
-                                            credited
-                                          </small>
-                                        )}
-                                      </td>
-
-                                      <td>
-                                        <div className="program-head-transfer-detail__reason">
-                                          <span>
-                                            {subject.decision
-                                              .decision_reason ||
-                                              "No decision reason"}
-                                          </span>
-
-                                          <small>
-                                            {subject.decision.reviewed_at
-                                              ? `Reviewed ${formatDateTime(
-                                                  subject.decision
-                                                    .reviewed_at,
-                                                )}`
-                                              : "Not yet reviewed"}
-                                          </small>
-                                        </div>
-                                      </td>
-
-                                      <td>
-                                        <div className="program-head-transfer-detail__actions">
-                                          <button
-                                            type="button"
-                                            className="credit"
-                                            onClick={() =>
-                                              openDecisionModal(
-                                                subject,
-                                                "Credited",
-                                              )
-                                            }
-                                            disabled={
-                                              !reviewReadiness?.can_make_subject_decisions ||
-                                              !mapping ||
-                                              busyAction !== null
-                                            }
-                                            title={
-                                              mapping
-                                                ? "Mark this subject Credited"
-                                                : "A PTC equivalency is required before crediting"
-                                            }
-                                          >
-                                            <Check size={13} />
-                                            Credited
-                                          </button>
-
-                                          <button
-                                            type="button"
-                                            className="not-credit"
-                                            onClick={() =>
-                                              openDecisionModal(
-                                                subject,
-                                                "Not Credited",
-                                              )
-                                            }
-                                            disabled={
-                                              !reviewReadiness?.can_make_subject_decisions ||
-                                              busyAction !== null
-                                            }
-                                          >
-                                            <X size={13} />
-                                            Not Credited
-                                          </button>
-                                        </div>
-                                      </td>
-                                    </tr>
-                                  );
-                                })}
-                              </tbody>
-                            </table>
-                          </div>
-                        )}
-                      </section>
-
-                      <section className="program-head-transfer-detail__effect-note">
-                        <ShieldCheck size={17} />
-                        <div>
-                          <strong>
-                            Subject decisions are provisional until
-                            completion
+                            {detailEvaluation.student.student_name}
                           </strong>
                           <p>
-                            {detail.academic_effect?.reason ||
-                              "Viewing and reviewing a submitted evaluation does not yet create official transfer credit."}
+                            {detailEvaluation.student.student_number} ·{" "}
+                            {formatYearLevel(
+                              detailEvaluation.student.current_year_level,
+                            )}
                           </p>
                         </div>
-                      </section>
-                    </div>
+                      </article>
 
-                    <footer className="program-head-transfer-detail__footer">
+                      <article>
+                        <span>
+                          <School size={18} />
+                        </span>
+
+                        <div>
+                          <small>Previous School</small>
+                          <strong>{detailEvaluation.source.school}</strong>
+                          <p>
+                            {detailEvaluation.source.course ||
+                              "Source course not recorded"}
+                          </p>
+                        </div>
+                      </article>
+
+                      <article>
+                        <span>
+                          <BookCheck size={18} />
+                        </span>
+
+                        <div>
+                          <small>PTC Curriculum</small>
+                          <strong>
+                            {detailEvaluation.curriculum.course.course_code} ·{" "}
+                            {detailEvaluation.curriculum.curriculum_name}
+                          </strong>
+                          <p>
+                            {detailEvaluation.curriculum.effective_year
+                              ? `Effective ${detailEvaluation.curriculum.effective_year}`
+                              : detailEvaluation.curriculum.course.course_name}
+                          </p>
+                        </div>
+                      </article>
+
+                      <article>
+                        <span>
+                          <FileText size={18} />
+                        </span>
+
+                        <div>
+                          <small>Transcript</small>
+                          <strong>
+                            {detailEvaluation.source.transcript_reference ||
+                              "No reference"}
+                          </strong>
+                          <p>
+                            {detailEvaluation.source.transcript_document
+                              ? `${
+                                  detailEvaluation.source.transcript_document
+                                    .verification_status || "Unverified"
+                                } · ${
+                                  detailEvaluation.source.transcript_document
+                                    .file_name || "Document on file"
+                                }`
+                              : "No transcript document linked"}
+                          </p>
+                        </div>
+                      </article>
+                    </section>
+
+                    <section className="program-head-transfer-detail__review-status">
                       <div>
+                        <span>
+                          <ShieldCheck size={17} />
+                        </span>
+
+                        <div>
+                          <strong>
+                            {reviewReadiness?.all_subjects_decided
+                              ? "All subject decisions recorded"
+                              : "Academic review in progress"}
+                          </strong>
+                          <p>
+                            {reviewReadiness?.note ||
+                              "Review each previous-school subject before completing the evaluation."}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="program-head-transfer-detail__review-counts">
+                        <span>
+                          <small>Total</small>
+                          <strong>{detailSummary?.total_subjects ?? 0}</strong>
+                        </span>
+
+                        <span>
+                          <small>Pending</small>
+                          <strong>
+                            {detailSummary?.pending_subjects ?? 0}
+                          </strong>
+                        </span>
+
+                        <span>
+                          <small>Credited</small>
+                          <strong>
+                            {detailSummary?.credited_subjects ?? 0}
+                          </strong>
+                        </span>
+
+                        <span>
+                          <small>Not Credited</small>
+                          <strong>
+                            {detailSummary?.not_credited_subjects ?? 0}
+                          </strong>
+                        </span>
+                      </div>
+                    </section>
+
+                    <section className="program-head-transfer-detail__context-grid">
+                      <div>
+                        <small>PTC Entry Point</small>
                         <strong>
-                          {reviewReadiness?.can_complete_evaluation
-                            ? "Ready to complete"
-                            : "Review not complete"}
+                          {formatYearLevel(
+                            detailEvaluation.ptc_entry.year_level,
+                          )}
                         </strong>
                         <span>
-                          {reviewReadiness?.note ||
-                            "Every subject requires an academic decision."}
+                          {detailEvaluation.ptc_entry.semester_name ||
+                            "Semester not recorded"}
                         </span>
                       </div>
 
                       <div>
-                        <button
-                          type="button"
-                          className="program-head-transfer-detail__return"
-                          onClick={openReturnModal}
-                          disabled={busyAction !== null}
-                        >
-                          <Undo2 size={14} />
-                          Return to Registrar
-                        </button>
-
-                        <button
-                          type="button"
-                          className="program-head-transfer-detail__complete"
-                          onClick={openCompleteModal}
-                          disabled={
-                            !reviewReadiness?.can_complete_evaluation ||
-                            busyAction !== null
-                          }
-                        >
-                          <CheckCircle2 size={14} />
-                          Complete Evaluation
-                        </button>
+                        <small>Submitted By</small>
+                        <strong>
+                          {detailEvaluation.workflow.submitted_by_username ||
+                            "Registrar"}
+                        </strong>
+                        <span>
+                          {formatDateTime(
+                            detailEvaluation.workflow.submitted_at,
+                          )}
+                        </span>
                       </div>
-                    </footer>
-                  </>
-                )}
+
+                      <div>
+                        <small>Evaluation Status</small>
+                        <strong>{detailEvaluation.evaluation_status}</strong>
+                        <span>
+                          Evaluation #{detailEvaluation.transfer_evaluation_id}
+                        </span>
+                      </div>
+
+                      <div>
+                        <small>Source Student No.</small>
+                        <strong>
+                          {detailEvaluation.source.student_number ||
+                            "Not recorded"}
+                        </strong>
+                        <span>
+                          {detailEvaluation.remarks || "No evaluation remarks"}
+                        </span>
+                      </div>
+                    </section>
+
+                    <section className="program-head-transfer-detail__subjects">
+                      <header>
+                        <div>
+                          <span>Transcript Subject Review</span>
+                          <h3>Academic Credit Decisions</h3>
+                          <p>
+                            Compare each previous-school subject with the
+                            Registrar-proposed PTC equivalency before recording
+                            a decision.
+                          </p>
+                        </div>
+
+                        <strong>
+                          {subjects.length}{" "}
+                          {subjects.length === 1 ? "subject" : "subjects"}
+                        </strong>
+                      </header>
+
+                      {subjects.length === 0 ? (
+                        <div className="program-head-transfer-detail__subjects-empty">
+                          <AlertCircle size={22} />
+                          <strong>No transfer subjects available</strong>
+                          <p>
+                            This evaluation cannot be completed until transcript
+                            subjects exist.
+                          </p>
+                        </div>
+                      ) : (
+                        <div className="program-head-transfer-detail__table-wrap">
+                          <table className="program-head-transfer-detail__table">
+                            <thead>
+                              <tr>
+                                <th>Previous-School Subject</th>
+                                <th>Source Record</th>
+                                <th>Proposed PTC Equivalency</th>
+                                <th>PTC Placement</th>
+                                <th>Decision</th>
+                                <th>Reason / Review</th>
+                                <th>Action</th>
+                              </tr>
+                            </thead>
+
+                            <tbody>
+                              {subjects.map((subject) => {
+                                const mapping =
+                                  subject.proposed_ptc_equivalency;
+
+                                return (
+                                  <tr key={subject.transfer_subject_id}>
+                                    <td>
+                                      <div className="program-head-transfer-detail__source-subject">
+                                        <strong>
+                                          {subject.source.subject_code ||
+                                            "No code"}
+                                        </strong>
+                                        <span>
+                                          {subject.source.subject_name}
+                                        </span>
+                                        <small>
+                                          {formatUnits(subject.source.units)}
+                                        </small>
+                                      </div>
+                                    </td>
+
+                                    <td>
+                                      <div className="program-head-transfer-detail__source-record">
+                                        <strong>
+                                          Grade: {subject.source.grade || "—"}
+                                        </strong>
+                                        <span>
+                                          {subject.source.academic_year ||
+                                            "Academic year not recorded"}
+                                        </span>
+                                        <small>
+                                          {subject.source.semester ||
+                                            "Semester not recorded"}{" "}
+                                          ·{" "}
+                                          {formatYearLevel(
+                                            subject.source.year_level,
+                                          )}
+                                        </small>
+                                      </div>
+                                    </td>
+
+                                    <td>
+                                      {mapping ? (
+                                        <div className="program-head-transfer-detail__mapping">
+                                          <span>
+                                            <CheckCircle2 size={13} />
+                                            Mapped
+                                          </span>
+                                          <strong>
+                                            {mapping.subject_code}
+                                          </strong>
+                                          <small>
+                                            {mapping.subject_name} ·{" "}
+                                            {formatUnits(mapping.units)}
+                                          </small>
+                                        </div>
+                                      ) : (
+                                        <div className="program-head-transfer-detail__unmapped">
+                                          <AlertCircle size={14} />
+                                          <strong>No PTC mapping</strong>
+                                          <small>
+                                            Cannot be marked Credited
+                                          </small>
+                                        </div>
+                                      )}
+                                    </td>
+
+                                    <td>
+                                      {mapping ? (
+                                        <div className="program-head-transfer-detail__placement">
+                                          <strong>
+                                            {formatYearLevel(
+                                              mapping.curriculum.year_level,
+                                            )}
+                                          </strong>
+                                          <span>
+                                            {mapping.curriculum.semester_name ||
+                                              "Semester not recorded"}
+                                          </span>
+                                          <small>
+                                            {mapping.curriculum.is_required
+                                              ? "Required subject"
+                                              : "Elective subject"}
+                                          </small>
+                                        </div>
+                                      ) : (
+                                        "—"
+                                      )}
+                                    </td>
+
+                                    <td>
+                                      <span
+                                        className={`program-head-transfer-detail__decision ${getStatusClass(
+                                          subject.decision.credit_status,
+                                        )}`}
+                                      >
+                                        {subject.decision.credit_status ===
+                                        "Credited" ? (
+                                          <Check size={12} />
+                                        ) : subject.decision.credit_status ===
+                                          "Not Credited" ? (
+                                          <XCircle size={12} />
+                                        ) : (
+                                          <Clock3 size={12} />
+                                        )}
+
+                                        {subject.decision.credit_status}
+                                      </span>
+
+                                      {subject.decision.credited_units !==
+                                        null && (
+                                        <small className="program-head-transfer-detail__credited-units">
+                                          {formatUnits(
+                                            subject.decision.credited_units,
+                                          )}{" "}
+                                          credited
+                                        </small>
+                                      )}
+                                    </td>
+
+                                    <td>
+                                      <div className="program-head-transfer-detail__reason">
+                                        <span>
+                                          {subject.decision.decision_reason ||
+                                            "No decision reason"}
+                                        </span>
+
+                                        <small>
+                                          {subject.decision.reviewed_at
+                                            ? `Reviewed ${formatDateTime(
+                                                subject.decision.reviewed_at,
+                                              )}`
+                                            : "Not yet reviewed"}
+                                        </small>
+                                      </div>
+                                    </td>
+
+                                    <td>
+                                      <div className="program-head-transfer-detail__actions">
+                                        <button
+                                          type="button"
+                                          className="credit"
+                                          onClick={() =>
+                                            openDecisionModal(
+                                              subject,
+                                              "Credited",
+                                            )
+                                          }
+                                          disabled={
+                                            !reviewReadiness?.can_make_subject_decisions ||
+                                            !mapping ||
+                                            busyAction !== null
+                                          }
+                                          title={
+                                            mapping
+                                              ? "Mark this subject Credited"
+                                              : "A PTC equivalency is required before crediting"
+                                          }
+                                        >
+                                          <Check size={13} />
+                                          Credited
+                                        </button>
+
+                                        <button
+                                          type="button"
+                                          className="not-credit"
+                                          onClick={() =>
+                                            openDecisionModal(
+                                              subject,
+                                              "Not Credited",
+                                            )
+                                          }
+                                          disabled={
+                                            !reviewReadiness?.can_make_subject_decisions ||
+                                            busyAction !== null
+                                          }
+                                        >
+                                          <X size={13} />
+                                          Not Credited
+                                        </button>
+                                      </div>
+                                    </td>
+                                  </tr>
+                                );
+                              })}
+                            </tbody>
+                          </table>
+                        </div>
+                      )}
+                    </section>
+
+                    <section className="program-head-transfer-detail__effect-note">
+                      <ShieldCheck size={17} />
+                      <div>
+                        <strong>
+                          Subject decisions are provisional until completion
+                        </strong>
+                        <p>
+                          {detail.academic_effect?.reason ||
+                            "Viewing and reviewing a submitted evaluation does not yet create official transfer credit."}
+                        </p>
+                      </div>
+                    </section>
+                  </div>
+
+                  <footer className="program-head-transfer-detail__footer">
+                    <div>
+                      <strong>
+                        {reviewReadiness?.can_complete_evaluation
+                          ? "Ready to complete"
+                          : "Review not complete"}
+                      </strong>
+                      <span>
+                        {reviewReadiness?.note ||
+                          "Every subject requires an academic decision."}
+                      </span>
+                    </div>
+
+                    <div>
+                      <button
+                        type="button"
+                        className="program-head-transfer-detail__return"
+                        onClick={openReturnModal}
+                        disabled={busyAction !== null}
+                      >
+                        <Undo2 size={14} />
+                        Return to Registrar
+                      </button>
+
+                      <button
+                        type="button"
+                        className="program-head-transfer-detail__complete"
+                        onClick={openCompleteModal}
+                        disabled={
+                          !reviewReadiness?.can_complete_evaluation ||
+                          busyAction !== null
+                        }
+                      >
+                        <CheckCircle2 size={14} />
+                        Complete Evaluation
+                      </button>
+                    </div>
+                  </footer>
+                </>
+              )}
             </section>
           </div>
         )}
@@ -2174,9 +2054,7 @@ export default function TransferEvaluationReview() {
                 <div>
                   <span
                     className={
-                      decisionStatus === "Credited"
-                        ? "credit"
-                        : "not-credit"
+                      decisionStatus === "Credited" ? "credit" : "not-credit"
                     }
                   >
                     {decisionStatus === "Credited" ? (
@@ -2214,15 +2092,10 @@ export default function TransferEvaluationReview() {
                   <div>
                     <small>Previous School</small>
                     <strong>
-                      {decisionSubject.source.subject_code ||
-                        "No code"}
+                      {decisionSubject.source.subject_code || "No code"}
                     </strong>
-                    <span>
-                      {decisionSubject.source.subject_name}
-                    </span>
-                    <em>
-                      {formatUnits(decisionSubject.source.units)}
-                    </em>
+                    <span>{decisionSubject.source.subject_name}</span>
+                    <em>{formatUnits(decisionSubject.source.units)}</em>
                   </div>
 
                   <ChevronRight size={18} />
@@ -2230,18 +2103,16 @@ export default function TransferEvaluationReview() {
                   <div>
                     <small>Proposed PTC Equivalent</small>
                     <strong>
-                      {decisionSubject.proposed_ptc_equivalency
-                        ?.subject_code || "No mapping"}
+                      {decisionSubject.proposed_ptc_equivalency?.subject_code ||
+                        "No mapping"}
                     </strong>
                     <span>
-                      {decisionSubject.proposed_ptc_equivalency
-                        ?.subject_name ||
+                      {decisionSubject.proposed_ptc_equivalency?.subject_name ||
                         "No PTC equivalency proposed"}
                     </span>
                     <em>
                       {formatUnits(
-                        decisionSubject.proposed_ptc_equivalency
-                          ?.units,
+                        decisionSubject.proposed_ptc_equivalency?.units,
                       )}
                     </em>
                   </div>
@@ -2276,18 +2147,16 @@ export default function TransferEvaluationReview() {
                     autoFocus
                   />
 
-                  <small>
-                    {decisionReason.length}/500 characters
-                  </small>
+                  <small>{decisionReason.length}/500 characters</small>
                 </label>
 
                 {decisionStatus === "Credited" && (
                   <div className="program-head-transfer-action-modal__info">
                     <ShieldCheck size={15} />
                     <p>
-                      Credited units are determined by the backend
-                      from the official PTC subject units. They are
-                      not entered manually here.
+                      Credited units are determined by the backend from the
+                      official PTC subject units. They are not entered manually
+                      here.
                     </p>
                   </div>
                 )}
@@ -2313,9 +2182,7 @@ export default function TransferEvaluationReview() {
                 <button
                   type="button"
                   className={
-                    decisionStatus === "Credited"
-                      ? "primary"
-                      : "danger"
+                    decisionStatus === "Credited" ? "primary" : "danger"
                   }
                   onClick={() => void saveDecision()}
                   disabled={busyAction === "decision"}
@@ -2375,10 +2242,10 @@ export default function TransferEvaluationReview() {
                 <div className="program-head-transfer-action-modal__warning">
                   <AlertCircle size={16} />
                   <p>
-                    Returning the evaluation preserves the raw
-                    transcript and proposed PTC mappings, but resets
-                    all subject credit decisions to Pending so the
-                    Registrar can correct and resubmit the evaluation.
+                    Returning the evaluation preserves the raw transcript and
+                    proposed PTC mappings, but resets all subject credit
+                    decisions to Pending so the Registrar can correct and
+                    resubmit the evaluation.
                   </p>
                 </div>
 
@@ -2404,9 +2271,7 @@ export default function TransferEvaluationReview() {
                     autoFocus
                   />
 
-                  <small>
-                    {returnReason.length}/500 characters
-                  </small>
+                  <small>{returnReason.length}/500 characters</small>
                 </label>
 
                 {returnError && (
@@ -2431,10 +2296,7 @@ export default function TransferEvaluationReview() {
                   type="button"
                   className="return"
                   onClick={() => void returnEvaluation()}
-                  disabled={
-                    busyAction === "return" ||
-                    !returnReason.trim()
-                  }
+                  disabled={busyAction === "return" || !returnReason.trim()}
                 >
                   <Undo2 size={14} />
                   {busyAction === "return"
@@ -2486,33 +2348,27 @@ export default function TransferEvaluationReview() {
                 <div className="program-head-transfer-action-modal__success">
                   <CheckCircle2 size={16} />
                   <p>
-                    Completion finalizes this academic review.
-                    Subjects marked Credited become official transfer
-                    credits that satisfy their mapped PTC curriculum
-                    requirements. This does not create normal PTC grades.
+                    Completion finalizes this academic review. Subjects marked
+                    Credited become official transfer credits that satisfy their
+                    mapped PTC curriculum requirements. This does not create
+                    normal PTC grades.
                   </p>
                 </div>
 
                 <div className="program-head-transfer-action-modal__completion-summary">
                   <div>
                     <small>Credited</small>
-                    <strong>
-                      {detailSummary?.credited_subjects ?? 0}
-                    </strong>
+                    <strong>{detailSummary?.credited_subjects ?? 0}</strong>
                   </div>
 
                   <div>
                     <small>Not Credited</small>
-                    <strong>
-                      {detailSummary?.not_credited_subjects ?? 0}
-                    </strong>
+                    <strong>{detailSummary?.not_credited_subjects ?? 0}</strong>
                   </div>
 
                   <div>
                     <small>Pending</small>
-                    <strong>
-                      {detailSummary?.pending_subjects ?? 0}
-                    </strong>
+                    <strong>{detailSummary?.pending_subjects ?? 0}</strong>
                   </div>
                 </div>
 
@@ -2536,8 +2392,7 @@ export default function TransferEvaluationReview() {
                   />
 
                   <small>
-                    {completionRemarks.length}/500 characters ·
-                    optional
+                    {completionRemarks.length}/500 characters · optional
                   </small>
                 </label>
 

@@ -16,18 +16,16 @@ import {
 } from "lucide-react";
 import DashboardLayout from "../../components/Layout/DashboardLayout";
 import { authService } from "../../services/auth.service";
+import { api } from "../../services/api";
 import "../../styles/FinancePaymentHistory.css";
 
 // ============================================================
 // API
 // ============================================================
 
-const PAYMENT_HISTORY_API =
-  "http://localhost:3000/api/finance/tickets/payment-history";
-const TRANSACTION_TYPES_API =
-  "http://localhost:3000/api/finance/tickets/transaction-types";
-const REPORT_SUMMARY_API =
-  "http://localhost:3000/api/finance/tickets/reports/summary";
+const PAYMENT_HISTORY_API = api.url("/api/finance/tickets/payment-history");
+const TRANSACTION_TYPES_API = api.url("/api/finance/tickets/transaction-types");
+const REPORT_SUMMARY_API = api.url("/api/finance/tickets/reports/summary");
 const PAGE_SIZE = 25;
 // ============================================================
 // TYPES
@@ -463,8 +461,8 @@ export default function FinancePaymentHistory() {
             </div>
             <h1>Payment History</h1>
             <p>
-              Review completed student payments, receipts, payment methods,
-              and Finance transaction records.
+              Review completed student payments, receipts, payment methods, and
+              Finance transaction records.
             </p>
           </div>
           <button
@@ -574,9 +572,7 @@ export default function FinancePaymentHistory() {
               <span>Transaction</span>
               <select
                 value={transactionFilter}
-                onChange={(event) =>
-                  setTransactionFilter(event.target.value)
-                }
+                onChange={(event) => setTransactionFilter(event.target.value)}
                 disabled={loading || refreshing}
               >
                 <option value="All">All Transactions</option>
@@ -784,8 +780,7 @@ function PaymentCard({ ticket }: { ticket: FinanceTicket }) {
       )}
       {ticket.payment.finance_remarks && (
         <div className="finance-payment-history__remarks">
-          <strong>Finance Remarks:</strong>{" "}
-          {ticket.payment.finance_remarks}
+          <strong>Finance Remarks:</strong> {ticket.payment.finance_remarks}
         </div>
       )}
     </article>
@@ -806,9 +801,7 @@ function SummaryCard({
         <span>{label}</span>
         <strong>{value}</strong>
       </div>
-      <div className="finance-payment-history__summary-icon">
-        {icon}
-      </div>
+      <div className="finance-payment-history__summary-icon">{icon}</div>
     </article>
   );
 }
@@ -827,9 +820,7 @@ function DetailBox({
         {icon}
         {label}
       </div>
-      <div className="finance-payment-history__detail-value">
-        {value}
-      </div>
+      <div className="finance-payment-history__detail-value">{value}</div>
     </div>
   );
 }

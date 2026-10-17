@@ -1,10 +1,4 @@
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import FullCalendar from "@fullcalendar/react";
@@ -30,10 +24,10 @@ import {
 
 import DashboardLayout from "../../../components/Layout/DashboardLayout";
 import { authService } from "../../../services/auth.service";
+import { apiUrl } from "../../../services/api";
 import "../../../styles/StudentSchedule.css";
 
-const SCHEDULE_API_URL =
-  "http://localhost:3000/api/student/enrollments/schedule";
+const SCHEDULE_API_URL = apiUrl("/api/student/enrollments/schedule");
 
 interface Holiday {
   date: string;
@@ -224,9 +218,7 @@ function parseClockTime(value: string): number | null {
   return null;
 }
 
-function parseScheduleTimeRange(
-  value: string | null,
-): {
+function parseScheduleTimeRange(value: string | null): {
   startTime: string;
   endTime: string;
   startMinutes: number;
@@ -375,9 +367,9 @@ export default function StudentSchedule() {
           },
         });
 
-        const data = await readJsonResponse<ScheduleResponse | ApiErrorResponse>(
-          response,
-        );
+        const data = await readJsonResponse<
+          ScheduleResponse | ApiErrorResponse
+        >(response);
 
         if (response.status === 401) {
           authService.logout();
@@ -589,7 +581,9 @@ export default function StudentSchedule() {
   }, [scheduledSubjects, subjectColorMap]);
 
   const weeklyDays = useMemo(() => {
-    const usedDays = new Set(weeklyMeetings.map((meeting) => meeting.dayNumber));
+    const usedDays = new Set(
+      weeklyMeetings.map((meeting) => meeting.dayNumber),
+    );
     const orderedDays = [1, 2, 3, 4, 5, 6, 0];
 
     if (usedDays.size === 0) {
@@ -871,9 +865,7 @@ export default function StudentSchedule() {
               <span className="student-schedule__section-kicker">
                 Official Schedule
               </span>
-              <h2>
-                {viewMode === "week" ? "Weekly Classes" : currentMonth}
-              </h2>
+              <h2>{viewMode === "week" ? "Weekly Classes" : currentMonth}</h2>
               <p>
                 {scheduleData?.enrollment
                   ? `${scheduleData.enrollment.academic_year} · ${scheduleData.enrollment.semester_name} · ${scheduleData.enrollment.enrollment_status}`
@@ -940,7 +932,9 @@ export default function StudentSchedule() {
                 aria-hidden="true"
               />
               <strong>Loading official class schedule...</strong>
-              <span>Please wait while your approved enrollment is checked.</span>
+              <span>
+                Please wait while your approved enrollment is checked.
+              </span>
             </div>
           ) : !scheduleError && !scheduleData?.enrollment ? (
             <div className="student-schedule__state">
@@ -1178,10 +1172,7 @@ export default function StudentSchedule() {
             ) : (
               <div className="student-schedule__holidays">
                 {currentMonthHolidays.map((holiday) => (
-                  <div
-                    className="student-schedule__holiday"
-                    key={holiday.date}
-                  >
+                  <div className="student-schedule__holiday" key={holiday.date}>
                     <span>{formatHolidayDate(holiday.date)}</span>
                     <div>
                       <strong>{holiday.localName || holiday.name}</strong>
@@ -1331,10 +1322,7 @@ export default function StudentSchedule() {
                   enrollment.
                 </span>
 
-                <button
-                  type="button"
-                  onClick={() => setSelectedSubject(null)}
-                >
+                <button type="button" onClick={() => setSelectedSubject(null)}>
                   Close
                 </button>
               </footer>

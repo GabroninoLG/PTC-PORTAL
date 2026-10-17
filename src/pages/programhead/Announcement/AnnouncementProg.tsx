@@ -21,9 +21,10 @@ import {
 
 import DashboardLayout from "../../../components/Layout/DashboardLayout";
 import { authService } from "../../../services/auth.service";
+import { api } from "../../../services/api";
 import "../../../styles/announcementProgramHead.css";
 
-const API_BASE_URL = "http://localhost:3000";
+const API_BASE_URL = api.baseUrl;
 
 interface AnnouncementRecipient {
   role_id?: number;
@@ -39,11 +40,7 @@ interface Announcement {
   expiry_date: string | null;
   is_active: number;
   created_at: string;
-  recipients?:
-    | string
-    | string[]
-    | AnnouncementRecipient[]
-    | null;
+  recipients?: string | string[] | AnnouncementRecipient[] | null;
   attachments?: string | null;
 }
 
@@ -100,8 +97,7 @@ function getPreview(value: string) {
 function getAnnouncementCategory(
   announcement: Announcement,
 ): Exclude<AnnouncementCategory, "All"> {
-  const value =
-    `${announcement.title} ${announcement.content}`.toLowerCase();
+  const value = `${announcement.title} ${announcement.content}`.toLowerCase();
 
   if (
     value.includes("grade") ||
@@ -170,20 +166,14 @@ function isCurrentlyAvailable(announcement: Announcement) {
   const now = Date.now();
   const publishDate = new Date(announcement.publish_date);
 
-  if (
-    !Number.isNaN(publishDate.getTime()) &&
-    publishDate.getTime() > now
-  ) {
+  if (!Number.isNaN(publishDate.getTime()) && publishDate.getTime() > now) {
     return false;
   }
 
   if (announcement.expiry_date) {
     const expiryDate = new Date(announcement.expiry_date);
 
-    if (
-      !Number.isNaN(expiryDate.getTime()) &&
-      expiryDate.getTime() < now
-    ) {
+    if (!Number.isNaN(expiryDate.getTime()) && expiryDate.getTime() < now) {
       return false;
     }
   }
@@ -191,9 +181,7 @@ function isCurrentlyAvailable(announcement: Announcement) {
   return true;
 }
 
-function isProgramHeadAudience(
-  recipients: Announcement["recipients"],
-) {
+function isProgramHeadAudience(recipients: Announcement["recipients"]) {
   if (recipients === null || recipients === undefined) {
     return true;
   }
@@ -222,11 +210,8 @@ function isProgramHeadAudience(
   return true;
 }
 
-function needsProgramHeadAttention(
-  announcement: Announcement,
-) {
-  const value =
-    `${announcement.title} ${announcement.content}`.toLowerCase();
+function needsProgramHeadAttention(announcement: Announcement) {
+  const value = `${announcement.title} ${announcement.content}`.toLowerCase();
 
   const keywords = [
     "urgent",
@@ -255,9 +240,7 @@ function needsProgramHeadAttention(
   );
 }
 
-function getCategoryIcon(
-  category: Exclude<AnnouncementCategory, "All">,
-) {
+function getCategoryIcon(category: Exclude<AnnouncementCategory, "All">) {
   switch (category) {
     case "Grades":
       return <ClipboardCheck size={17} />;
@@ -284,17 +267,14 @@ export default function AnnouncementProg() {
   const authenticated = Boolean(session && token);
   const userRole = session?.role;
 
-  const [announcements, setAnnouncements] =
-    useState<Announcement[]>([]);
+  const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState("");
 
   const [search, setSearch] = useState("");
-  const [category, setCategory] =
-    useState<AnnouncementCategory>("All");
-  const [attentionOnly, setAttentionOnly] =
-    useState(false);
+  const [category, setCategory] = useState<AnnouncementCategory>("All");
+  const [attentionOnly, setAttentionOnly] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
@@ -345,8 +325,7 @@ export default function AnnouncementProg() {
           return;
         }
 
-        const contentType =
-          response.headers.get("content-type") || "";
+        const contentType = response.headers.get("content-type") || "";
 
         if (!contentType.includes("application/json")) {
           const text = await response.text();
@@ -359,17 +338,14 @@ export default function AnnouncementProg() {
           );
         }
 
-        const data = (await response.json()) as
-          AnnouncementListResponse;
+        const data = (await response.json()) as AnnouncementListResponse;
 
         if (response.status === 403) {
           const message = Array.isArray(data)
             ? undefined
             : data.message || data.error;
 
-          throw new Error(
-            message || "Program Head access is required.",
-          );
+          throw new Error(message || "Program Head access is required.");
         }
 
         if (!response.ok) {
@@ -377,9 +353,7 @@ export default function AnnouncementProg() {
             ? undefined
             : data.message || data.error;
 
-          throw new Error(
-            message || "Unable to load announcements.",
-          );
+          throw new Error(message || "Unable to load announcements.");
         }
 
         let rows: Announcement[] = [];
@@ -407,10 +381,7 @@ export default function AnnouncementProg() {
           return;
         }
 
-        console.error(
-          "LOAD PROGRAM HEAD ANNOUNCEMENTS ERROR:",
-          requestError,
-        );
+        console.error("LOAD PROGRAM HEAD ANNOUNCEMENTS ERROR:", requestError);
 
         setAnnouncements([]);
 
@@ -437,22 +408,14 @@ export default function AnnouncementProg() {
     void loadAnnouncements();
 
     return () => controller.abort();
-  }, [
-    authenticated,
-    userRole,
-    navigate,
-    refreshKey,
-  ]);
+  }, [authenticated, userRole, navigate, refreshKey]);
 
   const summary = useMemo(() => {
     return {
       total: announcements.length,
-      attention: announcements.filter(
-        needsProgramHeadAttention,
-      ).length,
+      attention: announcements.filter(needsProgramHeadAttention).length,
       grades: announcements.filter(
-        (announcement) =>
-          getAnnouncementCategory(announcement) === "Grades",
+        (announcement) => getAnnouncementCategory(announcement) === "Grades",
       ).length,
       expiring: announcements.filter(isExpiringSoon).length,
     };
@@ -463,65 +426,41 @@ export default function AnnouncementProg() {
 
     return announcements
       .filter((announcement) => {
-        const announcementCategory =
-          getAnnouncementCategory(announcement);
+        const announcementCategory = getAnnouncementCategory(announcement);
 
         const matchesCategory =
-          category === "All" ||
-          category === announcementCategory;
+          category === "All" || category === announcementCategory;
 
         const matchesAttention =
-          !attentionOnly ||
-          needsProgramHeadAttention(announcement);
+          !attentionOnly || needsProgramHeadAttention(announcement);
 
         const matchesSearch =
           !normalizedSearch ||
-          announcement.title
-            .toLowerCase()
-            .includes(normalizedSearch) ||
-          announcement.content
-            .toLowerCase()
-            .includes(normalizedSearch) ||
+          announcement.title.toLowerCase().includes(normalizedSearch) ||
+          announcement.content.toLowerCase().includes(normalizedSearch) ||
           String(announcement.created_by || "")
             .toLowerCase()
             .includes(normalizedSearch);
 
-        return (
-          matchesCategory &&
-          matchesAttention &&
-          matchesSearch
-        );
+        return matchesCategory && matchesAttention && matchesSearch;
       })
       .sort((a, b) => {
-        const aAttention =
-          needsProgramHeadAttention(a) ? 1 : 0;
-        const bAttention =
-          needsProgramHeadAttention(b) ? 1 : 0;
+        const aAttention = needsProgramHeadAttention(a) ? 1 : 0;
+        const bAttention = needsProgramHeadAttention(b) ? 1 : 0;
 
         if (aAttention !== bAttention) {
           return bAttention - aAttention;
         }
 
         return (
-          new Date(
-            b.publish_date || b.created_at,
-          ).getTime() -
-          new Date(
-            a.publish_date || a.created_at,
-          ).getTime()
+          new Date(b.publish_date || b.created_at).getTime() -
+          new Date(a.publish_date || a.created_at).getTime()
         );
       });
-  }, [
-    announcements,
-    search,
-    category,
-    attentionOnly,
-  ]);
+  }, [announcements, search, category, attentionOnly]);
 
   const hasActiveFilters =
-    search.trim() !== "" ||
-    category !== "All" ||
-    attentionOnly;
+    search.trim() !== "" || category !== "All" || attentionOnly;
 
   const clearFilters = () => {
     setSearch("");
@@ -529,11 +468,7 @@ export default function AnnouncementProg() {
     setAttentionOnly(false);
   };
 
-  if (
-    !authenticated ||
-    !session ||
-    userRole !== "Program Head"
-  ) {
+  if (!authenticated || !session || userRole !== "Program Head") {
     return null;
   }
 
@@ -552,27 +487,21 @@ export default function AnnouncementProg() {
             <h1>Announcements</h1>
 
             <p>
-              Review official notices available to your Program Head
-              account and prioritize grade, Faculty, enrollment, and
-              academic updates that may require attention.
+              Review official notices available to your Program Head account and
+              prioritize grade, Faculty, enrollment, and academic updates that
+              may require attention.
             </p>
           </div>
 
           <button
             type="button"
             className="programhead-announcements__refresh"
-            onClick={() =>
-              setRefreshKey((current) => current + 1)
-            }
+            onClick={() => setRefreshKey((current) => current + 1)}
             disabled={loading || refreshing}
           >
             <RefreshCw
               size={16}
-              className={
-                refreshing
-                  ? "programhead-announcements__spin"
-                  : ""
-              }
+              className={refreshing ? "programhead-announcements__spin" : ""}
             />
             {refreshing ? "Refreshing..." : "Refresh"}
           </button>
@@ -641,8 +570,8 @@ export default function AnnouncementProg() {
               <div>
                 <strong>Find Announcements</strong>
                 <p>
-                  Search notices or narrow the list by category and
-                  attention status.
+                  Search notices or narrow the list by category and attention
+                  status.
                 </p>
               </div>
             </div>
@@ -669,9 +598,7 @@ export default function AnnouncementProg() {
                 <input
                   type="search"
                   value={search}
-                  onChange={(event) =>
-                    setSearch(event.target.value)
-                  }
+                  onChange={(event) => setSearch(event.target.value)}
                   placeholder="Title, message, or author..."
                 />
               </div>
@@ -683,10 +610,7 @@ export default function AnnouncementProg() {
               <select
                 value={category}
                 onChange={(event) =>
-                  setCategory(
-                    event.target
-                      .value as AnnouncementCategory,
-                  )
+                  setCategory(event.target.value as AnnouncementCategory)
                 }
               >
                 <option value="All">All Categories</option>
@@ -703,9 +627,7 @@ export default function AnnouncementProg() {
               className={`programhead-announcements__attention-toggle ${
                 attentionOnly ? "is-active" : ""
               }`}
-              onClick={() =>
-                setAttentionOnly((current) => !current)
-              }
+              onClick={() => setAttentionOnly((current) => !current)}
               aria-pressed={attentionOnly}
             >
               <BellRing size={15} />
@@ -718,10 +640,7 @@ export default function AnnouncementProg() {
         </section>
 
         {error && !loading && (
-          <section
-            className="programhead-announcements__error"
-            role="alert"
-          >
+          <section className="programhead-announcements__error" role="alert">
             <span>
               <AlertCircle size={20} />
             </span>
@@ -733,9 +652,7 @@ export default function AnnouncementProg() {
 
             <button
               type="button"
-              onClick={() =>
-                setRefreshKey((current) => current + 1)
-              }
+              onClick={() => setRefreshKey((current) => current + 1)}
             >
               Try Again
             </button>
@@ -748,18 +665,13 @@ export default function AnnouncementProg() {
               <div>
                 <span>Program Head Notices</span>
                 <h2>Announcement Feed</h2>
-                <p>
-                  Retrieving notices available to your account.
-                </p>
+                <p>Retrieving notices available to your account.</p>
               </div>
             </header>
 
             <div className="programhead-announcements__skeleton-list">
               {[1, 2, 3].map((item) => (
-                <div
-                  className="programhead-announcements__skeleton"
-                  key={item}
-                >
+                <div className="programhead-announcements__skeleton" key={item}>
                   <i />
 
                   <span>
@@ -782,16 +694,14 @@ export default function AnnouncementProg() {
                 <span>Program Head Notices</span>
                 <h2>Announcement Feed</h2>
                 <p>
-                  Important notices are prioritized first, followed
-                  by the newest published announcements.
+                  Important notices are prioritized first, followed by the
+                  newest published announcements.
                 </p>
               </div>
 
               <strong className="programhead-announcements__result-count">
                 {filteredAnnouncements.length}{" "}
-                {filteredAnnouncements.length === 1
-                  ? "notice"
-                  : "notices"}
+                {filteredAnnouncements.length === 1 ? "notice" : "notices"}
               </strong>
             </header>
 
@@ -814,10 +724,7 @@ export default function AnnouncementProg() {
                 </p>
 
                 {hasActiveFilters && (
-                  <button
-                    type="button"
-                    onClick={clearFilters}
-                  >
+                  <button type="button" onClick={clearFilters}>
                     <RotateCcw size={14} />
                     Clear Filters
                   </button>
@@ -826,10 +733,8 @@ export default function AnnouncementProg() {
             ) : (
               <div className="programhead-announcements__list">
                 {filteredAnnouncements.map((item) => {
-                  const itemCategory =
-                    getAnnouncementCategory(item);
-                  const attention =
-                    needsProgramHeadAttention(item);
+                  const itemCategory = getAnnouncementCategory(item);
+                  const attention = needsProgramHeadAttention(item);
                   const expiring = isExpiringSoon(item);
 
                   return (
@@ -878,9 +783,7 @@ export default function AnnouncementProg() {
                           <span>
                             <UserRound size={13} />
                             Posted by{" "}
-                            <strong>
-                              {formatAuthor(item.created_by)}
-                            </strong>
+                            <strong>{formatAuthor(item.created_by)}</strong>
                           </span>
 
                           <span>
@@ -923,9 +826,9 @@ export default function AnnouncementProg() {
           <div>
             <strong>Authenticated Program Head notices</strong>
             <p>
-              Announcement visibility is determined by your signed-in
-              Program Head role. The page does not send a role ID from
-              the browser to request additional announcements.
+              Announcement visibility is determined by your signed-in Program
+              Head role. The page does not send a role ID from the browser to
+              request additional announcements.
             </p>
           </div>
         </section>

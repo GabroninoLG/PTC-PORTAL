@@ -21,10 +21,10 @@ import {
 
 import DashboardLayout from "../../../components/Layout/DashboardLayout";
 import { authService } from "../../../services/auth.service";
+import { apiUrl } from "../../../services/api";
 import "../../../styles/GradeChangeRequestsR.css";
 
-const API_BASE_URL =
-  "http://localhost:3000/api/registrar/grade-change-requests";
+const API_BASE_URL = apiUrl("/api/registrar/grade-change-requests");
 
 type RegistrarRequestStatus = "For Registrar Processing" | "Completed";
 
@@ -665,7 +665,9 @@ export default function GradeChangeRequestsR() {
             </span>
             <div>
               <small>Queue View</small>
-              <strong>{statusFilter === "Completed" ? "History" : "Ready"}</strong>
+              <strong>
+                {statusFilter === "Completed" ? "History" : "Ready"}
+              </strong>
               <p>
                 {statusFilter === "Completed"
                   ? "Processed grade changes"
@@ -697,7 +699,8 @@ export default function GradeChangeRequestsR() {
             </div>
             <strong className="registrar-grade-change-count">
               {loading ? "…" : filteredRequests.length}{" "}
-              {!loading && (filteredRequests.length === 1 ? "request" : "requests")}
+              {!loading &&
+                (filteredRequests.length === 1 ? "request" : "requests")}
             </strong>
           </header>
 
@@ -725,7 +728,9 @@ export default function GradeChangeRequestsR() {
                   setRefreshKey((current) => current + 1);
                 }}
               >
-                <option value="For Registrar Processing">For Registrar Processing</option>
+                <option value="For Registrar Processing">
+                  For Registrar Processing
+                </option>
                 <option value="Completed">Completed History</option>
               </select>
             </label>
@@ -813,7 +818,8 @@ export default function GradeChangeRequestsR() {
                         <strong>{request.student.full_name}</strong>
                         <p>{request.student.student_number}</p>
                         <small>
-                          Request #{request.grade_change_request_id} · Grade #{request.grade_id}
+                          Request #{request.grade_change_request_id} · Grade #
+                          {request.grade_id}
                         </small>
                       </div>
                     </div>
@@ -847,7 +853,9 @@ export default function GradeChangeRequestsR() {
                       <div>
                         <small>Faculty</small>
                         <strong>{request.faculty.faculty_name}</strong>
-                        <p>{request.faculty.employee_number || "Faculty request"}</p>
+                        <p>
+                          {request.faculty.employee_number || "Faculty request"}
+                        </p>
                       </div>
                     </div>
                     <div className="registrar-grade-change-context-item">
@@ -856,7 +864,9 @@ export default function GradeChangeRequestsR() {
                       </span>
                       <div>
                         <small>Program Head Review</small>
-                        <strong>{request.reviewed_by_username || "Program Head"}</strong>
+                        <strong>
+                          {request.reviewed_by_username || "Program Head"}
+                        </strong>
                         <p>{formatDateTime(request.reviewed_at)}</p>
                       </div>
                     </div>
@@ -865,41 +875,116 @@ export default function GradeChangeRequestsR() {
                   <div className="registrar-grade-change-comparison">
                     <section className="registrar-grade-change-grade-block registrar-grade-change-grade-block--original">
                       <header>
-                        <span><ShieldCheck size={16} /></span>
+                        <span>
+                          <ShieldCheck size={16} />
+                        </span>
                         <div>
                           <small>Original Request Snapshot</small>
                           <strong>Approved INC</strong>
                         </div>
                       </header>
                       <div className="registrar-grade-change-grade-grid">
-                        <div><small>Midterm</small><strong>{formatGrade(request.original_grade.midterm_grade)}</strong></div>
-                        <div><small>Final</small><strong>{formatGrade(request.original_grade.final_grade)}</strong></div>
-                        <div><small>Overall</small><strong>{formatPercentage(request.original_grade.overall_percentage)}</strong></div>
-                        <div><small>Rating</small><strong>{formatGrade(request.original_grade.final_rating)}</strong></div>
-                        <div><small>Outcome</small><strong>{outcomeLabel(request.original_grade.grading_outcome)}</strong></div>
-                        <div><small>Remarks</small><strong>{request.original_grade.remarks || "—"}</strong></div>
+                        <div>
+                          <small>Midterm</small>
+                          <strong>
+                            {formatGrade(request.original_grade.midterm_grade)}
+                          </strong>
+                        </div>
+                        <div>
+                          <small>Final</small>
+                          <strong>
+                            {formatGrade(request.original_grade.final_grade)}
+                          </strong>
+                        </div>
+                        <div>
+                          <small>Overall</small>
+                          <strong>
+                            {formatPercentage(
+                              request.original_grade.overall_percentage,
+                            )}
+                          </strong>
+                        </div>
+                        <div>
+                          <small>Rating</small>
+                          <strong>
+                            {formatGrade(request.original_grade.final_rating)}
+                          </strong>
+                        </div>
+                        <div>
+                          <small>Outcome</small>
+                          <strong>
+                            {outcomeLabel(
+                              request.original_grade.grading_outcome,
+                            )}
+                          </strong>
+                        </div>
+                        <div>
+                          <small>Remarks</small>
+                          <strong>
+                            {request.original_grade.remarks || "—"}
+                          </strong>
+                        </div>
                       </div>
                       <div className="registrar-grade-change-reason">
                         <small>INC Reason</small>
-                        <p>{request.original_grade.outcome_reason || "No reason recorded."}</p>
+                        <p>
+                          {request.original_grade.outcome_reason ||
+                            "No reason recorded."}
+                        </p>
                       </div>
                     </section>
 
                     <section className="registrar-grade-change-grade-block registrar-grade-change-grade-block--approved">
                       <header>
-                        <span><FilePenLine size={16} /></span>
+                        <span>
+                          <FilePenLine size={16} />
+                        </span>
                         <div>
                           <small>Program Head-Approved Proposal</small>
                           <strong>Ready for Posting</strong>
                         </div>
                       </header>
                       <div className="registrar-grade-change-grade-grid">
-                        <div><small>Midterm</small><strong>{formatGrade(request.proposed_grade.midterm_grade)}</strong></div>
-                        <div><small>Final</small><strong>{formatGrade(request.proposed_grade.final_grade)}</strong></div>
-                        <div><small>Overall</small><strong>{formatPercentage(request.proposed_grade.overall_percentage)}</strong></div>
-                        <div><small>Rating</small><strong>{formatGrade(request.proposed_grade.final_rating)}</strong></div>
-                        <div><small>Outcome</small><strong>{outcomeLabel(request.proposed_grade.grading_outcome)}</strong></div>
-                        <div><small>Remarks</small><strong>{request.proposed_grade.remarks || "—"}</strong></div>
+                        <div>
+                          <small>Midterm</small>
+                          <strong>
+                            {formatGrade(request.proposed_grade.midterm_grade)}
+                          </strong>
+                        </div>
+                        <div>
+                          <small>Final</small>
+                          <strong>
+                            {formatGrade(request.proposed_grade.final_grade)}
+                          </strong>
+                        </div>
+                        <div>
+                          <small>Overall</small>
+                          <strong>
+                            {formatPercentage(
+                              request.proposed_grade.overall_percentage,
+                            )}
+                          </strong>
+                        </div>
+                        <div>
+                          <small>Rating</small>
+                          <strong>
+                            {formatGrade(request.proposed_grade.final_rating)}
+                          </strong>
+                        </div>
+                        <div>
+                          <small>Outcome</small>
+                          <strong>
+                            {outcomeLabel(
+                              request.proposed_grade.grading_outcome,
+                            )}
+                          </strong>
+                        </div>
+                        <div>
+                          <small>Remarks</small>
+                          <strong>
+                            {request.proposed_grade.remarks || "—"}
+                          </strong>
+                        </div>
                       </div>
                       <div className="registrar-grade-change-reason">
                         <small>Faculty Completion Remarks</small>
@@ -910,38 +995,59 @@ export default function GradeChangeRequestsR() {
 
                   <div className="registrar-grade-change-review-grid">
                     <div className="registrar-grade-change-review-note">
-                      <span><ShieldCheck size={15} /></span>
+                      <span>
+                        <ShieldCheck size={15} />
+                      </span>
                       <div>
                         <strong>Current Official Grade Verification</strong>
                         <p>
                           Database record now shows{" "}
                           <b>
-                            {formatGrade(request.current_official_grade.final_rating)}
+                            {formatGrade(
+                              request.current_official_grade.final_rating,
+                            )}
                             {" · "}
                             {request.current_official_grade.remarks || "—"}
                           </b>
                           {" · "}
-                          {formatPercentage(request.current_official_grade.overall_percentage)}
+                          {formatPercentage(
+                            request.current_official_grade.overall_percentage,
+                          )}
                           {" · "}
-                          {request.current_official_grade.grade_status || "status unavailable"}.
+                          {request.current_official_grade.grade_status ||
+                            "status unavailable"}
+                          .
                         </p>
                       </div>
                     </div>
                     <div className="registrar-grade-change-review-note">
-                      <span><CheckCircle2 size={15} /></span>
+                      <span>
+                        <CheckCircle2 size={15} />
+                      </span>
                       <div>
                         <strong>Program Head Review</strong>
-                        <p>{request.review_remarks || "No review remarks recorded."}</p>
+                        <p>
+                          {request.review_remarks ||
+                            "No review remarks recorded."}
+                        </p>
                       </div>
                     </div>
                   </div>
 
                   {request.status === "Completed" && (
                     <div className="registrar-grade-change-completed-note">
-                      <span><BadgeCheck size={15} /></span>
+                      <span>
+                        <BadgeCheck size={15} />
+                      </span>
                       <div>
-                        <strong>Processed by {request.processed_by_username || "Registrar"}</strong>
-                        <p>{request.registrar_remarks || "Official grade change completed."}</p>
+                        <strong>
+                          Processed by{" "}
+                          {request.processed_by_username || "Registrar"}
+                        </strong>
+                        <p>
+                          {request.registrar_remarks ||
+                            "Official grade change completed."}
+                        </p>
                         <small>{formatDateTime(request.processed_at)}</small>
                       </div>
                     </div>
@@ -957,7 +1063,9 @@ export default function GradeChangeRequestsR() {
                         type="button"
                         className="registrar-grade-change-process"
                         onClick={() => openProcessModal(request)}
-                        disabled={processingId === request.grade_change_request_id}
+                        disabled={
+                          processingId === request.grade_change_request_id
+                        }
                       >
                         <FileCheck2 size={14} />
                         Process Official Grade Change
@@ -995,10 +1103,13 @@ export default function GradeChangeRequestsR() {
                   </span>
                   <div>
                     <small>Registrar Processing</small>
-                    <h2 id="registrar-grade-change-modal-title">Post Approved INC Completion</h2>
+                    <h2 id="registrar-grade-change-modal-title">
+                      Post Approved INC Completion
+                    </h2>
                     <p>
                       Replace the current Approved INC with the exact Program
-                      Head-approved numeric grade and update the enrollment subject result.
+                      Head-approved numeric grade and update the enrollment
+                      subject result.
                     </p>
                   </div>
                 </div>
@@ -1030,22 +1141,29 @@ export default function GradeChangeRequestsR() {
                     {formatGrade(processRequest.proposed_grade.final_rating)} —{" "}
                     {processRequest.proposed_grade.remarks || "—"}
                   </strong>
-                  <span>{formatPercentage(processRequest.proposed_grade.overall_percentage)}</span>
+                  <span>
+                    {formatPercentage(
+                      processRequest.proposed_grade.overall_percentage,
+                    )}
+                  </span>
                 </div>
               </div>
 
               <div className="registrar-grade-change-modal-warning">
                 <ShieldCheck size={17} />
                 <p>
-                  Registrar does not change or recalculate the approved proposal.
-                  Processing posts the existing approved values to the official grade
-                  record and records the transaction in the audit trail.
+                  Registrar does not change or recalculate the approved
+                  proposal. Processing posts the existing approved values to the
+                  official grade record and records the transaction in the audit
+                  trail.
                 </p>
               </div>
 
               <div className="registrar-grade-change-modal-field">
                 <div>
-                  <label htmlFor="registrar-grade-change-remarks">Registrar Remarks</label>
+                  <label htmlFor="registrar-grade-change-remarks">
+                    Registrar Remarks
+                  </label>
                   <span>{registrarRemarks.length}/1000</span>
                 </div>
                 <textarea
@@ -1057,7 +1175,10 @@ export default function GradeChangeRequestsR() {
                   disabled={processingId !== null}
                 />
                 {processError && (
-                  <div className="registrar-grade-change-modal-error" role="alert">
+                  <div
+                    className="registrar-grade-change-modal-error"
+                    role="alert"
+                  >
                     <AlertCircle size={15} />
                     {processError}
                   </div>
@@ -1080,7 +1201,9 @@ export default function GradeChangeRequestsR() {
                   disabled={processingId !== null}
                 >
                   <FileCheck2 size={14} />
-                  {processingId !== null ? "Processing..." : "Post Official Grade"}
+                  {processingId !== null
+                    ? "Processing..."
+                    : "Post Official Grade"}
                 </button>
               </footer>
             </section>

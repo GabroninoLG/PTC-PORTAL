@@ -17,13 +17,12 @@ import {
 } from "lucide-react";
 import DashboardLayout from "../../components/Layout/DashboardLayout";
 import { authService } from "../../services/auth.service";
+import { apiUrl } from "../../services/api";
 import "../../styles/FinanceCreateStudentTransaction.css";
 
-const STUDENT_SEARCH_API = "http://localhost:3000/api/finance/tickets/students";
-const TRANSACTION_TYPES_API =
-  "http://localhost:3000/api/finance/tickets/transaction-types";
-const CREATE_TRANSACTION_API =
-  "http://localhost:3000/api/finance/tickets/manual";
+const STUDENT_SEARCH_API = apiUrl("/api/finance/tickets/students");
+const TRANSACTION_TYPES_API = apiUrl("/api/finance/tickets/transaction-types");
+const CREATE_TRANSACTION_API = apiUrl("/api/finance/tickets/manual");
 // ============================================================
 // TYPES
 // ============================================================

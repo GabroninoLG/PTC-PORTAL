@@ -19,11 +19,11 @@ import {
 
 import DashboardLayout from "../../../components/Layout/DashboardLayout";
 import { authService } from "../../../services/auth.service";
+import { api } from "../../../services/api";
 import "../../../styles/ProgramHeadDashboard.css";
 
-const CLASSES_API_URL = "http://localhost:3000/api/program-head/classes";
-const SUBMITTED_GRADES_API_URL =
-  "http://localhost:3000/api/program-head/grades/submitted";
+const CLASSES_API_URL = api.url("api/program-head/classes");
+const SUBMITTED_GRADES_API_URL = api.url("/api/program-head/grades/submitted");
 
 interface ProgramHeadInfo {
   program_head_id: number;
@@ -279,24 +279,20 @@ export default function ProgramHeadDashboard() {
 
     const loadSubmittedGrades = async () => {
       try {
-        const response = await authService.authFetch(
-          SUBMITTED_GRADES_API_URL,
-          {
-            method: "GET",
-            signal: controller.signal,
-            headers: {
-              Accept: "application/json",
-            },
+        const response = await authService.authFetch(SUBMITTED_GRADES_API_URL, {
+          method: "GET",
+          signal: controller.signal,
+          headers: {
+            Accept: "application/json",
           },
-        );
+        });
 
         if (response.status === 401) {
           handleUnauthorized();
           return;
         }
 
-        const data =
-          await readJsonResponse<SubmittedGradesResponse>(response);
+        const data = await readJsonResponse<SubmittedGradesResponse>(response);
 
         if (!response.ok || !data.success) {
           throw new Error(
@@ -388,12 +384,8 @@ export default function ProgramHeadDashboard() {
   const recentPendingGrades = useMemo(() => {
     return [...submittedGrades]
       .sort((a, b) => {
-        const first = a.submitted_at
-          ? new Date(a.submitted_at).getTime()
-          : 0;
-        const second = b.submitted_at
-          ? new Date(b.submitted_at).getTime()
-          : 0;
+        const first = a.submitted_at ? new Date(a.submitted_at).getTime() : 0;
+        const second = b.submitted_at ? new Date(b.submitted_at).getTime() : 0;
 
         return second - first;
       })
@@ -664,9 +656,7 @@ export default function ProgramHeadDashboard() {
 
               <span className="programhead-dashboard__action-copy">
                 <strong>Announcements</strong>
-                <small>
-                  Read notices available to the Program Head role.
-                </small>
+                <small>Read notices available to the Program Head role.</small>
               </span>
 
               <ArrowRight
@@ -688,16 +678,12 @@ export default function ProgramHeadDashboard() {
 
                 <h2>Recent Grade Submissions</h2>
 
-                <p>
-                  Latest Faculty grades waiting for Program Head review.
-                </p>
+                <p>Latest Faculty grades waiting for Program Head review.</p>
               </div>
 
               <button
                 type="button"
-                onClick={() =>
-                  navigate("/programhead/gradeapproval/pending")
-                }
+                onClick={() => navigate("/programhead/gradeapproval/pending")}
               >
                 View Queue
                 <ArrowRight size={14} />
@@ -858,9 +844,7 @@ export default function ProgramHeadDashboard() {
                   <button
                     type="button"
                     className="programhead-dashboard__manage-classes"
-                    onClick={() =>
-                      navigate("/programhead/class/management")
-                    }
+                    onClick={() => navigate("/programhead/class/management")}
                   >
                     Open Class Management
                     <ArrowRight size={14} />

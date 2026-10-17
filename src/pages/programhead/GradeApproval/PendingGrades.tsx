@@ -24,9 +24,10 @@ import {
 
 import DashboardLayout from "../../../components/Layout/DashboardLayout";
 import { authService } from "../../../services/auth.service";
+import { api } from "../../../services/api";
 import "../../../styles/PendingGrades.css";
 
-const API_BASE_URL = "http://localhost:3000/api/program-head/grades";
+const API_BASE_URL = api.url("/api/program-head/grades");
 
 interface ProgramHeadInfo {
   program_head_id: number;

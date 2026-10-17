@@ -21,9 +21,11 @@ import {
 
 import DashboardLayout from "../../../components/Layout/DashboardLayout";
 import { authService } from "../../../services/auth.service";
+import { api } from "../../../services/api";
+
 import "../../../styles/ClassSchedule.css";
 
-const API_BASE_URL = "http://localhost:3000/api/faculty/classes";
+const API_BASE_URL = api.url("/api/faculty/classes");
 
 const WEEK_DAYS = [
   "Monday",

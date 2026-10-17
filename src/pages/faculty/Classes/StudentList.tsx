@@ -12,11 +12,12 @@ import {
 } from "lucide-react";
 import DashboardLayout from "../../../components/Layout/DashboardLayout";
 import { authService } from "../../../services/auth.service";
+import { api } from "../../../services/api";
 import "../../../styles/FacultyStudentList.css";
 // =====================================================
 // API
 // =====================================================
-const API_BASE_URL = "http://localhost:3000/api/faculty/classes";
+const API_BASE_URL = api.url("/api/faculty/classes");
 // =====================================================
 // TYPES
 // =====================================================
@@ -324,7 +325,11 @@ export default function FacultyStudentList() {
         ============================================= */}
         <section className="faculty-student-list-header">
           <div className="faculty-student-list-heading">
-            <button type="button" className="faculty-roster-back" onClick={goBack}>
+            <button
+              type="button"
+              className="faculty-roster-back"
+              onClick={goBack}
+            >
               <ArrowLeft size={15} strokeWidth={2.1} />
               My Classes
             </button>
@@ -335,7 +340,10 @@ export default function FacultyStudentList() {
               <span>Faculty · Class Roster</span>
             </div>
             <h1>Student List</h1>
-            <p>Review the official students enrolled in the selected Faculty class.</p>
+            <p>
+              Review the official students enrolled in the selected Faculty
+              class.
+            </p>
           </div>
           <div className="faculty-roster-header-actions">
             <button
@@ -445,7 +453,10 @@ export default function FacultyStudentList() {
             {/* =======================================
                   FACULTY / COUNTS
               ======================================= */}
-            <section className="faculty-roster-summary" aria-label="Class roster summary">
+            <section
+              className="faculty-roster-summary"
+              aria-label="Class roster summary"
+            >
               <article>
                 <span className="faculty-roster-summary__icon">
                   <GraduationCap size={19} aria-hidden="true" />

@@ -17,10 +17,10 @@ import {
 } from "lucide-react";
 import DashboardLayout from "../../components/Layout/DashboardLayout";
 import { authService } from "../../services/auth.service";
+import { api } from "../../services/api";
 import "../../styles/FinanceTransactionTypes.css";
 
-const TRANSACTION_TYPES_API =
-  "http://localhost:3000/api/finance/tickets/transaction-types";
+const TRANSACTION_TYPES_API = api.url("/api/finance/tickets/transaction-types");
 interface FinanceTransactionType {
   transaction_type_id: number;
   transaction_code: string;
@@ -431,9 +431,7 @@ export default function FinanceTransactionTypes() {
             <FieldLabel label="Transaction Code">
               <input
                 value={transactionCode}
-                onChange={(event) =>
-                  setTransactionCode(event.target.value)
-                }
+                onChange={(event) => setTransactionCode(event.target.value)}
                 placeholder="Example: ID_REPLACEMENT"
                 disabled={creating}
               />
@@ -441,9 +439,7 @@ export default function FinanceTransactionTypes() {
             <FieldLabel label="Transaction Name">
               <input
                 value={transactionName}
-                onChange={(event) =>
-                  setTransactionName(event.target.value)
-                }
+                onChange={(event) => setTransactionName(event.target.value)}
                 placeholder="Example: ID Replacement"
                 disabled={creating}
               />
@@ -454,9 +450,7 @@ export default function FinanceTransactionTypes() {
                 min="0.01"
                 step="0.01"
                 value={defaultAmount}
-                onChange={(event) =>
-                  setDefaultAmount(event.target.value)
-                }
+                onChange={(event) => setDefaultAmount(event.target.value)}
                 placeholder="Optional"
                 disabled={creating}
               />
@@ -473,8 +467,8 @@ export default function FinanceTransactionTypes() {
               <span>
                 <strong>Allow amount override</strong>
                 <small>
-                  Finance can change the configured amount when assigning
-                  this transaction.
+                  Finance can change the configured amount when assigning this
+                  transaction.
                 </small>
               </span>
             </label>
@@ -482,9 +476,7 @@ export default function FinanceTransactionTypes() {
               <span>Description</span>
               <textarea
                 value={description}
-                onChange={(event) =>
-                  setDescription(event.target.value)
-                }
+                onChange={(event) => setDescription(event.target.value)}
                 rows={3}
                 maxLength={255}
                 disabled={creating}
@@ -570,10 +562,8 @@ export default function FinanceTransactionTypes() {
           ) : (
             <div className="finance-transaction-types__list">
               {transactionTypes.map((item) => {
-                const isEditing =
-                  editingCode === item.transaction_code;
-                const isFinanceOnly =
-                  item.workflow_type === "FINANCE_ONLY";
+                const isEditing = editingCode === item.transaction_code;
+                const isFinanceOnly = item.workflow_type === "FINANCE_ONLY";
                 return (
                   <article
                     key={item.transaction_type_id}
@@ -588,15 +578,9 @@ export default function FinanceTransactionTypes() {
                         }`}
                       >
                         {isFinanceOnly ? (
-                          <CircleDollarSign
-                            size={20}
-                            aria-hidden="true"
-                          />
+                          <CircleDollarSign size={20} aria-hidden="true" />
                         ) : (
-                          <FileText
-                            size={20}
-                            aria-hidden="true"
-                          />
+                          <FileText size={20} aria-hidden="true" />
                         )}
                       </div>
                       <div className="finance-transaction-types__card-copy">
@@ -615,14 +599,9 @@ export default function FinanceTransactionTypes() {
                             {item.is_active ? "Active" : "Inactive"}
                           </span>
                         </div>
-                        <p>
-                          {item.description ||
-                            "No description provided."}
-                        </p>
+                        <p>{item.description || "No description provided."}</p>
                         <div className="finance-transaction-types__badges">
-                          <Badge>
-                            {getWorkflowLabel(item.workflow_type)}
-                          </Badge>
+                          <Badge>{getWorkflowLabel(item.workflow_type)}</Badge>
                           {item.allow_manual_creation && (
                             <Badge>Manual Creation</Badge>
                           )}
@@ -726,9 +705,7 @@ function SummaryCard({
         <span>{label}</span>
         <strong>{value}</strong>
       </div>
-      <div className="finance-transaction-types__summary-icon">
-        {icon}
-      </div>
+      <div className="finance-transaction-types__summary-icon">{icon}</div>
     </article>
   );
 }
@@ -749,9 +726,5 @@ function FieldLabel({
 }
 
 function Badge({ children }: { children: ReactNode }) {
-  return (
-    <span className="finance-transaction-types__badge">
-      {children}
-    </span>
-  );
+  return <span className="finance-transaction-types__badge">{children}</span>;
 }

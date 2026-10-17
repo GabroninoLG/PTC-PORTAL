@@ -23,10 +23,10 @@ import {
 
 import DashboardLayout from "../../../components/Layout/DashboardLayout";
 import { authService } from "../../../services/auth.service";
+import { api } from "../../../services/api";
 import "../../../styles/GradeChangeRequestsPH.css";
 
-const API_BASE_URL =
-  "http://localhost:3000/api/program-head/grades/grade-change-requests";
+const API_BASE_URL = api.url("/api/program-head/grades/grade-change-requests");
 
 type GradeChangeStatus =
   | "Pending Program Head"

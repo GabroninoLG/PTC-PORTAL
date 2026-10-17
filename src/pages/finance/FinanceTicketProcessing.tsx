@@ -17,9 +17,10 @@ import {
 } from "lucide-react";
 import DashboardLayout from "../../components/Layout/DashboardLayout";
 import { authService } from "../../services/auth.service";
+import { api } from "../../services/api";
 import "../../styles/FinanceTicketProcessing.css";
 
-const FINANCE_TICKETS_API = "http://localhost:3000/api/finance/tickets";
+const FINANCE_TICKETS_API = api.url("/api/finance/tickets");
 
 type PaymentMethod = "Cash" | "GCash" | "Bank" | "Online";
 
@@ -559,18 +560,6 @@ export default function FinanceTicketProcessing() {
               processing.
             </p>
           </div>
-          <button
-            type="button"
-            className="finance-requests__refresh"
-            onClick={() => void loadQueue(activeSearch)}
-            disabled={loadingQueue || paying}
-          >
-            <RefreshCw
-              size={16}
-              className={loadingQueue ? "is-spinning" : ""}
-            />
-            {loadingQueue ? "Refreshing..." : "Refresh"}
-          </button>
         </section>
         <section
           className="finance-requests__summary-grid"
@@ -856,154 +845,99 @@ export default function FinanceTicketProcessing() {
                     {successMessage}
                   </div>
                 )}
-            <section className="finance-requests__panel finance-requests__selected-panel">
-              <div className="finance-requests__section-header">
-                <div>
-                  <h2
-                    id="finance-selected-transaction-title"
-                    className="finance-requests__selected-title"
-                  >
-                    {selectedTicket.ticket_number}
-                  </h2>
-                  <p>{selectedTicket.transaction.transaction_name}</p>
-                </div>
-                <div className="finance-requests__status-group">
-                  <StatusPill
-                    value={selectedTicket.payment.payment_status}
-                    statusClass={getPaymentStatusClass(
-                      selectedTicket.payment.payment_status,
-                    )}
-                  />
-                  <StatusPill
-                    value={selectedTicket.registrar.status}
-                    statusClass={getRegistrarStatusClass(
-                      selectedTicket.registrar.status,
-                    )}
-                  />
-                </div>
-              </div>
-              <div className="finance-requests__student-card">
-                <div className="finance-requests__student-icon">
-                  <UserRound size={21} aria-hidden="true" />
-                </div>
-                <div>
-                  <strong>{selectedTicket.student.student_name}</strong>
-                  <span>{selectedTicket.student.student_number}</span>
-                </div>
-              </div>
-              <div className="finance-requests__details-grid">
-                <InfoBox
-                  label="Transaction"
-                  value={selectedTicket.transaction.transaction_code}
-                />
-                <InfoBox
-                  label="Request Number"
-                  value={
-                    selectedTicket.document_request?.request_number ??
-                    "Not a document request"
-                  }
-                />
-                <InfoBox
-                  label="Document Type"
-                  value={
-                    selectedTicket.document_request?.document_type ??
-                    selectedTicket.transaction.transaction_name
-                  }
-                />
-                <InfoBox
-                  label="Academic Period"
-                  value={formatAcademicPeriod(selectedTicket.document_request)}
-                />
-                <InfoBox
-                  label="Enrollment ID"
-                  value={
-                    selectedTicket.document_request?.enrollment_id
-                      ? String(selectedTicket.document_request.enrollment_id)
-                      : "Not recorded"
-                  }
-                />
-                <InfoBox
-                  label="Copies"
-                  value={
-                    selectedTicket.document_request
-                      ? String(selectedTicket.document_request.copies)
-                      : "—"
-                  }
-                />
-                <InfoBox
-                  label="Amount Due"
-                  value={formatMoney(selectedTicket.payment.amount_due)}
-                />
-                <InfoBox
-                  label="Amount Paid"
-                  value={formatMoney(selectedTicket.payment.amount_paid)}
-                />
-                <InfoBox
-                  label="Receipt"
-                  value={selectedTicket.payment.receipt_number || "—"}
-                />
-                <InfoBox
-                  label="Payment Method"
-                  value={selectedTicket.payment.payment_method || "—"}
-                />
-                <InfoBox
-                  label="Paid At"
-                  value={formatDate(selectedTicket.payment.paid_at)}
-                />
-                <InfoBox
-                  label="Registrar Status"
-                  value={selectedTicket.registrar.status}
-                />
-              </div>
-              {selectedTicket.document_request?.purpose && (
-                <div className="finance-requests__purpose">
-                  <span>Purpose</span>
-                  <p>{selectedTicket.document_request.purpose}</p>
-                </div>
-              )}
-              {selectedTicket.document_request?.cancelled_at && (
-                <div className="finance-requests__message finance-requests__message--error">
-                  This document request was cancelled
-                  {selectedTicket.document_request.cancellation_reason
-                    ? `: ${selectedTicket.document_request.cancellation_reason}`
-                    : "."}
-                </div>
-              )}
-            </section>
-            <section className="finance-requests__panel">
-              <div className="finance-requests__payment-header">
-                <div className="finance-requests__payment-icon">
-                  <CreditCard size={20} aria-hidden="true" />
-                </div>
-                <div>
-                  <span className="finance-requests__section-kicker">
-                    Cashier Action
-                  </span>
-                  <h2>Record Payment</h2>
-                  <p>
-                    Finance records payment only. Registrar processing remains
-                    separate.
-                  </p>
-                </div>
-              </div>
-              {selectedTicket.payment.payment_status === "Paid" ? (
-                <div className="finance-requests__paid-card">
-                  <div className="finance-requests__paid-heading">
-                    <CheckCircle2 size={20} aria-hidden="true" />
-                    Payment Completed
+                <section className="finance-requests__panel finance-requests__selected-panel">
+                  <div className="finance-requests__section-header">
+                    <div>
+                      <h2
+                        id="finance-selected-transaction-title"
+                        className="finance-requests__selected-title"
+                      >
+                        {selectedTicket.ticket_number}
+                      </h2>
+                      <p>{selectedTicket.transaction.transaction_name}</p>
+                    </div>
+                    <div className="finance-requests__status-group">
+                      <StatusPill
+                        value={selectedTicket.payment.payment_status}
+                        statusClass={getPaymentStatusClass(
+                          selectedTicket.payment.payment_status,
+                        )}
+                      />
+                      <StatusPill
+                        value={selectedTicket.registrar.status}
+                        statusClass={getRegistrarStatusClass(
+                          selectedTicket.registrar.status,
+                        )}
+                      />
+                    </div>
+                  </div>
+                  <div className="finance-requests__student-card">
+                    <div className="finance-requests__student-icon">
+                      <UserRound size={21} aria-hidden="true" />
+                    </div>
+                    <div>
+                      <strong>{selectedTicket.student.student_name}</strong>
+                      <span>{selectedTicket.student.student_number}</span>
+                    </div>
                   </div>
                   <div className="finance-requests__details-grid">
+                    <InfoBox
+                      label="Transaction"
+                      value={selectedTicket.transaction.transaction_code}
+                    />
+                    <InfoBox
+                      label="Request Number"
+                      value={
+                        selectedTicket.document_request?.request_number ??
+                        "Not a document request"
+                      }
+                    />
+                    <InfoBox
+                      label="Document Type"
+                      value={
+                        selectedTicket.document_request?.document_type ??
+                        selectedTicket.transaction.transaction_name
+                      }
+                    />
+                    <InfoBox
+                      label="Academic Period"
+                      value={formatAcademicPeriod(
+                        selectedTicket.document_request,
+                      )}
+                    />
+                    <InfoBox
+                      label="Enrollment ID"
+                      value={
+                        selectedTicket.document_request?.enrollment_id
+                          ? String(
+                              selectedTicket.document_request.enrollment_id,
+                            )
+                          : "Not recorded"
+                      }
+                    />
+                    <InfoBox
+                      label="Copies"
+                      value={
+                        selectedTicket.document_request
+                          ? String(selectedTicket.document_request.copies)
+                          : "—"
+                      }
+                    />
+                    <InfoBox
+                      label="Amount Due"
+                      value={formatMoney(selectedTicket.payment.amount_due)}
+                    />
                     <InfoBox
                       label="Amount Paid"
                       value={formatMoney(selectedTicket.payment.amount_paid)}
                     />
                     <InfoBox
-                      label="Payment Method"
-                      value={selectedTicket.payment.payment_method || "—"}
+                      label="Receipt"
+                      value={selectedTicket.payment.receipt_number || "—"}
                     />
                     <InfoBox
-                      label="Receipt Number"
-                      value={selectedTicket.payment.receipt_number || "—"}
+                      label="Payment Method"
+                      value={selectedTicket.payment.payment_method || "—"}
                     />
                     <InfoBox
                       label="Paid At"
@@ -1014,102 +948,169 @@ export default function FinanceTicketProcessing() {
                       value={selectedTicket.registrar.status}
                     />
                   </div>
-                </div>
-              ) : (
-                <form
-                  onSubmit={handlePayment}
-                  className="finance-requests__payment-form"
-                >
-                  <FieldLabel label="Amount Due">
-                    <input
-                      type="number"
-                      min="0.01"
-                      step="0.01"
-                      value={amountDue}
-                      onChange={(event) => setAmountDue(event.target.value)}
-                      disabled={
-                        paying ||
-                        paymentLocked ||
-                        selectedTicket.payment.amount_due !== null
-                      }
-                      placeholder="Enter official amount due"
-                    />
-                  </FieldLabel>
-                  <FieldLabel label="Amount Paid">
-                    <input
-                      type="number"
-                      min="0.01"
-                      step="0.01"
-                      value={amountPaid}
-                      onChange={(event) => setAmountPaid(event.target.value)}
-                      disabled={paying || paymentLocked}
-                      placeholder="Enter amount paid"
-                    />
-                  </FieldLabel>
-                  <FieldLabel label="Payment Method">
-                    <select
-                      value={paymentMethod}
-                      onChange={(event) =>
-                        setPaymentMethod(event.target.value as PaymentMethod)
-                      }
-                      disabled={paying || paymentLocked}
-                    >
-                      <option value="Cash">Cash</option>
-                      <option value="GCash">GCash</option>
-                      <option value="Bank">Bank</option>
-                      <option value="Online">Online</option>
-                    </select>
-                  </FieldLabel>
-                  <FieldLabel label="Receipt Number">
-                    <input
-                      type="text"
-                      value={receiptNumber}
-                      onChange={(event) => setReceiptNumber(event.target.value)}
-                      disabled={paying || paymentLocked}
-                      placeholder="Official receipt number"
-                      maxLength={50}
-                    />
-                  </FieldLabel>
-                  <label className="finance-requests__field finance-requests__field--full">
-                    <span>Finance Remarks</span>
-                    <textarea
-                      value={remarks}
-                      onChange={(event) => setRemarks(event.target.value)}
-                      disabled={paying || paymentLocked}
-                      placeholder="Optional Finance remarks"
-                      maxLength={500}
-                      rows={3}
-                    />
-                  </label>
-                  <div className="finance-requests__payment-actions">
-                    <button
-                      type="submit"
-                      className="finance-requests__button finance-requests__button--primary finance-requests__button--pay"
-                      disabled={paying || paymentLocked}
-                    >
-                      {paying ? (
-                        <Loader2
-                          size={17}
-                          className="finance-requests__spinner"
-                          aria-hidden="true"
+                  {selectedTicket.document_request?.purpose && (
+                    <div className="finance-requests__purpose">
+                      <span>Purpose</span>
+                      <p>{selectedTicket.document_request.purpose}</p>
+                    </div>
+                  )}
+                  {selectedTicket.document_request?.cancelled_at && (
+                    <div className="finance-requests__message finance-requests__message--error">
+                      This document request was cancelled
+                      {selectedTicket.document_request.cancellation_reason
+                        ? `: ${selectedTicket.document_request.cancellation_reason}`
+                        : "."}
+                    </div>
+                  )}
+                </section>
+                <section className="finance-requests__panel">
+                  <div className="finance-requests__payment-header">
+                    <div className="finance-requests__payment-icon">
+                      <CreditCard size={20} aria-hidden="true" />
+                    </div>
+                    <div>
+                      <span className="finance-requests__section-kicker">
+                        Cashier Action
+                      </span>
+                      <h2>Record Payment</h2>
+                      <p>
+                        Finance records payment only. Registrar processing
+                        remains separate.
+                      </p>
+                    </div>
+                  </div>
+                  {selectedTicket.payment.payment_status === "Paid" ? (
+                    <div className="finance-requests__paid-card">
+                      <div className="finance-requests__paid-heading">
+                        <CheckCircle2 size={20} aria-hidden="true" />
+                        Payment Completed
+                      </div>
+                      <div className="finance-requests__details-grid">
+                        <InfoBox
+                          label="Amount Paid"
+                          value={formatMoney(
+                            selectedTicket.payment.amount_paid,
+                          )}
                         />
-                      ) : (
-                        <WalletCards size={17} aria-hidden="true" />
-                      )}
-                      {paying ? "Processing..." : "Confirm Payment"}
-                    </button>
-                  </div>
-                </form>
-              )}
-              {paymentLocked &&
-                selectedTicket.payment.payment_status !== "Paid" && (
-                  <div className="finance-requests__message finance-requests__message--warning">
-                    This transaction is not currently payable. Payment must be
-                    Pending Payment, Registrar must still be Pending, and the
-                    linked request must not be cancelled.
-                  </div>
-                )}
-            </section>
+                        <InfoBox
+                          label="Payment Method"
+                          value={selectedTicket.payment.payment_method || "—"}
+                        />
+                        <InfoBox
+                          label="Receipt Number"
+                          value={selectedTicket.payment.receipt_number || "—"}
+                        />
+                        <InfoBox
+                          label="Paid At"
+                          value={formatDate(selectedTicket.payment.paid_at)}
+                        />
+                        <InfoBox
+                          label="Registrar Status"
+                          value={selectedTicket.registrar.status}
+                        />
+                      </div>
+                    </div>
+                  ) : (
+                    <form
+                      onSubmit={handlePayment}
+                      className="finance-requests__payment-form"
+                    >
+                      <FieldLabel label="Amount Due">
+                        <input
+                          type="number"
+                          min="0.01"
+                          step="0.01"
+                          value={amountDue}
+                          onChange={(event) => setAmountDue(event.target.value)}
+                          disabled={
+                            paying ||
+                            paymentLocked ||
+                            selectedTicket.payment.amount_due !== null
+                          }
+                          placeholder="Enter official amount due"
+                        />
+                      </FieldLabel>
+                      <FieldLabel label="Amount Paid">
+                        <input
+                          type="number"
+                          min="0.01"
+                          step="0.01"
+                          value={amountPaid}
+                          onChange={(event) =>
+                            setAmountPaid(event.target.value)
+                          }
+                          disabled={paying || paymentLocked}
+                          placeholder="Enter amount paid"
+                        />
+                      </FieldLabel>
+                      <FieldLabel label="Payment Method">
+                        <select
+                          value={paymentMethod}
+                          onChange={(event) =>
+                            setPaymentMethod(
+                              event.target.value as PaymentMethod,
+                            )
+                          }
+                          disabled={paying || paymentLocked}
+                        >
+                          <option value="Cash">Cash</option>
+                          <option value="GCash">GCash</option>
+                          <option value="Bank">Bank</option>
+                          <option value="Online">Online</option>
+                        </select>
+                      </FieldLabel>
+                      <FieldLabel label="Receipt Number">
+                        <input
+                          type="text"
+                          value={receiptNumber}
+                          onChange={(event) =>
+                            setReceiptNumber(event.target.value)
+                          }
+                          disabled={paying || paymentLocked}
+                          placeholder="Official receipt number"
+                          maxLength={50}
+                        />
+                      </FieldLabel>
+                      <label className="finance-requests__field finance-requests__field--full">
+                        <span>Finance Remarks</span>
+                        <textarea
+                          value={remarks}
+                          onChange={(event) => setRemarks(event.target.value)}
+                          disabled={paying || paymentLocked}
+                          placeholder="Optional Finance remarks"
+                          maxLength={500}
+                          rows={3}
+                        />
+                      </label>
+                      <div className="finance-requests__payment-actions">
+                        <button
+                          type="submit"
+                          className="finance-requests__button finance-requests__button--primary finance-requests__button--pay"
+                          disabled={paying || paymentLocked}
+                        >
+                          {paying ? (
+                            <Loader2
+                              size={17}
+                              className="finance-requests__spinner"
+                              aria-hidden="true"
+                            />
+                          ) : (
+                            <WalletCards size={17} aria-hidden="true" />
+                          )}
+                          {paying ? "Processing..." : "Confirm Payment"}
+                        </button>
+                      </div>
+                    </form>
+                  )}
+                  {paymentLocked &&
+                    selectedTicket.payment.payment_status !== "Paid" && (
+                      <div className="finance-requests__message finance-requests__message--warning">
+                        This transaction is not currently payable. Payment must
+                        be Pending Payment, Registrar must still be Pending, and
+                        the linked request must not be cancelled.
+                      </div>
+                    )}
+                </section>
               </div>
             </section>
           </div>

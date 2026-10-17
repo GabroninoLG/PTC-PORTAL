@@ -16,9 +16,9 @@ import {
 } from "lucide-react";
 import DashboardLayout from "../../../components/Layout/DashboardLayout";
 import { authService } from "../../../services/auth.service";
+import { apiUrl } from "../../../services/api";
 import "../../../styles/StudentRequestDocument.css";
-const DOCUMENT_REQUEST_API =
-  "http://localhost:3000/api/student/document-requests";
+const DOCUMENT_REQUEST_API = apiUrl("/api/student/document-requests");
 type DocumentType = "COR" | "COG";
 interface AcademicPeriod {
   academic_year_id: number | null;
@@ -460,7 +460,9 @@ export default function RequestDocument() {
                   </span>
                   <span className="request-document-type-option__copy">
                     <strong>Certificate of Registration</strong>
-                    <small>COR · Official enrollment and registered subjects</small>
+                    <small>
+                      COR · Official enrollment and registered subjects
+                    </small>
                   </span>
                   {documentType === "COR" && (
                     <CheckCircle2
@@ -709,7 +711,9 @@ export default function RequestDocument() {
                     </div>
                     <div>
                       <span>Finance Ticket</span>
-                      <strong>{request.ticket_number || "Not generated"}</strong>
+                      <strong>
+                        {request.ticket_number || "Not generated"}
+                      </strong>
                     </div>
                     <div>
                       <span>Requested</span>
@@ -747,9 +751,7 @@ export default function RequestDocument() {
                         ? "Certificate of Registration"
                         : "Certificate of Grades"}
                     </h2>
-                    <p>
-                      Requested {formatDate(selectedRequest.requested_at)}
-                    </p>
+                    <p>Requested {formatDate(selectedRequest.requested_at)}</p>
                   </div>
                 </div>
                 <div className="request-document-modal__actions">

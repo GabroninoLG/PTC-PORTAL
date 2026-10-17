@@ -2,11 +2,12 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import DashboardLayout from "../../../components/Layout/DashboardLayout";
+import { api } from "../../../services/api";
 import { authService } from "../../../services/auth.service";
 
 import "../../../styles/ClassPROG.css";
 
-const API_BASE_URL = "http://localhost:3000/api/program-head/classes";
+const API_BASE_URL = api.url("/api/program-head/classes");
 
 type GradeRemark = "Passed" | "Failed" | "Incomplete";
 

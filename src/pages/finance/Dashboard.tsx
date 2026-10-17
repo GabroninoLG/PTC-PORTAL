@@ -19,10 +19,11 @@ import {
 } from "lucide-react";
 import DashboardLayout from "../../components/Layout/DashboardLayout";
 import { authService } from "../../services/auth.service";
+import { api } from "../../services/api";
 import "../../styles/FinanceDashboard.css";
 
-const FINANCE_DASHBOARD_API = "http://localhost:3000/api/finance/dashboard";
-const FINANCE_TICKETS_API = "http://localhost:3000/api/finance/tickets";
+const FINANCE_DASHBOARD_API = api.url("/api/finance/dashboard");
+const FINANCE_TICKETS_API = api.url("/api/finance/tickets");
 
 // ============================================================
 // TYPES

@@ -19,10 +19,10 @@ import {
 
 import DashboardLayout from "../../components/Layout/DashboardLayout";
 import { authService } from "../../services/auth.service";
+import { api } from "../../services/api";
 import "../../styles/FinanceReports.css";
 
-const FINANCE_REPORT_API =
-  "http://localhost:3000/api/finance/tickets/reports/summary";
+const FINANCE_REPORT_API = api.url("/api/finance/tickets/reports/summary");
 
 interface FinanceReportSummary {
   total_tickets: number;
@@ -373,7 +373,6 @@ export default function FinanceReports() {
           </section>
         ) : (
           <>
-
             <section
               className="finance-reports__summary-grid"
               aria-label="Finance collection summary"
@@ -477,9 +476,7 @@ export default function FinanceReports() {
                         </div>
 
                         <div className="finance-reports__transaction-total">
-                          <strong>
-                            {formatMoney(item.total_collected)}
-                          </strong>
+                          <strong>{formatMoney(item.total_collected)}</strong>
                           <span>collected</span>
                         </div>
                       </div>
@@ -492,15 +489,9 @@ export default function FinanceReports() {
                       />
 
                       <div className="finance-reports__mini-grid">
-                        <MiniStat
-                          label="Total"
-                          value={item.total_tickets}
-                        />
+                        <MiniStat label="Total" value={item.total_tickets} />
 
-                        <MiniStat
-                          label="Paid"
-                          value={item.paid_tickets}
-                        />
+                        <MiniStat label="Paid" value={item.paid_tickets} />
 
                         <MiniStat
                           label="Pending"
@@ -540,9 +531,7 @@ export default function FinanceReports() {
                           </span>
                         </div>
 
-                        <strong>
-                          {formatMoney(item.total_collected)}
-                        </strong>
+                        <strong>{formatMoney(item.total_collected)}</strong>
                       </div>
 
                       <progress
@@ -622,9 +611,7 @@ function SummaryCard({
         <strong>{value}</strong>
       </div>
 
-      <div className="finance-reports__summary-icon">
-        {icon}
-      </div>
+      <div className="finance-reports__summary-icon">{icon}</div>
     </article>
   );
 }
@@ -642,14 +629,10 @@ function SectionTitle({
 }) {
   return (
     <div className="finance-reports__section-title">
-      <div className="finance-reports__section-icon">
-        {icon}
-      </div>
+      <div className="finance-reports__section-icon">{icon}</div>
 
       <div>
-        <span className="finance-reports__section-kicker">
-          {kicker}
-        </span>
+        <span className="finance-reports__section-kicker">{kicker}</span>
 
         <h2>{title}</h2>
         <p>{description}</p>
@@ -665,12 +648,7 @@ function StatusBox({
 }: {
   label: string;
   value: number;
-  variant:
-    | "neutral"
-    | "pending"
-    | "paid"
-    | "cancelled"
-    | "refunded";
+  variant: "neutral" | "pending" | "paid" | "cancelled" | "refunded";
 }) {
   return (
     <div
@@ -682,13 +660,7 @@ function StatusBox({
   );
 }
 
-function MiniStat({
-  label,
-  value,
-}: {
-  label: string;
-  value: number;
-}) {
+function MiniStat({ label, value }: { label: string; value: number }) {
   return (
     <div className="finance-reports__mini-stat">
       <span>{label}</span>

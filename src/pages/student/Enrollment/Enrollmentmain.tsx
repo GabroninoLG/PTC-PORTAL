@@ -1,7 +1,14 @@
 import DashboardLayout from "../../../components/Layout/DashboardLayout";
 import { authService } from "../../../services/auth.service";
 import { useNavigate } from "react-router-dom";
-import { useCallback, useEffect, useRef, useState, type CSSProperties, type KeyboardEvent } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+  type KeyboardEvent,
+} from "react";
 import {
   AlertCircle,
   BookOpenCheck,
@@ -14,8 +21,9 @@ import {
   XCircle,
 } from "lucide-react";
 import "../../../styles/Enrollmentmain.css";
+import { apiUrl } from "../../../services/api";
 
-const API_BASE_URL = "http://localhost:3000/api/student/enrollments";
+const API_BASE_URL = apiUrl("/api/student/enrollments");
 
 // ============================================================
 // TYPES
@@ -365,13 +373,13 @@ export default function Enrollmentmain() {
   //
   // Only one large section can be open at a time.
   // ============================================================
-type EnrollmentSectionKey =
-  | "official"
-  | "regular"
-  | "retake"
-  | "carryover"
-  | "blocked"
-  | "completed";
+  type EnrollmentSectionKey =
+    | "official"
+    | "regular"
+    | "retake"
+    | "carryover"
+    | "blocked"
+    | "completed";
   const [expandedSection, setExpandedSection] =
     useState<EnrollmentSectionKey | null>(null);
   const toggleEnrollmentSection = (section: EnrollmentSectionKey) => {
@@ -437,46 +445,49 @@ type EnrollmentSectionKey =
   // ============================================================
   // AUTH RESPONSE
   // ============================================================
-  const handleAuthenticationResponse = useCallback((
-    response: Response,
-    responseData: ApiErrorResponse,
-  ) => {
-    if (response.status === 401) {
-      authService.logout();
-      navigate("/login", {
-        replace: true,
-      });
-      return false;
-    }
-    if (response.status === 403) {
-      throw new Error(
-        responseData.message ||
-          responseData.error ||
-          "You are not authorized to access Student enrollment.",
-      );
-    }
-    return true;
-  }, [navigate]);
+  const handleAuthenticationResponse = useCallback(
+    (response: Response, responseData: ApiErrorResponse) => {
+      if (response.status === 401) {
+        authService.logout();
+        navigate("/login", {
+          replace: true,
+        });
+        return false;
+      }
+      if (response.status === 403) {
+        throw new Error(
+          responseData.message ||
+            responseData.error ||
+            "You are not authorized to access Student enrollment.",
+        );
+      }
+      return true;
+    },
+    [navigate],
+  );
 
   // ============================================================
   // APPLY ELIGIBILITY RESPONSE
   // ============================================================
-  const applyEnrollmentData = useCallback((responseData: EnrollmentEligibilityResponse) => {
-    setData(responseData);
-    const draftRetakeIds = (responseData.retake_candidates || [])
-      .filter((subject) => subject.selected_in_draft)
-      .map((subject) => Number(subject.subject_id));
-    // Existing Draft:
-    // restore the retakes that actually belong to the Draft.
-    //
-    // No active enrollment:
-    // start with no optional retakes selected.
-    setSelectedRetakeSubjectIds(
-      responseData.enrollment?.enrollment_status === "Draft"
-        ? draftRetakeIds
-        : [],
-    );
-  }, []);
+  const applyEnrollmentData = useCallback(
+    (responseData: EnrollmentEligibilityResponse) => {
+      setData(responseData);
+      const draftRetakeIds = (responseData.retake_candidates || [])
+        .filter((subject) => subject.selected_in_draft)
+        .map((subject) => Number(subject.subject_id));
+      // Existing Draft:
+      // restore the retakes that actually belong to the Draft.
+      //
+      // No active enrollment:
+      // start with no optional retakes selected.
+      setSelectedRetakeSubjectIds(
+        responseData.enrollment?.enrollment_status === "Draft"
+          ? draftRetakeIds
+          : [],
+      );
+    },
+    [],
+  );
 
   // ============================================================
   // LOAD ELIGIBILITY
@@ -486,168 +497,171 @@ type EnrollmentSectionKey =
   // No user_id.
   // Student identity comes from req.user.user_id.
   // ============================================================
-  const loadEnrollment = useCallback(async (showLoadingState = false) => {
-    if (!authenticated || userRole !== "Student") {
-      return;
-    }
-
-    activeEnrollmentRequestRef.current?.abort();
-
-    const controller = new AbortController();
-    const requestId = enrollmentRequestIdRef.current + 1;
-
-    activeEnrollmentRequestRef.current = controller;
-    enrollmentRequestIdRef.current = requestId;
-
-    try {
-      if (showLoadingState) {
-        setLoading(true);
-        setData(null);
-        setOfficialData(null);
-        setSelectedRetakeSubjectIds([]);
-      }
-
-      setError("");
-
-      const [response, currentResponse] = await Promise.all([
-        authService.authFetch(`${API_BASE_URL}/subjects`, {
-          method: "GET",
-          signal: controller.signal,
-          headers: {
-            Accept: "application/json",
-          },
-        }),
-        authService.authFetch(`${API_BASE_URL}/current`, {
-          method: "GET",
-          signal: controller.signal,
-          headers: {
-            Accept: "application/json",
-          },
-        }),
-      ]);
-
-      const [responseData, currentData] = await Promise.all([
-        readJsonResponse<EnrollmentEligibilityResponse | ApiErrorResponse>(
-          response,
-        ),
-        readJsonResponse<CurrentEnrollmentResponse | ApiErrorResponse>(
-          currentResponse,
-        ),
-      ]);
-
-      const canContinue = handleAuthenticationResponse(
-        response,
-        responseData as ApiErrorResponse,
-      );
-
-      if (!canContinue) {
+  const loadEnrollment = useCallback(
+    async (showLoadingState = false) => {
+      if (!authenticated || userRole !== "Student") {
         return;
       }
 
-      if (!response.ok) {
-        const apiError = responseData as ApiErrorResponse;
+      activeEnrollmentRequestRef.current?.abort();
 
-        throw new Error(
-          apiError.message ||
-            apiError.error ||
-            `Enrollment request failed (${response.status}).`,
-        );
-      }
+      const controller = new AbortController();
+      const requestId = enrollmentRequestIdRef.current + 1;
 
-      if (!("student" in responseData)) {
-        throw new Error(
-          responseData.message || "Invalid Student enrollment response.",
-        );
-      }
+      activeEnrollmentRequestRef.current = controller;
+      enrollmentRequestIdRef.current = requestId;
 
-      if (!responseData.success) {
-        throw new Error(
-          responseData.message || "Failed to load Student enrollment.",
-        );
-      }
-
-      const canContinueCurrent = handleAuthenticationResponse(
-        currentResponse,
-        currentData as ApiErrorResponse,
-      );
-
-      if (!canContinueCurrent) {
-        return;
-      }
-
-      if (!currentResponse.ok) {
-        const apiError = currentData as ApiErrorResponse;
-
-        throw new Error(
-          apiError.message ||
-            apiError.error ||
-            `Current enrollment request failed (${currentResponse.status}).`,
-        );
-      }
-
-      if (!("subjects" in currentData)) {
-        throw new Error(
-          currentData.message || "Invalid current enrollment response.",
-        );
-      }
-
-      if (!currentData.success) {
-        throw new Error(
-          currentData.message || "Failed to load current enrollment.",
-        );
-      }
-
-      if (
-        controller.signal.aborted ||
-        requestId !== enrollmentRequestIdRef.current
-      ) {
-        return;
-      }
-
-      applyEnrollmentData(responseData);
-      setOfficialData(currentData);
-    } catch (err) {
-      if (
-        controller.signal.aborted ||
-        requestId !== enrollmentRequestIdRef.current
-      ) {
-        return;
-      }
-
-      if (err instanceof DOMException && err.name === "AbortError") {
-        return;
-      }
-
-      console.error("LOAD STUDENT ENROLLMENT ERROR:", err);
-
-      if (err instanceof TypeError) {
-        setError(
-          "Unable to connect to the enrollment server. Make sure the backend is running on http://localhost:3000.",
-        );
-        return;
-      }
-
-      setError(
-        err instanceof Error ? err.message : "Unable to load enrollment.",
-      );
-    } finally {
-      if (
-        requestId === enrollmentRequestIdRef.current &&
-        !controller.signal.aborted
-      ) {
+      try {
         if (showLoadingState) {
-          setLoading(false);
+          setLoading(true);
+          setData(null);
+          setOfficialData(null);
+          setSelectedRetakeSubjectIds([]);
         }
 
-        activeEnrollmentRequestRef.current = null;
+        setError("");
+
+        const [response, currentResponse] = await Promise.all([
+          authService.authFetch(`${API_BASE_URL}/subjects`, {
+            method: "GET",
+            signal: controller.signal,
+            headers: {
+              Accept: "application/json",
+            },
+          }),
+          authService.authFetch(`${API_BASE_URL}/current`, {
+            method: "GET",
+            signal: controller.signal,
+            headers: {
+              Accept: "application/json",
+            },
+          }),
+        ]);
+
+        const [responseData, currentData] = await Promise.all([
+          readJsonResponse<EnrollmentEligibilityResponse | ApiErrorResponse>(
+            response,
+          ),
+          readJsonResponse<CurrentEnrollmentResponse | ApiErrorResponse>(
+            currentResponse,
+          ),
+        ]);
+
+        const canContinue = handleAuthenticationResponse(
+          response,
+          responseData as ApiErrorResponse,
+        );
+
+        if (!canContinue) {
+          return;
+        }
+
+        if (!response.ok) {
+          const apiError = responseData as ApiErrorResponse;
+
+          throw new Error(
+            apiError.message ||
+              apiError.error ||
+              `Enrollment request failed (${response.status}).`,
+          );
+        }
+
+        if (!("student" in responseData)) {
+          throw new Error(
+            responseData.message || "Invalid Student enrollment response.",
+          );
+        }
+
+        if (!responseData.success) {
+          throw new Error(
+            responseData.message || "Failed to load Student enrollment.",
+          );
+        }
+
+        const canContinueCurrent = handleAuthenticationResponse(
+          currentResponse,
+          currentData as ApiErrorResponse,
+        );
+
+        if (!canContinueCurrent) {
+          return;
+        }
+
+        if (!currentResponse.ok) {
+          const apiError = currentData as ApiErrorResponse;
+
+          throw new Error(
+            apiError.message ||
+              apiError.error ||
+              `Current enrollment request failed (${currentResponse.status}).`,
+          );
+        }
+
+        if (!("subjects" in currentData)) {
+          throw new Error(
+            currentData.message || "Invalid current enrollment response.",
+          );
+        }
+
+        if (!currentData.success) {
+          throw new Error(
+            currentData.message || "Failed to load current enrollment.",
+          );
+        }
+
+        if (
+          controller.signal.aborted ||
+          requestId !== enrollmentRequestIdRef.current
+        ) {
+          return;
+        }
+
+        applyEnrollmentData(responseData);
+        setOfficialData(currentData);
+      } catch (err) {
+        if (
+          controller.signal.aborted ||
+          requestId !== enrollmentRequestIdRef.current
+        ) {
+          return;
+        }
+
+        if (err instanceof DOMException && err.name === "AbortError") {
+          return;
+        }
+
+        console.error("LOAD STUDENT ENROLLMENT ERROR:", err);
+
+        if (err instanceof TypeError) {
+          setError(
+            "Unable to connect to the enrollment server. Make sure the backend is running on http://localhost:3000.",
+          );
+          return;
+        }
+
+        setError(
+          err instanceof Error ? err.message : "Unable to load enrollment.",
+        );
+      } finally {
+        if (
+          requestId === enrollmentRequestIdRef.current &&
+          !controller.signal.aborted
+        ) {
+          if (showLoadingState) {
+            setLoading(false);
+          }
+
+          activeEnrollmentRequestRef.current = null;
+        }
       }
-    }
-  }, [
-    authenticated,
-    userRole,
-    handleAuthenticationResponse,
-    applyEnrollmentData,
-  ]);
+    },
+    [
+      authenticated,
+      userRole,
+      handleAuthenticationResponse,
+      applyEnrollmentData,
+    ],
+  );
 
   // ============================================================
   // INITIAL LOAD
@@ -984,9 +998,9 @@ type EnrollmentSectionKey =
                 </span>
                 <h1>Enrollment</h1>
                 <p>
-                  Review your eligible curriculum subjects, select valid retakes,
-                  prepare your Draft, and submit it for Registrar placement and
-                  approval.
+                  Review your eligible curriculum subjects, select valid
+                  retakes, prepare your Draft, and submit it for Registrar
+                  placement and approval.
                 </p>
               </div>
               <div className="enrollment-header-actions enrollment-header-actions--loading">
@@ -999,7 +1013,10 @@ type EnrollmentSectionKey =
                 </div>
               </div>
             </div>
-            <div className="enrollment-initial-placeholder" aria-hidden="true"></div>
+            <div
+              className="enrollment-initial-placeholder"
+              aria-hidden="true"
+            ></div>
           </div>
         </div>
       </DashboardLayout>
@@ -1276,9 +1293,7 @@ type EnrollmentSectionKey =
             id={`official-subject-details-${subject.enrollment_subject_id}`}
             className="section-area official-placement-area"
           >
-            <div
-              className="section-area-header official-placement-header"
-            >
+            <div className="section-area-header official-placement-header">
               <div>
                 <strong>Official Class Placement</strong>
                 <span>
@@ -1352,8 +1367,8 @@ type EnrollmentSectionKey =
                 <div>
                   <strong>Awaiting Registrar placement</strong>
                   <p>
-                    This {enrollmentType} subject is part of your enrollment, but
-                    its official section/offering has not been assigned yet.
+                    This {enrollmentType} subject is part of your enrollment,
+                    but its official section/offering has not been assigned yet.
                   </p>
                   <small>
                     Students cannot select or change section, offering, faculty,
@@ -1492,7 +1507,10 @@ type EnrollmentSectionKey =
     const selectable =
       data.can_prepare || (data.can_modify_draft && enrollmentIsDraft);
     return (
-      <div key={subject.subject_id} className="subject-card retake-subject retake-candidate-subject">
+      <div
+        key={subject.subject_id}
+        className="subject-card retake-subject retake-candidate-subject"
+      >
         <div className="subject-header">
           <div className="subject-number">R</div>
           <div className="subject-main">
@@ -1663,926 +1681,979 @@ type EnrollmentSectionKey =
     <DashboardLayout>
       <div className="enrollment-main">
         <div className="enrollment-shell">
-        {/* ====================================================
+          {/* ====================================================
             HEADER
         ==================================================== */}
-        <div className="enrollment-header">
-          <div>
-            <span className="enrollment-eyebrow">
-              <span className="enrollment-eyebrow-icon">
-                <BookOpenCheck size={15} aria-hidden="true" />
+          <div className="enrollment-header">
+            <div>
+              <span className="enrollment-eyebrow">
+                <span className="enrollment-eyebrow-icon">
+                  <BookOpenCheck size={15} aria-hidden="true" />
+                </span>
+                Student Enrollment
               </span>
-              Student Enrollment
-            </span>
-            <h1>Enrollment</h1>
-            <p>
-              Review your eligible curriculum subjects, select valid retakes,
-              prepare your Draft, and submit it for Registrar placement and
-              approval.
-            </p>
-          </div>
-          <div className="enrollment-header-actions">
-            <div
-              className={`enrollment-period-badge ${
-                enrollmentPeriodIsOpen ? "open" : "closed"
-              }`}
-            >
-              <span className="enrollment-period-dot" aria-hidden="true"></span>
-              <span>{enrollment_period?.status || "Closed"}</span>
+              <h1>Enrollment</h1>
+              <p>
+                Review your eligible curriculum subjects, select valid retakes,
+                prepare your Draft, and submit it for Registrar placement and
+                approval.
+              </p>
+            </div>
+            <div className="enrollment-header-actions">
+              <div
+                className={`enrollment-period-badge ${
+                  enrollmentPeriodIsOpen ? "open" : "closed"
+                }`}
+              >
+                <span
+                  className="enrollment-period-dot"
+                  aria-hidden="true"
+                ></span>
+                <span>{enrollment_period?.status || "Closed"}</span>
+              </div>
             </div>
           </div>
-        </div>
-        {/* ====================================================
+          {/* ====================================================
             ERROR
         ==================================================== */}
-        {error && (
-          <div className="enrollment-alert error">
-            <span className="alert-icon"><AlertCircle size={17} aria-hidden="true" /></span>
-            <div>
-              <strong>Action Required</strong>
-              <p>{error}</p>
+          {error && (
+            <div className="enrollment-alert error">
+              <span className="alert-icon">
+                <AlertCircle size={17} aria-hidden="true" />
+              </span>
+              <div>
+                <strong>Action Required</strong>
+                <p>{error}</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setError("")}
+                className="alert-close"
+                aria-label="Close error"
+              >
+                ×
+              </button>
             </div>
-            <button
-              type="button"
-              onClick={() => setError("")}
-              className="alert-close"
-              aria-label="Close error"
-            >
-              ×
-            </button>
-          </div>
-        )}
-        {/* ====================================================
+          )}
+          {/* ====================================================
             SUCCESS
         ==================================================== */}
-        {successMessage && (
-          <div className="enrollment-alert success">
-            <span className="alert-icon"><CheckCircle2 size={17} aria-hidden="true" /></span>
-            <div>
-              <strong>Enrollment</strong>
-              <p>{successMessage}</p>
+          {successMessage && (
+            <div className="enrollment-alert success">
+              <span className="alert-icon">
+                <CheckCircle2 size={17} aria-hidden="true" />
+              </span>
+              <div>
+                <strong>Enrollment</strong>
+                <p>{successMessage}</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setSuccessMessage("")}
+                className="alert-close"
+                aria-label="Close success message"
+              >
+                ×
+              </button>
             </div>
-            <button
-              type="button"
-              onClick={() => setSuccessMessage("")}
-              className="alert-close"
-              aria-label="Close success message"
-            >
-              ×
-            </button>
-          </div>
-        )}
-        {/* ====================================================
+          )}
+          {/* ====================================================
             UNSUPPORTED SEMESTER DEFENSE
         ==================================================== */}
-        {enrollment_period && !semesterIsSupported && (
-          <div className="enrollment-alert error">
-            <span className="alert-icon"><AlertCircle size={17} aria-hidden="true" /></span>
-            <div>
-              <strong>Unsupported Enrollment Period</strong>
-              <p>
-                Only First Semester and Second Semester are supported. Summer is
-                not part of the PTC Portal enrollment cycle.
-              </p>
+          {enrollment_period && !semesterIsSupported && (
+            <div className="enrollment-alert error">
+              <span className="alert-icon">
+                <AlertCircle size={17} aria-hidden="true" />
+              </span>
+              <div>
+                <strong>Unsupported Enrollment Period</strong>
+                <p>
+                  Only First Semester and Second Semester are supported. Summer
+                  is not part of the PTC Portal enrollment cycle.
+                </p>
+              </div>
             </div>
-          </div>
-        )}
-        {/* ====================================================
+          )}
+          {/* ====================================================
             STUDENT INFORMATION
         ==================================================== */}
-        <div className="enrollment-info-grid">
-          <div className="enrollment-info-card">
-            <span className="info-label">Student</span>
-            <strong>{student.student_name}</strong>
-            <small>{student.student_number}</small>
+          <div className="enrollment-info-grid">
+            <div className="enrollment-info-card">
+              <span className="info-label">Student</span>
+              <strong>{student.student_name}</strong>
+              <small>{student.student_number}</small>
+            </div>
+            <div className="enrollment-info-card">
+              <span className="info-label">Course</span>
+              <strong>{student.course.course_code}</strong>
+              <small>{student.course.course_name}</small>
+            </div>
+            <div className="enrollment-info-card">
+              <span className="info-label">Year Level</span>
+              <strong>{getYearLabel(student.year_level)}</strong>
+              <small>
+                {enrollment
+                  ? enrollment.enrollment_status
+                  : "No Active Enrollment"}
+              </small>
+            </div>
+            <div className="enrollment-info-card">
+              <span className="info-label">Academic Period</span>
+              <strong>{enrollment_period?.academic_year || "—"}</strong>
+              <small>{enrollment_period?.semester_name || "—"}</small>
+            </div>
           </div>
-          <div className="enrollment-info-card">
-            <span className="info-label">Course</span>
-            <strong>{student.course.course_code}</strong>
-            <small>{student.course.course_name}</small>
-          </div>
-          <div className="enrollment-info-card">
-            <span className="info-label">Year Level</span>
-            <strong>{getYearLabel(student.year_level)}</strong>
-            <small>
-              {enrollment
-                ? enrollment.enrollment_status
-                : "No Active Enrollment"}
-            </small>
-          </div>
-          <div className="enrollment-info-card">
-            <span className="info-label">Academic Period</span>
-            <strong>{enrollment_period?.academic_year || "—"}</strong>
-            <small>{enrollment_period?.semester_name || "—"}</small>
-          </div>
-        </div>
-        {/* ====================================================
+          {/* ====================================================
             ELIGIBILITY SUMMARY
         ==================================================== */}
-        <div className="enrollment-summary">
-          <div className="summary-item">
-            <span className="summary-icon"><BookOpenCheck size={18} aria-hidden="true" /></span>
-            <div>
-              <span className="summary-number">{summary.regular_subjects}</span>
-              <span className="summary-label">Regular Eligible</span>
-            </div>
-          </div>
-          <div className="summary-item retake">
-            <span className="summary-icon"><RotateCcw size={18} aria-hidden="true" /></span>
-            <div>
-              <span className="summary-number">{summary.retake_candidates}</span>
-              <span className="summary-label">Retake Candidates</span>
-            </div>
-          </div>
-          <div className="summary-item retake">
-            <span className="summary-icon"><Layers3 size={18} aria-hidden="true" /></span>
-            <div>
-              <span className="summary-number">
-                {summary.carry_over_subjects ?? carry_over_subjects.length}
+          <div className="enrollment-summary">
+            <div className="summary-item">
+              <span className="summary-icon">
+                <BookOpenCheck size={18} aria-hidden="true" />
               </span>
-              <span className="summary-label">Carry Over</span>
+              <div>
+                <span className="summary-number">
+                  {summary.regular_subjects}
+                </span>
+                <span className="summary-label">Regular Eligible</span>
+              </div>
+            </div>
+            <div className="summary-item retake">
+              <span className="summary-icon">
+                <RotateCcw size={18} aria-hidden="true" />
+              </span>
+              <div>
+                <span className="summary-number">
+                  {summary.retake_candidates}
+                </span>
+                <span className="summary-label">Retake Candidates</span>
+              </div>
+            </div>
+            <div className="summary-item retake">
+              <span className="summary-icon">
+                <Layers3 size={18} aria-hidden="true" />
+              </span>
+              <div>
+                <span className="summary-number">
+                  {summary.carry_over_subjects ?? carry_over_subjects.length}
+                </span>
+                <span className="summary-label">Carry Over</span>
+              </div>
+            </div>
+            <div className="summary-item blocked">
+              <span className="summary-icon">
+                <XCircle size={18} aria-hidden="true" />
+              </span>
+              <div>
+                <span className="summary-number">
+                  {summary.blocked_subjects}
+                </span>
+                <span className="summary-label">Blocked</span>
+              </div>
+            </div>
+            <div className="summary-item completed">
+              <span className="summary-icon">
+                <CheckCircle2 size={18} aria-hidden="true" />
+              </span>
+              <div>
+                <span className="summary-number">
+                  {summary.completed_subjects}
+                </span>
+                <span className="summary-label">Completed</span>
+              </div>
+            </div>
+            <div className="summary-item type">
+              <span className="summary-icon">
+                <GraduationCap size={18} aria-hidden="true" />
+              </span>
+              <div>
+                <span className="summary-number">{displayedUnits}</span>
+                <span className="summary-label">{displayedUnitsLabel}</span>
+              </div>
             </div>
           </div>
-          <div className="summary-item blocked">
-            <span className="summary-icon"><XCircle size={18} aria-hidden="true" /></span>
-            <div>
-              <span className="summary-number">{summary.blocked_subjects}</span>
-              <span className="summary-label">Blocked</span>
-            </div>
-          </div>
-          <div className="summary-item completed">
-            <span className="summary-icon"><CheckCircle2 size={18} aria-hidden="true" /></span>
-            <div>
-              <span className="summary-number">{summary.completed_subjects}</span>
-              <span className="summary-label">Completed</span>
-            </div>
-          </div>
-          <div className="summary-item type">
-            <span className="summary-icon"><GraduationCap size={18} aria-hidden="true" /></span>
-            <div>
-              <span className="summary-number">{displayedUnits}</span>
-              <span className="summary-label">{displayedUnitsLabel}</span>
-            </div>
-          </div>
-        </div>
-        {/* ====================================================
+          {/* ====================================================
             ENROLLMENT STATUS
         ==================================================== */}
-        <div className="enrollment-status-card">
-          <div className="status-left">
-            <span className="status-label"><ClipboardCheck size={14} aria-hidden="true" /> Enrollment Status</span>
-            <strong
-              className={`status-badge ${getStatusClass(
-                enrollment?.enrollment_status,
-              )}`}
-            >
-              {enrollment?.enrollment_status || "Not Prepared"}
-            </strong>
-            {enrollment?.remarks && <p>{enrollment.remarks}</p>}
+          <div className="enrollment-status-card">
+            <div className="status-left">
+              <span className="status-label">
+                <ClipboardCheck size={14} aria-hidden="true" /> Enrollment
+                Status
+              </span>
+              <strong
+                className={`status-badge ${getStatusClass(
+                  enrollment?.enrollment_status,
+                )}`}
+              >
+                {enrollment?.enrollment_status || "Not Prepared"}
+              </strong>
+              {enrollment?.remarks && <p>{enrollment.remarks}</p>}
+            </div>
+            <div className="status-right">
+              <span>Created</span>
+              <strong>{formatDate(enrollment?.created_at)}</strong>
+            </div>
           </div>
-          <div className="status-right">
-            <span>Created</span>
-            <strong>{formatDate(enrollment?.created_at)}</strong>
-          </div>
-        </div>
-        {/* ====================================================
+          {/* ====================================================
             CLOSED
         ==================================================== */}
-        {!enrollment_period && (
-          <div className="enrollment-instruction">
-            <div className="instruction-icon"><Info size={16} aria-hidden="true" /></div>
-            <div>
-              <strong>Enrollment is currently closed</strong>
-              <p>
-                There is currently no open enrollment period. You can review
-                this page again when the Registrar opens enrollment.
-              </p>
+          {!enrollment_period && (
+            <div className="enrollment-instruction">
+              <div className="instruction-icon">
+                <Info size={16} aria-hidden="true" />
+              </div>
+              <div>
+                <strong>Enrollment is currently closed</strong>
+                <p>
+                  There is currently no open enrollment period. You can review
+                  this page again when the Registrar opens enrollment.
+                </p>
+              </div>
             </div>
-          </div>
-        )}
-        {/* ====================================================
+          )}
+          {/* ====================================================
             READY TO PREPARE
         ==================================================== */}
-        {enrollment_period && !enrollment && data.can_prepare && (
-          <div className="enrollment-instruction">
-            <div className="instruction-icon"><Info size={16} aria-hidden="true" /></div>
-            <div>
-              <strong>Prepare your enrollment</strong>
-              <p>
-                Regular eligible subjects are included automatically. You may
-                also choose any valid retake subjects shown below.
-              </p>
-              <small>
-                You do not select a section, faculty, room, schedule, or class
-                offering. Those are assigned by the Registrar after you submit
-                your Draft.
-              </small>
+          {enrollment_period && !enrollment && data.can_prepare && (
+            <div className="enrollment-instruction">
+              <div className="instruction-icon">
+                <Info size={16} aria-hidden="true" />
+              </div>
+              <div>
+                <strong>Prepare your enrollment</strong>
+                <p>
+                  Regular eligible subjects are included automatically. You may
+                  also choose any valid retake subjects shown below.
+                </p>
+                <small>
+                  You do not select a section, faculty, room, schedule, or class
+                  offering. Those are assigned by the Registrar after you submit
+                  your Draft.
+                </small>
+              </div>
             </div>
-          </div>
-        )}
-        {/* ====================================================
+          )}
+          {/* ====================================================
             DRAFT
         ==================================================== */}
-        {enrollmentIsDraft && (
-          <div className="enrollment-instruction">
-            <div className="instruction-icon"><Info size={16} aria-hidden="true" /></div>
-            <div>
-              <strong>Your Draft enrollment is ready</strong>
-              <p>
-                Review the Regular subjects and selected Retakes included in
-                your Draft, then submit it for Registrar review.
-              </p>
-              <small>
-                Placement is intentionally not assigned yet. Section, offering,
-                faculty, room, and schedule are Registrar-controlled.
-              </small>
+          {enrollmentIsDraft && (
+            <div className="enrollment-instruction">
+              <div className="instruction-icon">
+                <Info size={16} aria-hidden="true" />
+              </div>
+              <div>
+                <strong>Your Draft enrollment is ready</strong>
+                <p>
+                  Review the Regular subjects and selected Retakes included in
+                  your Draft, then submit it for Registrar review.
+                </p>
+                <small>
+                  Placement is intentionally not assigned yet. Section,
+                  offering, faculty, room, and schedule are
+                  Registrar-controlled.
+                </small>
+              </div>
             </div>
-          </div>
-        )}
-        {/* ====================================================
+          )}
+          {/* ====================================================
             PENDING
         ==================================================== */}
-        {enrollmentIsPending && (
-          <div className="enrollment-instruction">
-            <div className="instruction-icon success"><CheckCircle2 size={16} aria-hidden="true" /></div>
-            <div>
-              <strong>Enrollment submitted successfully</strong>
-              <p>
-                Your Draft has been submitted and is now pending Registrar
-                review and official class placement.
-              </p>
-              <small>
-                You cannot change subjects, retakes, sections, offerings,
-                faculty, rooms, or schedules while the enrollment is Pending.
-              </small>
+          {enrollmentIsPending && (
+            <div className="enrollment-instruction">
+              <div className="instruction-icon success">
+                <CheckCircle2 size={16} aria-hidden="true" />
+              </div>
+              <div>
+                <strong>Enrollment submitted successfully</strong>
+                <p>
+                  Your Draft has been submitted and is now pending Registrar
+                  review and official class placement.
+                </p>
+                <small>
+                  You cannot change subjects, retakes, sections, offerings,
+                  faculty, rooms, or schedules while the enrollment is Pending.
+                </small>
+              </div>
             </div>
-          </div>
-        )}
-        {/* ====================================================
+          )}
+          {/* ====================================================
             APPROVED
         ==================================================== */}
-        {enrollmentIsApproved && (
-          <div className="enrollment-instruction">
-            <div className="instruction-icon success"><CheckCircle2 size={16} aria-hidden="true" /></div>
-            <div>
-              <strong>Your enrollment has been approved</strong>
-              <p>
-                The Registrar approved your enrollment. It is now the official
-                source of your current-semester class membership.
-              </p>
-              <small>
-                Your official section, offering, schedule, faculty, and optional
-                room assignment are shown below from the Registrar-controlled
-                enrollment record.
-              </small>
+          {enrollmentIsApproved && (
+            <div className="enrollment-instruction">
+              <div className="instruction-icon success">
+                <CheckCircle2 size={16} aria-hidden="true" />
+              </div>
+              <div>
+                <strong>Your enrollment has been approved</strong>
+                <p>
+                  The Registrar approved your enrollment. It is now the official
+                  source of your current-semester class membership.
+                </p>
+                <small>
+                  Your official section, offering, schedule, faculty, and
+                  optional room assignment are shown below from the
+                  Registrar-controlled enrollment record.
+                </small>
+              </div>
             </div>
-          </div>
-        )}
-        {/* ====================================================
+          )}
+          {/* ====================================================
             REJECTED
         ==================================================== */}
-        {enrollmentIsRejected && (
-          <div className="enrollment-instruction">
-            <div className="instruction-icon danger"><AlertCircle size={16} aria-hidden="true" /></div>
-            <div>
-              <strong>Your previous enrollment application was rejected</strong>
-              <p>
-                Review the Registrar remarks below. The rejected application is
-                kept as history and will not be overwritten.
-              </p>
-              {enrollment?.remarks && (
-                <small>Registrar remarks: {enrollment.remarks}</small>
-              )}
-              {enrollment_period &&
-                enrollmentPeriodIsOpen &&
-                data.can_prepare && (
-                  <small>
-                    You may prepare a new enrollment application for this same
-                    enrollment period. Eligibility will be evaluated again
-                    before the new Draft is created.
-                  </small>
+          {enrollmentIsRejected && (
+            <div className="enrollment-instruction">
+              <div className="instruction-icon danger">
+                <AlertCircle size={16} aria-hidden="true" />
+              </div>
+              <div>
+                <strong>
+                  Your previous enrollment application was rejected
+                </strong>
+                <p>
+                  Review the Registrar remarks below. The rejected application
+                  is kept as history and will not be overwritten.
+                </p>
+                {enrollment?.remarks && (
+                  <small>Registrar remarks: {enrollment.remarks}</small>
                 )}
+                {enrollment_period &&
+                  enrollmentPeriodIsOpen &&
+                  data.can_prepare && (
+                    <small>
+                      You may prepare a new enrollment application for this same
+                      enrollment period. Eligibility will be evaluated again
+                      before the new Draft is created.
+                    </small>
+                  )}
+              </div>
             </div>
-          </div>
-        )}
-        {/* ====================================================
+          )}
+          {/* ====================================================
             OFFICIAL / SUBMITTED ENROLLMENT
         ==================================================== */}
-        {enrollment &&
-          (enrollmentIsPending || enrollmentIsApproved) &&
-          officialData && (
+          {enrollment &&
+            (enrollmentIsPending || enrollmentIsApproved) &&
+            officialData && (
+              <div
+                className={`subjects-container enrollment-subject-section official-section ${
+                  expandedSection === "official" ? "is-open" : ""
+                }`}
+              >
+                <div
+                  className="subjects-header"
+                  role="button"
+                  tabIndex={0}
+                  aria-expanded={expandedSection === "official"}
+                  onClick={() => toggleEnrollmentSection("official")}
+                  onKeyDown={(event) => handleSectionKeyDown(event, "official")}
+                  style={{ cursor: "pointer", userSelect: "none" }}
+                >
+                  <div className="subjects-heading">
+                    <span className="subjects-heading-icon official">
+                      <ClipboardCheck size={18} aria-hidden="true" />
+                    </span>
+                    <div>
+                      <span className="enrollment-eyebrow subjects-eyebrow">
+                        {enrollmentIsApproved
+                          ? "Official Enrollment"
+                          : "Submitted Enrollment"}
+                      </span>
+                      <h2>
+                        {enrollmentIsApproved
+                          ? "Your Official Classes"
+                          : "Registrar Placement"}
+                      </h2>
+                      <p>
+                        {enrollmentIsApproved
+                          ? "These are the subjects and Registrar-assigned class placements that make up your official current-semester enrollment."
+                          : "These subjects were submitted for Registrar review. Placement appears here as the Registrar assigns each class."}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="subjects-header-actions">
+                    <div className="selection-counter">
+                      {officialSummary?.total_subjects ?? 0} subjects •{" "}
+                      {officialUnits} units
+                    </div>
+                    <span
+                      aria-hidden="true"
+                      style={sectionArrowStyle(expandedSection === "official")}
+                    >
+                      ▾
+                    </span>
+                  </div>
+                </div>
+                {expandedSection === "official" && (
+                  <>
+                    {officialSummary && (
+                      <div className="selected-section-message">
+                        <span>
+                          {officialSummary.placement_complete ? "✓" : "i"}
+                        </span>
+                        <p>
+                          <strong>
+                            {officialSummary.placement_complete
+                              ? "Placement complete."
+                              : "Placement still in progress."}
+                          </strong>{" "}
+                          {officialSummary.placed_subjects} of{" "}
+                          {officialSummary.total_subjects} subject
+                          {officialSummary.total_subjects !== 1 ? "s" : ""}{" "}
+                          placed.
+                          <br />
+                          <small>
+                            Official load: {officialSummary.total_units} units.
+                          </small>
+                        </p>
+                      </div>
+                    )}
+                    {officialSubjects.length === 0 ? (
+                      <div className="no-sections">
+                        <span className="no-section-icon">—</span>
+                        <div>
+                          <strong>No enrolled subjects found</strong>
+                          <p>
+                            The enrollment exists, but no active enrollment
+                            subjects were returned.
+                          </p>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="subject-list">
+                        {officialSubjects.map((subject) =>
+                          renderOfficialSubject(subject),
+                        )}
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
+            )}
+          {/* ====================================================
+            REGULAR SUBJECTS
+        ==================================================== */}
+          <div
+            className={`subjects-container enrollment-subject-section regular-section ${
+              expandedSection === "regular" ? "is-open" : ""
+            }`}
+          >
             <div
-              className={`subjects-container enrollment-subject-section official-section ${
-                expandedSection === "official" ? "is-open" : ""
+              className="subjects-header"
+              role="button"
+              tabIndex={0}
+              aria-expanded={expandedSection === "regular"}
+              onClick={() => toggleEnrollmentSection("regular")}
+              onKeyDown={(event) => handleSectionKeyDown(event, "regular")}
+              style={{ cursor: "pointer", userSelect: "none" }}
+            >
+              <div className="subjects-heading">
+                <span className="subjects-heading-icon regular">
+                  <BookOpenCheck size={18} aria-hidden="true" />
+                </span>
+                <div>
+                  <span className="enrollment-eyebrow subjects-eyebrow">
+                    Academic Eligibility
+                  </span>
+                  <h2>Regular Subjects</h2>
+                  <p>
+                    These are the curriculum subjects you are academically
+                    eligible to take in the current term.
+                  </p>
+                </div>
+              </div>
+              <div className="subjects-header-actions">
+                <div className="selection-counter">
+                  {regular_subjects.length} eligible
+                </div>
+                <span
+                  aria-hidden="true"
+                  style={sectionArrowStyle(expandedSection === "regular")}
+                >
+                  ▾
+                </span>
+              </div>
+            </div>
+            {expandedSection === "regular" && (
+              <>
+                {regular_subjects.length === 0 ? (
+                  <div className="no-sections">
+                    <span className="no-section-icon">—</span>
+                    <div>
+                      <strong>No Regular subjects available</strong>
+                      <p>
+                        There are no Regular curriculum subjects currently
+                        eligible for this term.
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="subject-list">
+                    {[...regular_subjects]
+                      .sort(
+                        (a, b) =>
+                          Number(a.display_order || 999999) -
+                          Number(b.display_order || 999999),
+                      )
+                      .map((subject) => renderRegularSubject(subject))}
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+          {/* ====================================================
+            CARRY OVER SUBJECTS
+        ==================================================== */}
+          {carry_over_subjects.length > 0 && (
+            <div
+              className={`subjects-container enrollment-subject-section carryover-section ${
+                expandedSection === "carryover" ? "is-open" : ""
               }`}
             >
               <div
                 className="subjects-header"
                 role="button"
                 tabIndex={0}
-                aria-expanded={expandedSection === "official"}
-                onClick={() => toggleEnrollmentSection("official")}
-                onKeyDown={(event) => handleSectionKeyDown(event, "official")}
+                aria-expanded={expandedSection === "carryover"}
+                onClick={() => toggleEnrollmentSection("carryover")}
+                onKeyDown={(event) => handleSectionKeyDown(event, "carryover")}
                 style={{ cursor: "pointer", userSelect: "none" }}
               >
                 <div className="subjects-heading">
-                  <span className="subjects-heading-icon official">
-                    <ClipboardCheck size={18} aria-hidden="true" />
+                  <span className="subjects-heading-icon carryover">
+                    <Layers3 size={18} aria-hidden="true" />
                   </span>
                   <div>
                     <span className="enrollment-eyebrow subjects-eyebrow">
-                      {enrollmentIsApproved
-                        ? "Official Enrollment"
-                        : "Submitted Enrollment"}
+                      Earlier Curriculum Term
                     </span>
-                    <h2>
-                      {enrollmentIsApproved
-                        ? "Your Official Classes"
-                        : "Registrar Placement"}
-                    </h2>
+                    <h2>Carry Over Subjects</h2>
                     <p>
-                      {enrollmentIsApproved
-                        ? "These are the subjects and Registrar-assigned class placements that make up your official current-semester enrollment."
-                        : "These subjects were submitted for Registrar review. Placement appears here as the Registrar assigns each class."}
+                      Eligible required subjects from an earlier curriculum term
+                      are included automatically. These are not Retakes because
+                      they do not have an Approved 4.00 or 5.00 result.
                     </p>
                   </div>
                 </div>
                 <div className="subjects-header-actions">
                   <div className="selection-counter">
-                    {officialSummary?.total_subjects ?? 0} subjects •{" "}
-                    {officialUnits} units
+                    {carry_over_subjects.length} eligible
                   </div>
                   <span
                     aria-hidden="true"
-                    style={sectionArrowStyle(expandedSection === "official")}
+                    style={sectionArrowStyle(expandedSection === "carryover")}
                   >
                     ▾
                   </span>
                 </div>
               </div>
-              {expandedSection === "official" && (
-                <>
-                  {officialSummary && (
-                    <div className="selected-section-message">
-                      <span>
-                        {officialSummary.placement_complete ? "✓" : "i"}
-                      </span>
-                      <p>
-                        <strong>
-                          {officialSummary.placement_complete
-                            ? "Placement complete."
-                            : "Placement still in progress."}
-                        </strong>{" "}
-                        {officialSummary.placed_subjects} of{" "}
-                        {officialSummary.total_subjects} subject
-                        {officialSummary.total_subjects !== 1 ? "s" : ""} placed.
-                        <br />
-                        <small>
-                          Official load: {officialSummary.total_units} units.
-                        </small>
-                      </p>
-                    </div>
-                  )}
-                  {officialSubjects.length === 0 ? (
-                    <div className="no-sections">
-                      <span className="no-section-icon">—</span>
-                      <div>
-                        <strong>No enrolled subjects found</strong>
-                        <p>
-                          The enrollment exists, but no active enrollment subjects
-                          were returned.
-                        </p>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="subject-list">
-                      {officialSubjects.map((subject) =>
-                        renderOfficialSubject(subject),
-                      )}
-                    </div>
-                  )}
-                </>
-              )}
-            </div>
-          )}
-        {/* ====================================================
-            REGULAR SUBJECTS
-        ==================================================== */}
-        <div
-          className={`subjects-container enrollment-subject-section regular-section ${
-            expandedSection === "regular" ? "is-open" : ""
-          }`}
-        >
-          <div
-            className="subjects-header"
-            role="button"
-            tabIndex={0}
-            aria-expanded={expandedSection === "regular"}
-            onClick={() => toggleEnrollmentSection("regular")}
-            onKeyDown={(event) => handleSectionKeyDown(event, "regular")}
-            style={{ cursor: "pointer", userSelect: "none" }}
-          >
-            <div className="subjects-heading">
-              <span className="subjects-heading-icon regular">
-                <BookOpenCheck size={18} aria-hidden="true" />
-              </span>
-              <div>
-                <span className="enrollment-eyebrow subjects-eyebrow">
-                  Academic Eligibility
-                </span>
-                <h2>Regular Subjects</h2>
-                <p>
-                  These are the curriculum subjects you are academically eligible
-                  to take in the current term.
-                </p>
-              </div>
-            </div>
-            <div className="subjects-header-actions">
-              <div className="selection-counter">
-                {regular_subjects.length} eligible
-              </div>
-              <span
-                aria-hidden="true"
-                style={sectionArrowStyle(expandedSection === "regular")}
-              >
-                ▾
-              </span>
-            </div>
-          </div>
-          {expandedSection === "regular" && (
-            <>
-              {regular_subjects.length === 0 ? (
-                <div className="no-sections">
-                  <span className="no-section-icon">—</span>
-                  <div>
-                    <strong>No Regular subjects available</strong>
-                    <p>
-                      There are no Regular curriculum subjects currently eligible
-                      for this term.
-                    </p>
-                  </div>
-                </div>
-              ) : (
+              {expandedSection === "carryover" && (
                 <div className="subject-list">
-                  {[...regular_subjects]
-                    .sort(
-                      (a, b) =>
-                        Number(a.display_order || 999999) -
-                        Number(b.display_order || 999999),
-                    )
-                    .map((subject) => renderRegularSubject(subject))}
+                  {carry_over_subjects.map((subject) =>
+                    renderCarryOverSubject(subject),
+                  )}
                 </div>
               )}
-            </>
-          )}
-        </div>
-        {/* ====================================================
-            CARRY OVER SUBJECTS
-        ==================================================== */}
-        {carry_over_subjects.length > 0 && (
-          <div
-            className={`subjects-container enrollment-subject-section carryover-section ${
-              expandedSection === "carryover" ? "is-open" : ""
-            }`}
-          >
-            <div
-              className="subjects-header"
-              role="button"
-              tabIndex={0}
-              aria-expanded={expandedSection === "carryover"}
-              onClick={() => toggleEnrollmentSection("carryover")}
-              onKeyDown={(event) =>
-                handleSectionKeyDown(event, "carryover")
-              }
-              style={{ cursor: "pointer", userSelect: "none" }}
-            >
-              <div className="subjects-heading">
-                <span className="subjects-heading-icon carryover">
-                  <Layers3 size={18} aria-hidden="true" />
-                </span>
-                <div>
-                  <span className="enrollment-eyebrow subjects-eyebrow">
-                    Earlier Curriculum Term
-                  </span>
-                  <h2>Carry Over Subjects</h2>
-                  <p>
-                    Eligible required subjects from an earlier curriculum term are
-                    included automatically. These are not Retakes because they do
-                    not have an Approved 4.00 or 5.00 result.
-                  </p>
-                </div>
-              </div>
-              <div className="subjects-header-actions">
-                <div className="selection-counter">
-                  {carry_over_subjects.length} eligible
-                </div>
-                <span
-                  aria-hidden="true"
-                  style={sectionArrowStyle(expandedSection === "carryover")}
-                >
-                  ▾
-                </span>
-              </div>
             </div>
-            {expandedSection === "carryover" && (
-              <div className="subject-list">
-                {carry_over_subjects.map((subject) =>
-                  renderCarryOverSubject(subject),
-                )}
-              </div>
-            )}
-          </div>
-        )}
-        {/* ====================================================
+          )}
+          {/* ====================================================
             RETAKE CANDIDATES
         ==================================================== */}
-        <div
-          className={`subjects-container enrollment-subject-section retake-section ${
-            expandedSection === "retake" ? "is-open" : ""
-          }`}
-        >
           <div
-            className="subjects-header"
-            role="button"
-            tabIndex={0}
-            aria-expanded={expandedSection === "retake"}
-            onClick={() => toggleEnrollmentSection("retake")}
-            onKeyDown={(event) => handleSectionKeyDown(event, "retake")}
-            style={{ cursor: "pointer", userSelect: "none" }}
+            className={`subjects-container enrollment-subject-section retake-section ${
+              expandedSection === "retake" ? "is-open" : ""
+            }`}
           >
-            <div className="subjects-heading">
-              <span className="subjects-heading-icon retake">
-                <RotateCcw size={18} aria-hidden="true" />
-              </span>
-              <div>
-                <span className="enrollment-eyebrow subjects-eyebrow">
-                  Retake Eligibility
+            <div
+              className="subjects-header"
+              role="button"
+              tabIndex={0}
+              aria-expanded={expandedSection === "retake"}
+              onClick={() => toggleEnrollmentSection("retake")}
+              onKeyDown={(event) => handleSectionKeyDown(event, "retake")}
+              style={{ cursor: "pointer", userSelect: "none" }}
+            >
+              <div className="subjects-heading">
+                <span className="subjects-heading-icon retake">
+                  <RotateCcw size={18} aria-hidden="true" />
                 </span>
-                <h2>Valid Retake Subjects</h2>
-                <p>
-                  Failed or Incomplete subjects with an Approved academic result
-                  may be selected for retake.
-                </p>
+                <div>
+                  <span className="enrollment-eyebrow subjects-eyebrow">
+                    Retake Eligibility
+                  </span>
+                  <h2>Valid Retake Subjects</h2>
+                  <p>
+                    Failed or Incomplete subjects with an Approved academic
+                    result may be selected for retake.
+                  </p>
+                </div>
+              </div>
+              <div className="subjects-header-actions">
+                <div className="selection-counter">
+                  {data.can_prepare || data.can_modify_draft
+                    ? `${selectedRetakeSubjectIds.length} / ${retake_candidates.length} selected`
+                    : `${retake_candidates.length} eligible`}
+                </div>
+                <span
+                  aria-hidden="true"
+                  style={sectionArrowStyle(expandedSection === "retake")}
+                >
+                  ▾
+                </span>
               </div>
             </div>
-            <div className="subjects-header-actions">
-              <div className="selection-counter">
-                {data.can_prepare || data.can_modify_draft
-                  ? `${selectedRetakeSubjectIds.length} / ${retake_candidates.length} selected`
-                  : `${retake_candidates.length} eligible`}
-              </div>
-              <span
-                aria-hidden="true"
-                style={sectionArrowStyle(expandedSection === "retake")}
-              >
-                ▾
-              </span>
-            </div>
+            {expandedSection === "retake" && (
+              <>
+                {retake_candidates.length === 0 ? (
+                  <div className="no-sections">
+                    <span className="no-section-icon">✓</span>
+                    <div>
+                      <strong>No retakes required</strong>
+                      <p>
+                        You currently have no valid Failed or Incomplete
+                        subjects available for retake.
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="subject-list">
+                    {retake_candidates.map((subject) =>
+                      renderRetakeCandidate(subject),
+                    )}
+                  </div>
+                )}
+              </>
+            )}
           </div>
-          {expandedSection === "retake" && (
-            <>
-              {retake_candidates.length === 0 ? (
-                <div className="no-sections">
-                  <span className="no-section-icon">✓</span>
+          {/* ====================================================
+            BLOCKED SUBJECTS
+        ==================================================== */}
+          {blocked_subjects.length > 0 && (
+            <div
+              className={`subjects-container enrollment-subject-section blocked-section ${
+                expandedSection === "blocked" ? "is-open" : ""
+              }`}
+            >
+              <div
+                className="subjects-header"
+                role="button"
+                tabIndex={0}
+                aria-expanded={expandedSection === "blocked"}
+                onClick={() => toggleEnrollmentSection("blocked")}
+                onKeyDown={(event) => handleSectionKeyDown(event, "blocked")}
+                style={{ cursor: "pointer", userSelect: "none" }}
+              >
+                <div className="subjects-heading">
+                  <span className="subjects-heading-icon blocked">
+                    <AlertCircle size={18} aria-hidden="true" />
+                  </span>
                   <div>
-                    <strong>No retakes required</strong>
+                    <span className="enrollment-eyebrow subjects-eyebrow">
+                      Not Yet Eligible
+                    </span>
+                    <h2>Blocked Subjects</h2>
                     <p>
-                      You currently have no valid Failed or Incomplete subjects
-                      available for retake.
+                      These subjects are not included because prerequisite or
+                      academic requirements are not yet satisfied.
                     </p>
                   </div>
                 </div>
-              ) : (
+                <div className="subjects-header-actions">
+                  <div className="selection-counter">
+                    {blocked_subjects.length} blocked
+                  </div>
+                  <span
+                    aria-hidden="true"
+                    style={sectionArrowStyle(expandedSection === "blocked")}
+                  >
+                    ▾
+                  </span>
+                </div>
+              </div>
+              {expandedSection === "blocked" && (
                 <div className="subject-list">
-                  {retake_candidates.map((subject) =>
-                    renderRetakeCandidate(subject),
+                  {blocked_subjects.map((subject) =>
+                    renderBlockedSubject(subject),
                   )}
                 </div>
               )}
-            </>
-          )}
-        </div>
-        {/* ====================================================
-            BLOCKED SUBJECTS
-        ==================================================== */}
-        {blocked_subjects.length > 0 && (
-          <div
-            className={`subjects-container enrollment-subject-section blocked-section ${
-              expandedSection === "blocked" ? "is-open" : ""
-            }`}
-          >
-            <div
-              className="subjects-header"
-              role="button"
-              tabIndex={0}
-              aria-expanded={expandedSection === "blocked"}
-              onClick={() => toggleEnrollmentSection("blocked")}
-              onKeyDown={(event) => handleSectionKeyDown(event, "blocked")}
-              style={{ cursor: "pointer", userSelect: "none" }}
-            >
-              <div className="subjects-heading">
-                <span className="subjects-heading-icon blocked">
-                  <AlertCircle size={18} aria-hidden="true" />
-                </span>
-                <div>
-                  <span className="enrollment-eyebrow subjects-eyebrow">
-                    Not Yet Eligible
-                  </span>
-                  <h2>Blocked Subjects</h2>
-                  <p>
-                    These subjects are not included because prerequisite or
-                    academic requirements are not yet satisfied.
-                  </p>
-                </div>
-              </div>
-              <div className="subjects-header-actions">
-                <div className="selection-counter">
-                  {blocked_subjects.length} blocked
-                </div>
-                <span
-                  aria-hidden="true"
-                  style={sectionArrowStyle(expandedSection === "blocked")}
-                >
-                  ▾
-                </span>
-              </div>
             </div>
-            {expandedSection === "blocked" && (
-              <div className="subject-list">
-                {blocked_subjects.map((subject) =>
-                  renderBlockedSubject(subject),
-                )}
-              </div>
-            )}
-          </div>
-        )}
-        {/* ====================================================
+          )}
+          {/* ====================================================
             COMPLETED SUBJECTS
         ==================================================== */}
-        {completed_subjects.length > 0 && (
-          <div
-            className={`subjects-container enrollment-subject-section completed-section ${
-              expandedSection === "completed" ? "is-open" : ""
-            }`}
-          >
+          {completed_subjects.length > 0 && (
             <div
-              className="subjects-header"
-              role="button"
-              tabIndex={0}
-              aria-expanded={expandedSection === "completed"}
-              onClick={() => toggleEnrollmentSection("completed")}
-              onKeyDown={(event) => handleSectionKeyDown(event, "completed")}
-              style={{ cursor: "pointer", userSelect: "none" }}
+              className={`subjects-container enrollment-subject-section completed-section ${
+                expandedSection === "completed" ? "is-open" : ""
+              }`}
             >
-              <div className="subjects-heading">
-                <span className="subjects-heading-icon completed">
-                  <CheckCircle2 size={18} aria-hidden="true" />
-                </span>
-                <div>
-                  <span className="enrollment-eyebrow subjects-eyebrow">
-                    Academic Record
+              <div
+                className="subjects-header"
+                role="button"
+                tabIndex={0}
+                aria-expanded={expandedSection === "completed"}
+                onClick={() => toggleEnrollmentSection("completed")}
+                onKeyDown={(event) => handleSectionKeyDown(event, "completed")}
+                style={{ cursor: "pointer", userSelect: "none" }}
+              >
+                <div className="subjects-heading">
+                  <span className="subjects-heading-icon completed">
+                    <CheckCircle2 size={18} aria-hidden="true" />
                   </span>
-                  <h2>Completed Subjects</h2>
-                  <p>
-                    These subjects already have an Approved passing result and are
-                    not offered again as Regular enrollment subjects.
-                  </p>
+                  <div>
+                    <span className="enrollment-eyebrow subjects-eyebrow">
+                      Academic Record
+                    </span>
+                    <h2>Completed Subjects</h2>
+                    <p>
+                      These subjects already have an Approved passing result and
+                      are not offered again as Regular enrollment subjects.
+                    </p>
+                  </div>
+                </div>
+                <div className="subjects-header-actions">
+                  <div className="selection-counter">
+                    {completed_subjects.length} completed
+                  </div>
+                  <span
+                    aria-hidden="true"
+                    style={sectionArrowStyle(expandedSection === "completed")}
+                  >
+                    ▾
+                  </span>
                 </div>
               </div>
-              <div className="subjects-header-actions">
-                <div className="selection-counter">
-                  {completed_subjects.length} completed
+              {expandedSection === "completed" && (
+                <div className="subject-list">
+                  {completed_subjects.map((subject) =>
+                    renderCompletedSubject(subject),
+                  )}
                 </div>
-                <span
-                  aria-hidden="true"
-                  style={sectionArrowStyle(expandedSection === "completed")}
-                >
-                  ▾
-                </span>
-              </div>
+              )}
             </div>
-            {expandedSection === "completed" && (
-              <div className="subject-list">
-                {completed_subjects.map((subject) =>
-                  renderCompletedSubject(subject),
-                )}
-              </div>
-            )}
-          </div>
-        )}
-        {/* ====================================================
+          )}
+          {/* ====================================================
             CURRICULUM
         ==================================================== */}
-        {curriculum && (
-          <div className="curriculum-card">
-            <div>
-              <span className="info-label">Curriculum</span>
-              <strong>{curriculum.curriculum_name}</strong>
+          {curriculum && (
+            <div className="curriculum-card">
+              <div>
+                <span className="info-label">Curriculum</span>
+                <strong>{curriculum.curriculum_name}</strong>
+              </div>
+              <div>
+                <span className="info-label">Effective Year</span>
+                <strong>{curriculum.effective_year ?? "—"}</strong>
+              </div>
+              <div>
+                <span className="info-label">Curriculum Units</span>
+                <strong>{curriculum.total_units ?? "—"}</strong>
+              </div>
             </div>
-            <div>
-              <span className="info-label">Effective Year</span>
-              <strong>{curriculum.effective_year ?? "—"}</strong>
-            </div>
-            <div>
-              <span className="info-label">Curriculum Units</span>
-              <strong>{curriculum.total_units ?? "—"}</strong>
-            </div>
-          </div>
-        )}
-        {/* ====================================================
+          )}
+          {/* ====================================================
     PREPARE / UPDATE DRAFT ACTION
 ==================================================== */}
-        {enrollment_period &&
-          (data.can_prepare || data.can_modify_draft) &&
-          (!enrollment || enrollmentIsDraft || enrollmentIsRejected) && (
+          {enrollment_period &&
+            (data.can_prepare || data.can_modify_draft) &&
+            (!enrollment || enrollmentIsDraft || enrollmentIsRejected) && (
+              <div className="enrollment-submit-card">
+                <div className="enrollment-submit-content">
+                  <div>
+                    <span className="enrollment-eyebrow">
+                      {enrollmentIsDraft
+                        ? "Draft Enrollment"
+                        : enrollmentIsRejected
+                          ? "New Enrollment Application"
+                          : "Enrollment Preparation"}
+                    </span>
+                    <h2>
+                      {enrollmentIsDraft
+                        ? "Update Draft Enrollment"
+                        : enrollmentIsRejected
+                          ? "Prepare New Enrollment"
+                          : "Prepare Draft Enrollment"}
+                    </h2>
+                    <p>
+                      {regular_subjects.length} Regular subject
+                      {regular_subjects.length !== 1 ? "s" : ""}{" "}
+                      {regular_subjects.length !== 1 ? "are" : "is"} included
+                      automatically
+                      {carry_over_subjects.length > 0
+                        ? `, together with ${carry_over_subjects.length} automatic Carry Over subject${
+                            carry_over_subjects.length !== 1 ? "s" : ""
+                          }`
+                        : ""}
+                      {selectedRetakeSubjectIds.length > 0
+                        ? ` and ${selectedRetakeSubjectIds.length} selected Retake subject${
+                            selectedRetakeSubjectIds.length !== 1 ? "s" : ""
+                          }`
+                        : ""}
+                      .
+                    </p>
+                    <small>
+                      {enrollmentIsDraft
+                        ? "You may still change your Retake selections while this enrollment remains Draft."
+                        : enrollmentIsRejected
+                          ? "This creates a brand-new Draft. Your rejected application remains unchanged in enrollment history."
+                          : "Review your eligible subjects and choose any valid Retakes before preparing your Draft."}
+                    </small>
+                    <small>
+                      Planned total: {plannedSubjectCount} subject
+                      {plannedSubjectCount !== 1 ? "s" : ""} • {plannedUnits}{" "}
+                      units.
+                    </small>
+                  </div>
+                  <button
+                    type="button"
+                    className="enrollment-btn primary enrollment-submit-btn"
+                    onClick={() => void prepareEnrollment()}
+                    disabled={!canPrepareEnrollment || preparing || submitting}
+                  >
+                    {preparing ? (
+                      <>
+                        <span className="button-spinner"></span>
+                        {enrollmentIsDraft
+                          ? "Updating..."
+                          : enrollmentIsRejected
+                            ? "Preparing New Enrollment..."
+                            : "Preparing..."}
+                      </>
+                    ) : enrollmentIsDraft ? (
+                      "Update Draft Enrollment"
+                    ) : enrollmentIsRejected ? (
+                      "Prepare New Enrollment"
+                    ) : (
+                      "Prepare Enrollment"
+                    )}
+                  </button>
+                </div>
+              </div>
+            )}
+          {/* ====================================================
+            DRAFT REVIEW
+        ==================================================== */}
+          {enrollmentIsDraft && (
+            <div className="subjects-container enrollment-subject-section draft-review-section is-open">
+              <div className="subjects-header static-header">
+                <div className="subjects-heading">
+                  <span className="subjects-heading-icon draft">
+                    <ClipboardCheck size={18} aria-hidden="true" />
+                  </span>
+                  <div>
+                    <span className="enrollment-eyebrow subjects-eyebrow">
+                      Draft Enrollment
+                    </span>
+                    <h2>Subjects Included in Draft</h2>
+                    <p>
+                      This is the exact subject set that will be submitted for
+                      Registrar review.
+                    </p>
+                  </div>
+                </div>
+                <div className="subjects-header-actions">
+                  <div className="selection-counter">
+                    {draftSubjectsCount} subjects • {draftUnits} units
+                  </div>
+                </div>
+              </div>
+              <div className="subject-list">
+                {[...draftRegularSubjects]
+                  .sort(
+                    (a, b) =>
+                      Number(a.display_order || 999999) -
+                      Number(b.display_order || 999999),
+                  )
+                  .map((subject) => renderRegularSubject(subject))}
+                {draftCarryOverSubjects.map((subject) =>
+                  renderCarryOverSubject(subject),
+                )}
+                {draftRetakeSubjects.map((subject) =>
+                  renderRetakeCandidate(subject),
+                )}
+              </div>
+            </div>
+          )}
+          {/* ====================================================
+            SUBMIT ACTION
+        ==================================================== */}
+          {enrollmentIsDraft && (
             <div className="enrollment-submit-card">
               <div className="enrollment-submit-content">
                 <div>
                   <span className="enrollment-eyebrow">
-                    {enrollmentIsDraft
-                      ? "Draft Enrollment"
-                      : enrollmentIsRejected
-                        ? "New Enrollment Application"
-                        : "Enrollment Preparation"}
+                    Ready for Submission
                   </span>
-                  <h2>
-                    {enrollmentIsDraft
-                      ? "Update Draft Enrollment"
-                      : enrollmentIsRejected
-                        ? "Prepare New Enrollment"
-                        : "Prepare Draft Enrollment"}
-                  </h2>
+                  <h2>Submit Draft Enrollment</h2>
                   <p>
-                    {regular_subjects.length} Regular subject
-                    {regular_subjects.length !== 1 ? "s" : ""}{" "}
-                    {regular_subjects.length !== 1 ? "are" : "is"} included
-                    automatically
-                    {carry_over_subjects.length > 0
-                      ? `, together with ${carry_over_subjects.length} automatic Carry Over subject${
-                          carry_over_subjects.length !== 1 ? "s" : ""
-                        }`
-                      : ""}
-                    {selectedRetakeSubjectIds.length > 0
-                      ? ` and ${selectedRetakeSubjectIds.length} selected Retake subject${
-                          selectedRetakeSubjectIds.length !== 1 ? "s" : ""
-                        }`
-                      : ""}
-                    .
+                    Submit this Draft to the Registrar. After submission, the
+                    Registrar assigns the official section and class offering
+                    for each subject.
                   </p>
                   <small>
-                    {enrollmentIsDraft
-                      ? "You may still change your Retake selections while this enrollment remains Draft."
-                      : enrollmentIsRejected
-                        ? "This creates a brand-new Draft. Your rejected application remains unchanged in enrollment history."
-                        : "Review your eligible subjects and choose any valid Retakes before preparing your Draft."}
-                  </small>
-                  <small>
-                    Planned total: {plannedSubjectCount} subject
-                    {plannedSubjectCount !== 1 ? "s" : ""} • {plannedUnits}{" "}
-                    units.
+                    Student placement fields remain read-only and
+                    Registrar-owned.
                   </small>
                 </div>
                 <button
                   type="button"
                   className="enrollment-btn primary enrollment-submit-btn"
-                  onClick={() => void prepareEnrollment()}
-                  disabled={!canPrepareEnrollment || preparing || submitting}
+                  onClick={() => void submitEnrollment()}
+                  disabled={!canSubmitEnrollment || submitting || preparing}
                 >
-                  {preparing ? (
+                  {submitting ? (
                     <>
                       <span className="button-spinner"></span>
-                      {enrollmentIsDraft
-                        ? "Updating..."
-                        : enrollmentIsRejected
-                          ? "Preparing New Enrollment..."
-                          : "Preparing..."}
+                      Submitting...
                     </>
-                  ) : enrollmentIsDraft ? (
-                    "Update Draft Enrollment"
-                  ) : enrollmentIsRejected ? (
-                    "Prepare New Enrollment"
                   ) : (
-                    "Prepare Enrollment"
+                    "Submit Enrollment"
                   )}
                 </button>
               </div>
             </div>
           )}
-        {/* ====================================================
-            DRAFT REVIEW
-        ==================================================== */}
-        {enrollmentIsDraft && (
-          <div className="subjects-container enrollment-subject-section draft-review-section is-open">
-            <div className="subjects-header static-header">
-              <div className="subjects-heading">
-                <span className="subjects-heading-icon draft">
-                  <ClipboardCheck size={18} aria-hidden="true" />
-                </span>
-                <div>
-                  <span className="enrollment-eyebrow subjects-eyebrow">
-                    Draft Enrollment
-                  </span>
-                  <h2>Subjects Included in Draft</h2>
-                  <p>
-                    This is the exact subject set that will be submitted for
-                    Registrar review.
-                  </p>
-                </div>
-              </div>
-              <div className="subjects-header-actions">
-                <div className="selection-counter">
-                  {draftSubjectsCount} subjects • {draftUnits} units
-                </div>
-              </div>
-            </div>
-            <div className="subject-list">
-              {[...draftRegularSubjects]
-                .sort(
-                  (a, b) =>
-                    Number(a.display_order || 999999) -
-                    Number(b.display_order || 999999),
-                )
-                .map((subject) => renderRegularSubject(subject))}
-              {draftCarryOverSubjects.map((subject) =>
-                renderCarryOverSubject(subject),
-              )}
-              {draftRetakeSubjects.map((subject) =>
-                renderRetakeCandidate(subject),
-              )}
-            </div>
-          </div>
-        )}
-        {/* ====================================================
-            SUBMIT ACTION
-        ==================================================== */}
-        {enrollmentIsDraft && (
-          <div className="enrollment-submit-card">
-            <div className="enrollment-submit-content">
-              <div>
-                <span className="enrollment-eyebrow">Ready for Submission</span>
-                <h2>Submit Draft Enrollment</h2>
-                <p>
-                  Submit this Draft to the Registrar. After submission, the
-                  Registrar assigns the official section and class offering for
-                  each subject.
-                </p>
-                <small>
-                  Student placement fields remain read-only and Registrar-owned.
-                </small>
-              </div>
-              <button
-                type="button"
-                className="enrollment-btn primary enrollment-submit-btn"
-                onClick={() => void submitEnrollment()}
-                disabled={!canSubmitEnrollment || submitting || preparing}
-              >
-                {submitting ? (
-                  <>
-                    <span className="button-spinner"></span>
-                    Submitting...
-                  </>
-                ) : (
-                  "Submit Enrollment"
-                )}
-              </button>
-            </div>
-          </div>
-        )}
-        {/* ====================================================
+          {/* ====================================================
             PENDING / APPROVED LOCKED STATE
         ==================================================== */}
-        {enrollmentIsPending && (
-          <div className="enrollment-submit-card">
-            <div className="enrollment-submit-content">
-              <div>
-                <span className="enrollment-eyebrow">Submission Complete</span>
-                <h2>Enrollment Awaiting Registrar Review</h2>
-                <p>
-                  Your enrollment is Pending. No further Student submission or
-                  subject selection is allowed.
-                </p>
-              </div>
-              <div className="status-badge pending">
-                Pending Registrar Review
+          {enrollmentIsPending && (
+            <div className="enrollment-submit-card">
+              <div className="enrollment-submit-content">
+                <div>
+                  <span className="enrollment-eyebrow">
+                    Submission Complete
+                  </span>
+                  <h2>Enrollment Awaiting Registrar Review</h2>
+                  <p>
+                    Your enrollment is Pending. No further Student submission or
+                    subject selection is allowed.
+                  </p>
+                </div>
+                <div className="status-badge pending">
+                  Pending Registrar Review
+                </div>
               </div>
             </div>
-          </div>
-        )}
-        {enrollmentIsApproved && (
-          <div className="enrollment-submit-card">
-            <div className="enrollment-submit-content">
-              <div>
-                <span className="enrollment-eyebrow">Enrollment Complete</span>
-                <h2>Enrollment Approved</h2>
-                <p>
-                  Your enrollment has been reviewed and approved by the
-                  Registrar.
-                </p>
+          )}
+          {enrollmentIsApproved && (
+            <div className="enrollment-submit-card">
+              <div className="enrollment-submit-content">
+                <div>
+                  <span className="enrollment-eyebrow">
+                    Enrollment Complete
+                  </span>
+                  <h2>Enrollment Approved</h2>
+                  <p>
+                    Your enrollment has been reviewed and approved by the
+                    Registrar.
+                  </p>
+                </div>
+                <div className="status-badge approved">Approved</div>
               </div>
-              <div className="status-badge approved">Approved</div>
             </div>
-          </div>
-        )}
+          )}
         </div>
       </div>
     </DashboardLayout>
