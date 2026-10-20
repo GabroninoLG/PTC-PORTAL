@@ -2,7 +2,11 @@ import { useEffect, useState, type ChangeEvent, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   ArrowLeft,
+  BriefcaseBusiness,
+  Building2,
+  CalendarDays,
   CircleAlert,
+  ContactRound,
   Eye,
   EyeOff,
   KeyRound,
@@ -27,6 +31,19 @@ interface CreateUserResponse {
   error?: string;
 }
 
+interface DepartmentOption {
+  department_id: number;
+  department_code: string;
+  department_name: string;
+}
+
+interface DepartmentsResponse {
+  success?: boolean;
+  departments?: DepartmentOption[];
+  message?: string;
+  error?: string;
+}
+
 const USER_ROLES = [
   "Admin",
   "Registrar",
@@ -35,6 +52,12 @@ const USER_ROLES = [
   "Finance",
   "Student",
 ] as const;
+
+const EMPLOYMENT_STATUSES = ["Regular", "Part-Time", "Contractual"] as const;
+
+function isStaffProfileRole(role: string) {
+  return role === "Faculty" || role === "Program Head";
+}
 
 export default function CreateUser() {
   const navigate = useNavigate();
@@ -50,12 +73,25 @@ export default function CreateUser() {
     password: "",
     confirmPassword: "",
     role: "",
+    first_name: "",
+    middle_name: "",
+    last_name: "",
+    gender: "",
+    birth_date: "",
+    contact_number: "",
+    department_id: "",
+    employment_status: "Regular",
+    hire_date: "",
   });
 
+  const [departments, setDepartments] = useState<DepartmentOption[]>([]);
+  const [loadingDepartments, setLoadingDepartments] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  const needsStaffProfile = isStaffProfileRole(formData.role);
 
   useEffect(() => {
     if (!authenticated) {
@@ -71,6 +107,62 @@ export default function CreateUser() {
         navigate("/login", { replace: true });
       }
     }
+  }, [authenticated, userRole, navigate]);
+
+  useEffect(() => {
+    if (!authenticated || userRole !== "Admin") {
+      return;
+    }
+
+    const controller = new AbortController();
+
+    const loadDepartments = async () => {
+      try {
+        setLoadingDepartments(true);
+
+        const response = await authService.authFetch(
+          `${API_BASE_URL}/departments/options`,
+          {
+            method: "GET",
+            signal: controller.signal,
+            headers: {
+              Accept: "application/json",
+            },
+          },
+        );
+
+        const data = (await response.json()) as DepartmentsResponse;
+
+        if (response.status === 401) {
+          authService.logout();
+          navigate("/login", { replace: true });
+          return;
+        }
+
+        if (!response.ok || !data.success) {
+          throw new Error(
+            data.message || data.error || "Unable to load departments.",
+          );
+        }
+
+        setDepartments(Array.isArray(data.departments) ? data.departments : []);
+      } catch (err) {
+        if (err instanceof DOMException && err.name === "AbortError") {
+          return;
+        }
+
+        console.error("LOAD DEPARTMENTS ERROR:", err);
+        setDepartments([]);
+      } finally {
+        if (!controller.signal.aborted) {
+          setLoadingDepartments(false);
+        }
+      }
+    };
+
+    void loadDepartments();
+
+    return () => controller.abort();
   }, [authenticated, userRole, navigate]);
 
   const handleChange = (
@@ -138,6 +230,29 @@ export default function CreateUser() {
       return;
     }
 
+    if (needsStaffProfile) {
+      if (!formData.first_name.trim()) {
+        setError(
+          "First name is required for Faculty and Program Head accounts.",
+        );
+        return;
+      }
+
+      if (!formData.last_name.trim()) {
+        setError(
+          "Last name is required for Faculty and Program Head accounts.",
+        );
+        return;
+      }
+
+      if (!formData.department_id) {
+        setError(
+          "Please select a department for the Faculty or Program Head profile.",
+        );
+        return;
+      }
+    }
+
     try {
       setLoading(true);
 
@@ -146,6 +261,19 @@ export default function CreateUser() {
         email,
         password,
         role,
+        ...(needsStaffProfile
+          ? {
+              first_name: formData.first_name.trim(),
+              middle_name: formData.middle_name.trim(),
+              last_name: formData.last_name.trim(),
+              gender: formData.gender || null,
+              birth_date: formData.birth_date || null,
+              contact_number: formData.contact_number.trim() || null,
+              department_id: Number(formData.department_id),
+              employment_status: formData.employment_status || "Regular",
+              hire_date: formData.hire_date || null,
+            }
+          : {}),
       };
 
       const response = await authService.authFetch(API_BASE_URL, {
@@ -240,8 +368,8 @@ export default function CreateUser() {
             <h1>Create User</h1>
 
             <p>
-              Create a new portal account, assign the appropriate role, and set
-              a temporary password for first-time access.
+              Create a portal account and, when the role is Faculty or Program
+              Head, create the linked staff profile at the same time.
             </p>
           </div>
 
@@ -314,7 +442,7 @@ export default function CreateUser() {
                     id="create-user-email"
                     type="email"
                     name="email"
-                    placeholder="Enter PTC email (e.g. faculty01@ptc.edu.ph)"
+                    placeholder="Enter PTC email"
                     value={formData.email}
                     onChange={handleChange}
                     disabled={loading}
@@ -352,12 +480,187 @@ export default function CreateUser() {
                 </div>
 
                 <small>
-                  The backend resolves the selected role name to the correct
-                  role record.
+                  Faculty and Program Head roles require a linked staff profile.
                 </small>
               </label>
             </div>
           </section>
+
+          {needsStaffProfile && (
+            <section className="admin-create-user__section">
+              <header className="admin-create-user__section-header">
+                <span className="admin-create-user__section-icon">
+                  <ContactRound size={18} aria-hidden="true" />
+                </span>
+
+                <div>
+                  <span>
+                    {formData.role === "Program Head"
+                      ? "Program Head Profile"
+                      : "Faculty Profile"}
+                  </span>
+                  <h2>Staff Information</h2>
+                  <p>
+                    This information is stored in the Faculty record and will be
+                    shown in the staff member&apos;s portal profile.
+                  </p>
+                </div>
+              </header>
+
+              <div className="admin-create-user__fields">
+                <label className="admin-create-user__field">
+                  <span>
+                    First Name <em>*</em>
+                  </span>
+                  <input
+                    type="text"
+                    name="first_name"
+                    value={formData.first_name}
+                    onChange={handleChange}
+                    disabled={loading}
+                    placeholder="Enter first name"
+                    required
+                  />
+                </label>
+
+                <label className="admin-create-user__field">
+                  <span>Middle Name</span>
+                  <input
+                    type="text"
+                    name="middle_name"
+                    value={formData.middle_name}
+                    onChange={handleChange}
+                    disabled={loading}
+                    placeholder="Enter middle name"
+                  />
+                </label>
+
+                <label className="admin-create-user__field">
+                  <span>
+                    Last Name <em>*</em>
+                  </span>
+                  <input
+                    type="text"
+                    name="last_name"
+                    value={formData.last_name}
+                    onChange={handleChange}
+                    disabled={loading}
+                    placeholder="Enter last name"
+                    required
+                  />
+                </label>
+
+                <label className="admin-create-user__field">
+                  <span>Gender</span>
+                  <select
+                    name="gender"
+                    value={formData.gender}
+                    onChange={handleChange}
+                    disabled={loading}
+                  >
+                    <option value="">Not recorded</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                  </select>
+                </label>
+
+                <label className="admin-create-user__field">
+                  <span>Birth Date</span>
+                  <div className="admin-create-user__input-with-icon">
+                    <CalendarDays size={15} aria-hidden="true" />
+                    <input
+                      type="date"
+                      name="birth_date"
+                      value={formData.birth_date}
+                      onChange={handleChange}
+                      disabled={loading}
+                    />
+                  </div>
+                </label>
+
+                <label className="admin-create-user__field">
+                  <span>Contact Number</span>
+                  <input
+                    type="tel"
+                    name="contact_number"
+                    value={formData.contact_number}
+                    onChange={handleChange}
+                    disabled={loading}
+                    placeholder="e.g. 09XXXXXXXXX"
+                  />
+                </label>
+
+                <label className="admin-create-user__field">
+                  <span>
+                    Department <em>*</em>
+                  </span>
+                  <div className="admin-create-user__select-with-icon">
+                    <Building2 size={15} aria-hidden="true" />
+                    <select
+                      name="department_id"
+                      value={formData.department_id}
+                      onChange={handleChange}
+                      disabled={loading || loadingDepartments}
+                      required
+                    >
+                      <option value="">
+                        {loadingDepartments
+                          ? "Loading departments..."
+                          : "Select department"}
+                      </option>
+
+                      {departments.map((department) => (
+                        <option
+                          key={department.department_id}
+                          value={department.department_id}
+                        >
+                          {department.department_code} ·{" "}
+                          {department.department_name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </label>
+
+                <label className="admin-create-user__field">
+                  <span>Employment Status</span>
+                  <div className="admin-create-user__select-with-icon">
+                    <BriefcaseBusiness size={15} aria-hidden="true" />
+                    <select
+                      name="employment_status"
+                      value={formData.employment_status}
+                      onChange={handleChange}
+                      disabled={loading}
+                    >
+                      {EMPLOYMENT_STATUSES.map((status) => (
+                        <option key={status} value={status}>
+                          {status}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </label>
+
+                <label className="admin-create-user__field admin-create-user__field--wide">
+                  <span>Hire Date</span>
+                  <div className="admin-create-user__input-with-icon">
+                    <CalendarDays size={15} aria-hidden="true" />
+                    <input
+                      type="date"
+                      name="hire_date"
+                      value={formData.hire_date}
+                      onChange={handleChange}
+                      disabled={loading}
+                    />
+                  </div>
+
+                  <small>
+                    Employee number is generated automatically by the system.
+                  </small>
+                </label>
+              </div>
+            </section>
+          )}
 
           <section className="admin-create-user__section">
             <header className="admin-create-user__section-header">

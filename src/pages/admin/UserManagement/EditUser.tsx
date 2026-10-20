@@ -1,8 +1,13 @@
-import { useEffect, useState, type ChangeEvent, type FormEvent } from "react";
+import { useEffect, useMemo, useState, type ChangeEvent, type FormEvent } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   ArrowLeft,
+  BriefcaseBusiness,
+  Building2,
+  CalendarDays,
   CircleAlert,
+  ContactRound,
+  IdCard,
   LoaderCircle,
   Mail,
   Save,
@@ -26,12 +31,37 @@ const USER_ROLES = [
   "Student",
 ] as const;
 
+const EMPLOYMENT_STATUSES = ["Regular", "Part-Time", "Contractual"] as const;
+
 type UserForm = {
   username: string;
   email: string;
   role: string;
   is_active: boolean;
+  employee_number: string;
+  first_name: string;
+  middle_name: string;
+  last_name: string;
+  gender: string;
+  birth_date: string;
+  contact_number: string;
+  department_id: string;
+  employment_status: string;
+  hire_date: string;
 };
+
+interface DepartmentOption {
+  department_id: number;
+  department_code: string;
+  department_name: string;
+}
+
+interface DepartmentsResponse {
+  success?: boolean;
+  departments?: DepartmentOption[];
+  message?: string;
+  error?: string;
+}
 
 interface UserResponse {
   user_id?: number;
@@ -39,6 +69,18 @@ interface UserResponse {
   email?: string;
   role?: string;
   is_active?: boolean;
+  employee_number?: string | null;
+  first_name?: string | null;
+  middle_name?: string | null;
+  last_name?: string | null;
+  gender?: string | null;
+  birth_date?: string | null;
+  contact_number?: string | null;
+  department_id?: number | null;
+  department_code?: string | null;
+  department_name?: string | null;
+  employment_status?: string | null;
+  hire_date?: string | null;
   success?: boolean;
   data?: UserResponse;
   user?: UserResponse;
@@ -52,12 +94,21 @@ interface UpdateResponse {
   error?: string;
 }
 
+function toDateInputValue(value?: string | null) {
+  if (!value) {
+    return "";
+  }
+
+  return String(value).slice(0, 10);
+}
+
+function isStaffProfileRole(role: string) {
+  return role === "Faculty" || role === "Program Head";
+}
+
 export default function EditUser() {
   const navigate = useNavigate();
-
-  const { id } = useParams<{
-    id: string;
-  }>();
+  const { id } = useParams<{ id: string }>();
 
   const session = authService.getSession();
   const token = authService.getToken();
@@ -69,11 +120,34 @@ export default function EditUser() {
     email: "",
     role: "",
     is_active: true,
+    employee_number: "",
+    first_name: "",
+    middle_name: "",
+    last_name: "",
+    gender: "",
+    birth_date: "",
+    contact_number: "",
+    department_id: "",
+    employment_status: "Regular",
+    hire_date: "",
   });
 
+  const [departments, setDepartments] = useState<DepartmentOption[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingDepartments, setLoadingDepartments] = useState(false);
   const [saving, setSaving] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+
+  const needsStaffProfile = isStaffProfileRole(formData.role);
+
+  const selectedDepartment = useMemo(
+    () =>
+      departments.find(
+        (department) =>
+          String(department.department_id) === formData.department_id,
+      ) ?? null,
+    [departments, formData.department_id],
+  );
 
   useEffect(() => {
     if (!authenticated) {
@@ -89,6 +163,62 @@ export default function EditUser() {
         navigate("/login", { replace: true });
       }
     }
+  }, [authenticated, userRole, navigate]);
+
+  useEffect(() => {
+    if (!authenticated || userRole !== "Admin") {
+      return;
+    }
+
+    const controller = new AbortController();
+
+    const loadDepartments = async () => {
+      try {
+        setLoadingDepartments(true);
+
+        const response = await authService.authFetch(
+          `${API_BASE_URL}/departments/options`,
+          {
+            method: "GET",
+            signal: controller.signal,
+            headers: {
+              Accept: "application/json",
+            },
+          },
+        );
+
+        const data = (await response.json()) as DepartmentsResponse;
+
+        if (response.status === 401) {
+          authService.logout();
+          navigate("/login", { replace: true });
+          return;
+        }
+
+        if (!response.ok || !data.success) {
+          throw new Error(
+            data.message || data.error || "Unable to load departments.",
+          );
+        }
+
+        setDepartments(Array.isArray(data.departments) ? data.departments : []);
+      } catch (err) {
+        if (err instanceof DOMException && err.name === "AbortError") {
+          return;
+        }
+
+        console.error("LOAD DEPARTMENTS ERROR:", err);
+        setDepartments([]);
+      } finally {
+        if (!controller.signal.aborted) {
+          setLoadingDepartments(false);
+        }
+      }
+    };
+
+    void loadDepartments();
+
+    return () => controller.abort();
   }, [authenticated, userRole, navigate]);
 
   useEffect(() => {
@@ -171,6 +301,22 @@ export default function EditUser() {
           email: String(loadedUser.email ?? ""),
           role: String(loadedUser.role ?? ""),
           is_active: Boolean(loadedUser.is_active),
+          employee_number: String(loadedUser.employee_number ?? ""),
+          first_name: String(loadedUser.first_name ?? ""),
+          middle_name: String(loadedUser.middle_name ?? ""),
+          last_name: String(loadedUser.last_name ?? ""),
+          gender: String(loadedUser.gender ?? ""),
+          birth_date: toDateInputValue(loadedUser.birth_date),
+          contact_number: String(loadedUser.contact_number ?? ""),
+          department_id:
+            loadedUser.department_id === null ||
+            loadedUser.department_id === undefined
+              ? ""
+              : String(loadedUser.department_id),
+          employment_status: String(
+            loadedUser.employment_status || "Regular",
+          ),
+          hire_date: toDateInputValue(loadedUser.hire_date),
         });
       } catch (err) {
         if (err instanceof DOMException && err.name === "AbortError") {
@@ -198,9 +344,7 @@ export default function EditUser() {
 
     void loadUser();
 
-    return () => {
-      controller.abort();
-    };
+    return () => controller.abort();
   }, [id, authenticated, userRole, navigate]);
 
   const handleChange = (
@@ -245,8 +389,31 @@ export default function EditUser() {
     const role = formData.role.trim();
 
     if (!username || !email || !role) {
-      setErrorMessage("Please fill in all required fields.");
+      setErrorMessage("Please fill in all required account fields.");
       return;
+    }
+
+    if (needsStaffProfile) {
+      if (!formData.first_name.trim()) {
+        setErrorMessage(
+          "First name is required for Faculty and Program Head accounts.",
+        );
+        return;
+      }
+
+      if (!formData.last_name.trim()) {
+        setErrorMessage(
+          "Last name is required for Faculty and Program Head accounts.",
+        );
+        return;
+      }
+
+      if (!formData.department_id) {
+        setErrorMessage(
+          "Please select a department for the Faculty or Program Head profile.",
+        );
+        return;
+      }
     }
 
     try {
@@ -257,6 +424,19 @@ export default function EditUser() {
         email,
         role,
         is_active: formData.is_active,
+        ...(needsStaffProfile
+          ? {
+              first_name: formData.first_name.trim(),
+              middle_name: formData.middle_name.trim(),
+              last_name: formData.last_name.trim(),
+              gender: formData.gender || null,
+              birth_date: formData.birth_date || null,
+              contact_number: formData.contact_number.trim() || null,
+              department_id: Number(formData.department_id),
+              employment_status: formData.employment_status || "Regular",
+              hire_date: formData.hire_date || null,
+            }
+          : {}),
       };
 
       const response = await authService.authFetch(
@@ -360,8 +540,8 @@ export default function EditUser() {
             <h1>Edit User</h1>
 
             <p>
-              Update account information, role assignment, and account status
-              while preserving the user&apos;s existing portal access record.
+              Update portal access and, for Faculty or Program Head accounts,
+              maintain the staff profile information shown throughout PTC Portal.
             </p>
           </div>
 
@@ -407,7 +587,7 @@ export default function EditUser() {
               <div>
                 <span>Account Details</span>
                 <h2>User Information</h2>
-                <p>Edit the account fields below, then save your changes.</p>
+                <p>Manage the user&apos;s portal account and assigned role.</p>
               </div>
             </header>
 
@@ -511,6 +691,220 @@ export default function EditUser() {
                   : "This account is currently marked inactive."}
               </p>
             </div>
+
+            {needsStaffProfile && (
+              <>
+                <header className="admin-edit-user__form-header admin-edit-user__form-header--profile">
+                  <span className="admin-edit-user__form-icon">
+                    <ContactRound size={18} aria-hidden="true" />
+                  </span>
+
+                  <div>
+                    <span>
+                      {formData.role === "Program Head"
+                        ? "Program Head Profile"
+                        : "Faculty Profile"}
+                    </span>
+                    <h2>Staff Information</h2>
+                    <p>
+                      These fields are stored in the Faculty record and are
+                      displayed in the user&apos;s profile.
+                    </p>
+                  </div>
+                </header>
+
+                <div className="admin-edit-user__fields">
+                  <label className="admin-edit-user__field">
+                    <span>Employee Number</span>
+
+                    <div className="admin-edit-user__input-with-icon">
+                      <IdCard size={15} aria-hidden="true" />
+                      <input
+                        type="text"
+                        value={formData.employee_number || "Generated by system"}
+                        disabled
+                        readOnly
+                      />
+                    </div>
+
+                    <small>
+                      Employee numbers are system-managed and are not edited
+                      manually.
+                    </small>
+                  </label>
+
+                  <label className="admin-edit-user__field">
+                    <span>
+                      Department <em>*</em>
+                    </span>
+
+                    <div className="admin-edit-user__select-with-icon">
+                      <Building2 size={15} aria-hidden="true" />
+                      <select
+                        name="department_id"
+                        value={formData.department_id}
+                        onChange={handleChange}
+                        disabled={saving || loadingDepartments}
+                        required
+                      >
+                        <option value="">
+                          {loadingDepartments
+                            ? "Loading departments..."
+                            : "Select department"}
+                        </option>
+
+                        {departments.map((department) => (
+                          <option
+                            key={department.department_id}
+                            value={department.department_id}
+                          >
+                            {department.department_code} ·{" "}
+                            {department.department_name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {selectedDepartment && (
+                      <small>
+                        Assigned to {selectedDepartment.department_name}.
+                      </small>
+                    )}
+                  </label>
+
+                  <label className="admin-edit-user__field">
+                    <span>
+                      First Name <em>*</em>
+                    </span>
+                    <input
+                      type="text"
+                      name="first_name"
+                      value={formData.first_name}
+                      onChange={handleChange}
+                      disabled={saving}
+                      placeholder="Enter first name"
+                      required
+                    />
+                  </label>
+
+                  <label className="admin-edit-user__field">
+                    <span>Middle Name</span>
+                    <input
+                      type="text"
+                      name="middle_name"
+                      value={formData.middle_name}
+                      onChange={handleChange}
+                      disabled={saving}
+                      placeholder="Enter middle name"
+                    />
+                  </label>
+
+                  <label className="admin-edit-user__field">
+                    <span>
+                      Last Name <em>*</em>
+                    </span>
+                    <input
+                      type="text"
+                      name="last_name"
+                      value={formData.last_name}
+                      onChange={handleChange}
+                      disabled={saving}
+                      placeholder="Enter last name"
+                      required
+                    />
+                  </label>
+
+                  <label className="admin-edit-user__field">
+                    <span>Gender</span>
+                    <select
+                      name="gender"
+                      value={formData.gender}
+                      onChange={handleChange}
+                      disabled={saving}
+                    >
+                      <option value="">Not recorded</option>
+                      <option value="Male">Male</option>
+                      <option value="Female">Female</option>
+                    </select>
+                  </label>
+
+                  <label className="admin-edit-user__field">
+                    <span>Birth Date</span>
+                    <div className="admin-edit-user__input-with-icon">
+                      <CalendarDays size={15} aria-hidden="true" />
+                      <input
+                        type="date"
+                        name="birth_date"
+                        value={formData.birth_date}
+                        onChange={handleChange}
+                        disabled={saving}
+                      />
+                    </div>
+                  </label>
+
+                  <label className="admin-edit-user__field">
+                    <span>Contact Number</span>
+                    <input
+                      type="tel"
+                      name="contact_number"
+                      value={formData.contact_number}
+                      onChange={handleChange}
+                      disabled={saving}
+                      placeholder="e.g. 09XXXXXXXXX"
+                    />
+                  </label>
+
+                  <label className="admin-edit-user__field">
+                    <span>Employment Status</span>
+                    <div className="admin-edit-user__select-with-icon">
+                      <BriefcaseBusiness size={15} aria-hidden="true" />
+                      <select
+                        name="employment_status"
+                        value={formData.employment_status}
+                        onChange={handleChange}
+                        disabled={saving}
+                      >
+                        {EMPLOYMENT_STATUSES.map((status) => (
+                          <option key={status} value={status}>
+                            {status}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </label>
+
+                  <label className="admin-edit-user__field">
+                    <span>Hire Date</span>
+                    <div className="admin-edit-user__input-with-icon">
+                      <CalendarDays size={15} aria-hidden="true" />
+                      <input
+                        type="date"
+                        name="hire_date"
+                        value={formData.hire_date}
+                        onChange={handleChange}
+                        disabled={saving}
+                      />
+                    </div>
+                  </label>
+                </div>
+
+                <div className="admin-edit-user__profile-note">
+                  <Building2 size={17} aria-hidden="true" />
+                  <div>
+                    <strong>
+                      {formData.role === "Program Head"
+                        ? "Program Head profile source"
+                        : "Faculty profile source"}
+                    </strong>
+                    <p>
+                      Saving this form updates the linked Faculty record. Program
+                      Head department changes are also synchronized with the
+                      active Program Head assignment.
+                    </p>
+                  </div>
+                </div>
+              </>
+            )}
 
             <footer className="admin-edit-user__actions">
               <button
