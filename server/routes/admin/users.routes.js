@@ -30,6 +30,74 @@ function normalizeUsername(value) {
   return normalizeText(value).toUpperCase();
 }
 
+
+const STAFF_GENDERS = new Set(["Male", "Female"]);
+const EMPLOYMENT_STATUSES = new Set(["Regular", "Part-Time", "Contractual"]);
+
+function normalizeOptionalText(value) {
+  const text = normalizeText(value);
+  return text || null;
+}
+
+function isValidDateInput(value) {
+  if (!value) {
+    return true;
+  }
+
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    return false;
+  }
+
+  const [year, month, day] = value.split("-").map(Number);
+  const date = new Date(Date.UTC(year, month - 1, day));
+
+  return (
+    date.getUTCFullYear() === year &&
+    date.getUTCMonth() === month - 1 &&
+    date.getUTCDate() === day
+  );
+}
+
+function validateStaffProfileFields({
+  firstName,
+  lastName,
+  departmentId,
+  gender,
+  birthDate,
+  employmentStatus,
+  hireDate,
+}) {
+  if (!firstName) {
+    return "First name is required for Faculty and Program Head.";
+  }
+
+  if (!lastName) {
+    return "Last name is required for Faculty and Program Head.";
+  }
+
+  if (!Number.isInteger(departmentId) || departmentId <= 0) {
+    return "Please select a valid department.";
+  }
+
+  if (gender && !STAFF_GENDERS.has(gender)) {
+    return "Invalid gender value.";
+  }
+
+  if (employmentStatus && !EMPLOYMENT_STATUSES.has(employmentStatus)) {
+    return "Invalid employment status.";
+  }
+
+  if (!isValidDateInput(birthDate)) {
+    return "Birth date must use a valid YYYY-MM-DD date.";
+  }
+
+  if (!isValidDateInput(hireDate)) {
+    return "Hire date must use a valid YYYY-MM-DD date.";
+  }
+
+  return "";
+}
+
 /*
 |--------------------------------------------------------------------------
 | GET DEPARTMENT OPTIONS
@@ -174,10 +242,20 @@ router.get("/:id", async (req, res) => {
         f.first_name,
         f.middle_name,
         f.last_name,
+        f.gender,
+        DATE_FORMAT(f.birth_date, '%Y-%m-%d') AS birth_date,
+        f.contact_number,
+        f.employment_status,
+        DATE_FORMAT(f.hire_date, '%Y-%m-%d') AS hire_date,
 
         COALESCE(ph.department_id, f.department_id) AS department_id,
         d.department_code,
-        d.department_name
+        d.department_name,
+
+        ph.program_head_id,
+        DATE_FORMAT(ph.start_date, '%Y-%m-%d') AS program_head_start_date,
+        DATE_FORMAT(ph.end_date, '%Y-%m-%d') AS program_head_end_date,
+        ph.is_active AS program_head_is_active
 
       FROM users AS u
 
@@ -226,23 +304,14 @@ router.get("/:id", async (req, res) => {
   }
 });
 
+
 /*
 |--------------------------------------------------------------------------
 | CREATE USER
 |--------------------------------------------------------------------------
 |
-| Frontend sends ROLE NAME:
-|
-| {
-|   username,
-|   email,
-|   password,
-|   role,
-|   first_name?,
-|   middle_name?,
-|   last_name?,
-|   department_id?
-| }
+| Frontend sends ROLE NAME and, for Faculty / Program Head,
+| the linked staff profile information.
 |
 | Faculty:
 | users -> faculty
@@ -261,16 +330,15 @@ router.post("/", async (req, res) => {
   const firstName = normalizeText(req.body.first_name);
   const middleName = normalizeText(req.body.middle_name);
   const lastName = normalizeText(req.body.last_name);
+  const gender = normalizeText(req.body.gender);
+  const birthDate = normalizeText(req.body.birth_date);
+  const contactNumber = normalizeText(req.body.contact_number);
+  const employmentStatus =
+    normalizeText(req.body.employment_status) || "Regular";
+  const hireDate = normalizeText(req.body.hire_date);
 
   const rawDepartmentId = req.body.department_id;
-
   const needsFacultyProfile = requiresFacultyProfile(role);
-
-  /*
-  |--------------------------------------------------------------------------
-  | BASIC VALIDATION
-  |--------------------------------------------------------------------------
-  */
 
   if (!username || !email || !password || !role) {
     return res.status(400).json({
@@ -286,35 +354,25 @@ router.post("/", async (req, res) => {
     });
   }
 
-  /*
-  |--------------------------------------------------------------------------
-  | FACULTY / PROGRAM HEAD VALIDATION
-  |--------------------------------------------------------------------------
-  */
-
   let departmentId = null;
 
   if (needsFacultyProfile) {
     departmentId = Number(rawDepartmentId);
 
-    if (!firstName) {
-      return res.status(400).json({
-        success: false,
-        error: "First name is required for Faculty and Program Head.",
-      });
-    }
+    const profileValidationError = validateStaffProfileFields({
+      firstName,
+      lastName,
+      departmentId,
+      gender,
+      birthDate,
+      employmentStatus,
+      hireDate,
+    });
 
-    if (!lastName) {
+    if (profileValidationError) {
       return res.status(400).json({
         success: false,
-        error: "Last name is required for Faculty and Program Head.",
-      });
-    }
-
-    if (!Number.isInteger(departmentId) || departmentId <= 0) {
-      return res.status(400).json({
-        success: false,
-        error: "Please select a valid department.",
+        error: profileValidationError,
       });
     }
   }
@@ -322,12 +380,6 @@ router.post("/", async (req, res) => {
   let connection;
 
   try {
-    /*
-    |--------------------------------------------------------------------------
-    | CHECK ROLE
-    |--------------------------------------------------------------------------
-    */
-
     const [roleRows] = await db.execute(
       `
       SELECT
@@ -348,12 +400,6 @@ router.post("/", async (req, res) => {
     }
 
     const roleId = roleRows[0].role_id;
-
-    /*
-    |--------------------------------------------------------------------------
-    | CHECK USERNAME / EMAIL
-    |--------------------------------------------------------------------------
-    */
 
     const [existingUsers] = await db.execute(
       `
@@ -376,12 +422,6 @@ router.post("/", async (req, res) => {
       });
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | CHECK DEPARTMENT
-    |--------------------------------------------------------------------------
-    */
-
     if (needsFacultyProfile) {
       const [departmentRows] = await db.execute(
         `
@@ -401,29 +441,10 @@ router.post("/", async (req, res) => {
       }
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | HASH PASSWORD
-    |--------------------------------------------------------------------------
-    */
-
     const passwordHash = await bcrypt.hash(password, 10);
 
-    /*
-    |--------------------------------------------------------------------------
-    | TRANSACTION
-    |--------------------------------------------------------------------------
-    */
-
     connection = await db.getConnection();
-
     await connection.beginTransaction();
-
-    /*
-    |--------------------------------------------------------------------------
-    | CREATE USERS ROW
-    |--------------------------------------------------------------------------
-    */
 
     const [userResult] = await connection.execute(
       `
@@ -447,15 +468,8 @@ router.post("/", async (req, res) => {
     let facultyId = null;
     let employeeNumber = null;
 
-    /*
-    |--------------------------------------------------------------------------
-    | CREATE FACULTY PROFILE
-    |--------------------------------------------------------------------------
-    */
-
     if (needsFacultyProfile) {
       const prefix = role === "Program Head" ? "PH" : "FAC";
-
       employeeNumber = `${prefix}-${String(userId).padStart(4, "0")}`;
 
       const [facultyResult] = await connection.execute(
@@ -467,33 +481,35 @@ router.post("/", async (req, res) => {
           first_name,
           middle_name,
           last_name,
+          gender,
+          birth_date,
+          contact_number,
           email,
           department_id,
-          employment_status
+          employment_status,
+          hire_date
         )
         VALUES
-        (?, ?, ?, ?, ?, ?, ?, ?)
+        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `,
         [
           userId,
           employeeNumber,
           firstName,
-          middleName || null,
+          normalizeOptionalText(middleName),
           lastName,
+          normalizeOptionalText(gender),
+          normalizeOptionalText(birthDate),
+          normalizeOptionalText(contactNumber),
           email,
           departmentId,
-          "Regular",
+          employmentStatus,
+          normalizeOptionalText(hireDate),
         ],
       );
 
       facultyId = facultyResult.insertId;
     }
-
-    /*
-    |--------------------------------------------------------------------------
-    | CREATE PROGRAM HEAD ASSIGNMENT
-    |--------------------------------------------------------------------------
-    */
 
     if (role === "Program Head") {
       await connection.execute(
@@ -507,9 +523,9 @@ router.post("/", async (req, res) => {
           end_date
         )
         VALUES
-        (?, ?, ?, CURDATE(), NULL)
+        (?, ?, 1, CURDATE(), NULL)
         `,
-        [facultyId, departmentId, true],
+        [facultyId, departmentId],
       );
     }
 
@@ -519,9 +535,9 @@ router.post("/", async (req, res) => {
       success: true,
       message:
         role === "Faculty"
-          ? "Faculty user created successfully."
+          ? "Faculty user and profile created successfully."
           : role === "Program Head"
-            ? "Program Head user created successfully."
+            ? "Program Head user and profile created successfully."
             : "User created successfully.",
       user_id: userId,
       faculty_id: facultyId,
@@ -556,6 +572,7 @@ router.post("/", async (req, res) => {
   }
 });
 
+
 /*
 |--------------------------------------------------------------------------
 | UPDATE USER
@@ -572,18 +589,17 @@ router.put("/:id", async (req, res) => {
   const firstName = normalizeText(req.body.first_name);
   const middleName = normalizeText(req.body.middle_name);
   const lastName = normalizeText(req.body.last_name);
+  const gender = normalizeText(req.body.gender);
+  const birthDate = normalizeText(req.body.birth_date);
+  const contactNumber = normalizeText(req.body.contact_number);
+  const employmentStatus =
+    normalizeText(req.body.employment_status) || "Regular";
+  const hireDate = normalizeText(req.body.hire_date);
 
   const isActive = req.body.is_active;
-
   const needsFacultyProfile = requiresFacultyProfile(role);
 
   let departmentId = null;
-
-  /*
-  |--------------------------------------------------------------------------
-  | VALIDATION
-  |--------------------------------------------------------------------------
-  */
 
   if (!Number.isInteger(userId) || userId <= 0) {
     return res.status(400).json({
@@ -609,24 +625,20 @@ router.put("/:id", async (req, res) => {
   if (needsFacultyProfile) {
     departmentId = Number(req.body.department_id);
 
-    if (!firstName) {
-      return res.status(400).json({
-        success: false,
-        error: "First name is required for Faculty and Program Head.",
-      });
-    }
+    const profileValidationError = validateStaffProfileFields({
+      firstName,
+      lastName,
+      departmentId,
+      gender,
+      birthDate,
+      employmentStatus,
+      hireDate,
+    });
 
-    if (!lastName) {
+    if (profileValidationError) {
       return res.status(400).json({
         success: false,
-        error: "Last name is required for Faculty and Program Head.",
-      });
-    }
-
-    if (!Number.isInteger(departmentId) || departmentId <= 0) {
-      return res.status(400).json({
-        success: false,
-        error: "Please select a valid department.",
+        error: profileValidationError,
       });
     }
   }
@@ -634,12 +646,6 @@ router.put("/:id", async (req, res) => {
   let connection;
 
   try {
-    /*
-    |--------------------------------------------------------------------------
-    | CHECK USER
-    |--------------------------------------------------------------------------
-    */
-
     const [userRows] = await db.execute(
       `
       SELECT user_id
@@ -656,12 +662,6 @@ router.put("/:id", async (req, res) => {
         error: "User not found.",
       });
     }
-
-    /*
-    |--------------------------------------------------------------------------
-    | RESOLVE ROLE ID
-    |--------------------------------------------------------------------------
-    */
 
     const [roleRows] = await db.execute(
       `
@@ -684,12 +684,6 @@ router.put("/:id", async (req, res) => {
 
     const roleId = roleRows[0].role_id;
 
-    /*
-    |--------------------------------------------------------------------------
-    | CHECK DUPLICATES
-    |--------------------------------------------------------------------------
-    */
-
     const [duplicateRows] = await db.execute(
       `
       SELECT user_id
@@ -708,12 +702,6 @@ router.put("/:id", async (req, res) => {
         error: "Username or email already belongs to another user.",
       });
     }
-
-    /*
-    |--------------------------------------------------------------------------
-    | CHECK DEPARTMENT
-    |--------------------------------------------------------------------------
-    */
 
     if (needsFacultyProfile) {
       const [departmentRows] = await db.execute(
@@ -734,21 +722,8 @@ router.put("/:id", async (req, res) => {
       }
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | TRANSACTION
-    |--------------------------------------------------------------------------
-    */
-
     connection = await db.getConnection();
-
     await connection.beginTransaction();
-
-    /*
-    |--------------------------------------------------------------------------
-    | UPDATE USER
-    |--------------------------------------------------------------------------
-    */
 
     await connection.execute(
       `
@@ -762,12 +737,6 @@ router.put("/:id", async (req, res) => {
       `,
       [username, email, roleId, isActive, userId],
     );
-
-    /*
-    |--------------------------------------------------------------------------
-    | FIND EXISTING FACULTY PROFILE
-    |--------------------------------------------------------------------------
-    */
 
     const [facultyRows] = await connection.execute(
       `
@@ -783,12 +752,6 @@ router.put("/:id", async (req, res) => {
 
     let facultyId = facultyRows.length > 0 ? facultyRows[0].faculty_id : null;
 
-    /*
-    |--------------------------------------------------------------------------
-    | FACULTY / PROGRAM HEAD PROFILE
-    |--------------------------------------------------------------------------
-    */
-
     if (needsFacultyProfile) {
       if (facultyId) {
         await connection.execute(
@@ -798,22 +761,31 @@ router.put("/:id", async (req, res) => {
             first_name = ?,
             middle_name = ?,
             last_name = ?,
+            gender = ?,
+            birth_date = ?,
+            contact_number = ?,
             email = ?,
-            department_id = ?
+            department_id = ?,
+            employment_status = ?,
+            hire_date = ?
           WHERE faculty_id = ?
           `,
           [
             firstName,
-            middleName || null,
+            normalizeOptionalText(middleName),
             lastName,
+            normalizeOptionalText(gender),
+            normalizeOptionalText(birthDate),
+            normalizeOptionalText(contactNumber),
             email,
             departmentId,
+            employmentStatus,
+            normalizeOptionalText(hireDate),
             facultyId,
           ],
         );
       } else {
         const prefix = role === "Program Head" ? "PH" : "FAC";
-
         const employeeNumber = `${prefix}-${String(userId).padStart(4, "0")}`;
 
         const [facultyResult] = await connection.execute(
@@ -825,34 +797,36 @@ router.put("/:id", async (req, res) => {
             first_name,
             middle_name,
             last_name,
+            gender,
+            birth_date,
+            contact_number,
             email,
             department_id,
-            employment_status
+            employment_status,
+            hire_date
           )
           VALUES
-          (?, ?, ?, ?, ?, ?, ?, ?)
+          (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
           `,
           [
             userId,
             employeeNumber,
             firstName,
-            middleName || null,
+            normalizeOptionalText(middleName),
             lastName,
+            normalizeOptionalText(gender),
+            normalizeOptionalText(birthDate),
+            normalizeOptionalText(contactNumber),
             email,
             departmentId,
-            "Regular",
+            employmentStatus,
+            normalizeOptionalText(hireDate),
           ],
         );
 
         facultyId = facultyResult.insertId;
       }
     }
-
-    /*
-    |--------------------------------------------------------------------------
-    | PROGRAM HEAD ASSIGNMENT
-    |--------------------------------------------------------------------------
-    */
 
     if (role === "Program Head" && facultyId) {
       const [programHeadRows] = await connection.execute(
@@ -897,12 +871,6 @@ router.put("/:id", async (req, res) => {
         );
       }
     } else if (facultyId) {
-      /*
-      |--------------------------------------------------------------------------
-      | NO LONGER PROGRAM HEAD
-      |--------------------------------------------------------------------------
-      */
-
       await connection.execute(
         `
         UPDATE program_heads
@@ -923,7 +891,12 @@ router.put("/:id", async (req, res) => {
 
     return res.json({
       success: true,
-      message: "User updated successfully.",
+      message:
+        role === "Program Head"
+          ? "Program Head account and profile updated successfully."
+          : role === "Faculty"
+            ? "Faculty account and profile updated successfully."
+            : "User updated successfully.",
     });
   } catch (err) {
     if (connection) {
@@ -953,6 +926,7 @@ router.put("/:id", async (req, res) => {
     }
   }
 });
+
 
 /*
 |--------------------------------------------------------------------------

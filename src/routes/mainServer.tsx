@@ -98,6 +98,7 @@ import EditUser from "../pages/admin/UserManagement/EditUser";
 
 // ProgramHead
 import ProgramHeadDashboard from "../pages/programhead/dashboard/Dashboard";
+import ProgramHeadProfile from "../pages/programhead/Profile/Profile";
 import AnnouncementProg from "../pages/programhead/Announcement/AnnouncementProg";
 import AnnouncementProgD from "../pages/programhead/Announcement/AnnouncementDProg";
 import PendingGrades from "../pages/programhead/GradeApproval/PendingGrades";
@@ -150,7 +151,6 @@ import FinanceTransactionTypes from "../pages/finance/FinanceTransactionTypes";
 import FinanceReports from "../pages/finance/FinanceReports";
 import GradeChangeRequests from "../pages/programhead/GradeApproval/GradeChangeRequests";
 import GradeChangeRequestsR from "../pages/registrar/StudentRecord/GradeChangeRequestsR";
-import ManualPaymentVerifications from "../pages/registrar/Documents/ManualPaymentVerifications";
 
 // ─── Role guard ───────────────────────────────────────────────
 function ProtectedRoute({
@@ -506,6 +506,11 @@ export default function AppRoutes() {
         />
 
         <Route
+          path="/programhead/profile"
+          element={<ProgramHeadRoute element={<ProgramHeadProfile />} />}
+        />
+
+        <Route
           path="/programhead/announcementprog"
           element={<ProgramHeadRoute element={<AnnouncementProg />} />}
         />
@@ -666,11 +671,6 @@ export default function AppRoutes() {
           path="/registrar/document-requests"
           element={<RegistrarRoute element={<DocumentRequest />} />}
         />
-        <Route
-          path="/registrar/manual-payment"
-          element={<RegistrarRoute element={<ManualPaymentVerifications />} />}
-        />
-
         {/* ── Finance ── */}
         <Route
           path="/finance/dashboard"
