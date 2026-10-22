@@ -1,10 +1,27 @@
+/* =========================================================
+   SCROLL ROOT
+   The scrollbar is attached to this div.
+   ========================================================= */
+
+.scroll-root {
+  width: 100%;
+  height: 100vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  box-sizing: border-box;
+}
+
+/* =========================================================
+   ABOUT PAGE
+   ========================================================= */
+
 .ptc-about-page {
   --about-green-950: #073b24;
   --about-green-900: #0a4b2d;
   --about-green-800: #0d653b;
   --about-green-700: #0f7a45;
   --about-green-600: #159452;
-  --about-green-100: #dcf5e6;
+  --about-green-100: #dcfce7;
   --about-green-50: #f1fbf5;
   --about-text-950: #17201b;
   --about-text-800: #28352d;
@@ -12,14 +29,39 @@
   --about-text-500: #76827b;
   --about-border: #dfe8e2;
   --about-surface: #ffffff;
-  --about-bg: #f5f8f6;
+  --about-bg: #f4f8f5;
 
   min-height: calc(100vh - 64px);
+
   padding: 42px 40px 58px;
+
   color: var(--about-text-950);
+
   background:
-    radial-gradient(circle at 92% 8%, rgba(21, 148, 82, 0.08), transparent 26%),
-    var(--about-bg);
+    radial-gradient(
+      circle at 12% 14%,
+      rgba(34, 197, 94, 0.10) 0%,
+      rgba(34, 197, 94, 0.045) 26%,
+      transparent 48%
+    ),
+    radial-gradient(
+      circle at 88% 74%,
+      rgba(22, 163, 74, 0.08) 0%,
+      rgba(22, 163, 74, 0.035) 28%,
+      transparent 52%
+    ),
+    linear-gradient(
+      135deg,
+      #f8fbf9 0%,
+      #f1f8f3 45%,
+      #f7faf8 72%,
+      #ffffff 100%
+    );
+
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  background-size: cover;
+
   font-family:
     Inter,
     "Helvetica Neue",
