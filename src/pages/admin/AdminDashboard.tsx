@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Activity,
@@ -22,8 +22,6 @@ import DashboardLayout from "../../components/Layout/DashboardLayout";
 import { authService } from "../../services/auth.service";
 import { apiUrl } from "../../services/api";
 import "../styles/dashboard.css";
-
-const API_BASE_URL = apiUrl("http://localhost:3000");
 
 type DataSource = "users" | "students" | "activity" | "announcements";
 
@@ -68,7 +66,14 @@ interface Announcement {
 
 type SourceErrors = Partial<Record<DataSource, string>>;
 
-const ROLE_ORDER = ["Admin", "Registrar", "Program Head", "Faculty", "Student"];
+const ROLE_ORDER = [
+  "Admin",
+  "Registrar",
+  "Program Head",
+  "Faculty",
+  "Finance",
+  "Student",
+];
 
 function getResponseMessage(payload: unknown, fallback: string) {
   if (!payload || Array.isArray(payload) || typeof payload !== "object") {
@@ -229,6 +234,7 @@ export default function AdminDashboard() {
   const [sourceErrors, setSourceErrors] = useState<SourceErrors>({});
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const dashboardRequest = useRef<AbortController | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
   useEffect(() => {
@@ -251,7 +257,10 @@ export default function AdminDashboard() {
     async (initialLoad = false) => {
       if (!authenticated || userRole !== "Admin") return;
 
+      // Cancel an older request so it cannot replace fresher dashboard data.
+      dashboardRequest.current?.abort();
       const controller = new AbortController();
+      dashboardRequest.current = controller;
 
       if (initialLoad) {
         setLoading(true);
@@ -261,22 +270,22 @@ export default function AdminDashboard() {
 
       const requests = [
         fetchCollection<PortalUser>(
-          `${API_BASE_URL}/api/users`,
+          apiUrl("/api/users"),
           ["users", "data"],
           controller.signal,
         ),
         fetchCollection<StudentRecord>(
-          `${API_BASE_URL}/api/students`,
+          apiUrl("/api/students"),
           ["students", "data"],
           controller.signal,
         ),
         fetchCollection<ActivityLog>(
-          `${API_BASE_URL}/api/activity-logs`,
+          apiUrl("/api/activity-logs"),
           ["logs", "data"],
           controller.signal,
         ),
         fetchCollection<Announcement>(
-          `${API_BASE_URL}/api/announcement-management`,
+          apiUrl("/api/announcement-management"),
           ["announcements", "data"],
           controller.signal,
         ),
@@ -353,13 +362,14 @@ export default function AdminDashboard() {
         setSourceErrors(errors);
         setLastUpdated(new Date());
       } finally {
-        if (!controller.signal.aborted) {
-          setLoading(false);
-          setRefreshing(false);
+        if (dashboardRequest.current === controller) {
+          dashboardRequest.current = null;
+          if (!controller.signal.aborted) {
+            setLoading(false);
+            setRefreshing(false);
+          }
         }
       }
-
-      return () => controller.abort();
     },
     [authenticated, userRole, navigate],
   );
@@ -368,6 +378,11 @@ export default function AdminDashboard() {
     if (!authenticated || userRole !== "Admin") return;
 
     void loadDashboard(true);
+
+    return () => {
+      dashboardRequest.current?.abort();
+      dashboardRequest.current = null;
+    };
   }, [authenticated, userRole, loadDashboard]);
 
   const activeUsers = useMemo(() => users.filter(isActiveUser).length, [users]);

@@ -624,7 +624,7 @@ export default function LoginForm() {
                   type="button"
                   className={styles.devBtn}
                   disabled={loading}
-                  onClick={() => handleDevLogin("registrar")}
+                  onClick={() => handleDevLogin("MR.RYAN")}
                 >
                   Login as Registrar
                 </button>
@@ -635,7 +635,7 @@ export default function LoginForm() {
                   type="button"
                   className={styles.devBtn}
                   disabled={loading}
-                  onClick={() => handleDevLogin("proghead")}
+                  onClick={() => handleDevLogin("MR.LG")}
                 >
                   Login as Program Head
                 </button>
@@ -646,7 +646,7 @@ export default function LoginForm() {
                   type="button"
                   className={styles.devBtn}
                   disabled={loading}
-                  onClick={() => handleDevLogin("faculty")}
+                  onClick={() => handleDevLogin("MR.SHANE")}
                 >
                   Login as Faculty
                 </button>
@@ -657,7 +657,7 @@ export default function LoginForm() {
                   type="button"
                   className={styles.devBtn}
                   disabled={loading}
-                  onClick={() => handleDevLogin("26BSIT-0008")}
+                  onClick={() => handleDevLogin("26BSIT-0001")}
                 >
                   Login as Student
                 </button>
