@@ -440,14 +440,6 @@ export default function ClassPROG() {
   const [error, setError] = useState("");
   const [refreshKey, setRefreshKey] = useState(0);
 
-  const [search, setSearch] = useState("");
-  const [academicYearFilter, setAcademicYearFilter] = useState("All");
-  const [semesterFilter, setSemesterFilter] = useState("All");
-  const [courseFilter, setCourseFilter] = useState("All");
-  const [facultyFilter, setFacultyFilter] = useState("All");
-  const [statusFilter, setStatusFilter] = useState("All");
-  const [gradingFilter, setGradingFilter] = useState("All");
-
   const [selectedClass, setSelectedClass] = useState<ClassItem | null>(null);
 
   const [gradebook, setGradebook] = useState<GradebookResponse | null>(null);
@@ -532,13 +524,19 @@ export default function ClassPROG() {
           );
         }
 
-        const loadedClasses = Array.isArray(data.classes)
-          ? data.classes.filter((item) =>
-              [1, 2].includes(Number(item.academic_period.semester_id)),
-            )
-          : [];
+        const loadedProgramHead = data.program_head || null;
+        const ownFacultyId = Number(loadedProgramHead?.faculty_id || 0);
+        const loadedClasses =
+          Array.isArray(data.classes) && ownFacultyId > 0
+            ? data.classes.filter(
+                (item) =>
+                  [1, 2].includes(Number(item.academic_period.semester_id)) &&
+                  item.offering_status !== "Cancelled" &&
+                  Number(item.faculty?.faculty_id || 0) === ownFacultyId,
+              )
+            : [];
 
-        setProgramHead(data.program_head || null);
+        setProgramHead(loadedProgramHead);
         setClasses(loadedClasses);
       } catch (requestError) {
         if (
@@ -572,155 +570,6 @@ export default function ClassPROG() {
     };
   }, [authenticated, userRole, navigate, refreshKey]);
 
-  const academicYears = useMemo(() => {
-    const values = new Map<number, string>();
-
-    classes.forEach((item) => {
-      values.set(
-        item.academic_period.academic_year_id,
-        item.academic_period.academic_year,
-      );
-    });
-
-    return Array.from(values.entries()).sort((a, b) => b[0] - a[0]);
-  }, [classes]);
-
-  const semesters = useMemo(() => {
-    const values = new Map<number, string>();
-
-    classes.forEach((item) => {
-      const semesterId = Number(item.academic_period.semester_id);
-
-      if (![1, 2].includes(semesterId)) {
-        return;
-      }
-
-      values.set(semesterId, item.academic_period.semester_name);
-    });
-
-    return Array.from(values.entries()).sort((a, b) => a[0] - b[0]);
-  }, [classes]);
-
-  const courses = useMemo(() => {
-    return Array.from(
-      new Map(
-        classes.map((item) => [
-          item.section.course.course_id,
-          item.section.course.course_code,
-        ]),
-      ).entries(),
-    ).sort((a, b) => a[1].localeCompare(b[1]));
-  }, [classes]);
-
-  const faculties = useMemo(() => {
-    return Array.from(
-      new Map(
-        classes
-          .filter((item) => item.faculty !== null)
-          .map((item) => [
-            item.faculty!.faculty_id,
-            item.faculty!.faculty_name,
-          ]),
-      ).entries(),
-    ).sort((a, b) => a[1].localeCompare(b[1]));
-  }, [classes]);
-
-  const filteredClasses = useMemo(() => {
-    const normalizedSearch = search.trim().toLowerCase();
-
-    return classes.filter((item) => {
-      const facultyName = item.faculty?.faculty_name || "";
-      const employeeNumber = item.faculty?.employee_number || "";
-
-      const matchesSearch =
-        !normalizedSearch ||
-        item.subject.subject_code.toLowerCase().includes(normalizedSearch) ||
-        item.subject.subject_name.toLowerCase().includes(normalizedSearch) ||
-        item.section.section_name.toLowerCase().includes(normalizedSearch) ||
-        item.section.course.course_code
-          .toLowerCase()
-          .includes(normalizedSearch) ||
-        item.section.course.course_name
-          .toLowerCase()
-          .includes(normalizedSearch) ||
-        facultyName.toLowerCase().includes(normalizedSearch) ||
-        employeeNumber.toLowerCase().includes(normalizedSearch);
-
-      const matchesAcademicYear =
-        academicYearFilter === "All" ||
-        String(item.academic_period.academic_year_id) === academicYearFilter;
-
-      const matchesSemester =
-        semesterFilter === "All" ||
-        String(item.academic_period.semester_id) === semesterFilter;
-
-      const matchesCourse =
-        courseFilter === "All" ||
-        String(item.section.course.course_id) === courseFilter;
-
-      const matchesFaculty =
-        facultyFilter === "All" ||
-        (facultyFilter === "Unassigned"
-          ? item.faculty === null
-          : String(item.faculty?.faculty_id) === facultyFilter);
-
-      const matchesStatus =
-        statusFilter === "All" || item.offering_status === statusFilter;
-
-      const matchesGrading =
-        gradingFilter === "All" ||
-        (gradingFilter === "Ready"
-          ? item.grading_ready
-          : gradingFilter === "Blocked"
-            ? !item.grading_ready
-            : true);
-
-      return (
-        matchesSearch &&
-        matchesAcademicYear &&
-        matchesSemester &&
-        matchesCourse &&
-        matchesFaculty &&
-        matchesStatus &&
-        matchesGrading
-      );
-    });
-  }, [
-    classes,
-    search,
-    academicYearFilter,
-    semesterFilter,
-    courseFilter,
-    facultyFilter,
-    statusFilter,
-    gradingFilter,
-  ]);
-
-  const summary = useMemo(() => {
-    return {
-      totalClasses: filteredClasses.length,
-
-      gradingReady: filteredClasses.filter((item) => item.grading_ready).length,
-
-      withoutFaculty: filteredClasses.filter((item) => !item.faculty).length,
-
-      officialStudents: filteredClasses.reduce(
-        (total, item) => total + item.capacity.official_students,
-        0,
-      ),
-
-      submittedGrades: filteredClasses.reduce(
-        (total, item) => total + item.grades.submitted,
-        0,
-      ),
-
-      approvedGrades: filteredClasses.reduce(
-        (total, item) => total + item.grades.approved,
-        0,
-      ),
-    };
-  }, [filteredClasses]);
-
   const directGradeResult = useMemo(
     () =>
       calculateGrade(
@@ -730,16 +579,6 @@ export default function ClassPROG() {
       ),
     [directForm.prelim_grade, directForm.midterm_grade, directForm.final_grade],
   );
-
-  const clearFilters = () => {
-    setSearch("");
-    setAcademicYearFilter("All");
-    setSemesterFilter("All");
-    setCourseFilter("All");
-    setFacultyFilter("All");
-    setStatusFilter("All");
-    setGradingFilter("All");
-  };
 
   const refreshClasses = () => {
     setRefreshKey((current) => current + 1);
@@ -778,7 +617,6 @@ export default function ClassPROG() {
       setGradebook(data);
     } catch (requestError) {
       console.error("LOAD PROGRAM HEAD CLASS GRADEBOOK ERROR:", requestError);
-
       setGradebook(null);
 
       setGradebookError(
@@ -1167,250 +1005,34 @@ export default function ClassPROG() {
         <section className="programhead-class-header">
           <div>
             <span className="programhead-class-eyebrow">Program Head</span>
-
-            <h1>Class Management</h1>
-
+            <h1>My Classes</h1>
             <p>
-              Monitor department classes, Faculty assignments, official
-              students, schedules, grade progress, and authorized direct grade
-              encoding.
+              View classes assigned to your faculty account. Open a class to
+              review students and manage grades.
             </p>
+            {programHead && (
+              <small className="programhead-classes-owner">
+                {programHead.program_head_name} ·{" "}
+                {programHead.department.department_name}
+              </small>
+            )}
           </div>
-
           <button
             type="button"
             className="programhead-class-refresh"
             onClick={refreshClasses}
             disabled={loading}
           >
-            {loading ? "Refreshing..." : "Refresh Classes"}
+            {loading ? "Refreshing..." : "Refresh"}
           </button>
         </section>
 
-        {programHead && (
-          <section className="programhead-class-profile">
-            <div>
-              <span>Program Head</span>
-
-              <strong>{programHead.program_head_name}</strong>
-            </div>
-
-            <div>
-              <span>Employee Number</span>
-
-              <strong>{programHead.employee_number}</strong>
-            </div>
-
-            <div>
-              <span>Department</span>
-
-              <strong>{programHead.department.department_code}</strong>
-
-              <small>{programHead.department.department_name}</small>
-            </div>
-
-            <div>
-              <span>Department Classes</span>
-
-              <strong>{classes.length}</strong>
-            </div>
-          </section>
-        )}
-
-        <section className="programhead-class-summary">
-          <article>
-            <span>Total Classes</span>
-
-            <strong>{summary.totalClasses}</strong>
-
-            <small>Current filtered result</small>
-          </article>
-
-          <article>
-            <span>Grading Ready</span>
-
-            <strong>{summary.gradingReady}</strong>
-
-            <small>Faculty assigned</small>
-          </article>
-
-          <article>
-            <span>Without Faculty</span>
-
-            <strong>{summary.withoutFaculty}</strong>
-
-            <small>Requires assignment</small>
-          </article>
-
-          <article>
-            <span>Official Students</span>
-
-            <strong>{summary.officialStudents}</strong>
-
-            <small>Approved enrollment</small>
-          </article>
-
-          <article>
-            <span>Submitted Grades</span>
-
-            <strong>{summary.submittedGrades}</strong>
-
-            <small>Waiting for review</small>
-          </article>
-
-          <article>
-            <span>Approved Grades</span>
-
-            <strong>{summary.approvedGrades}</strong>
-
-            <small>Official results</small>
-          </article>
-        </section>
-
-        <section className="programhead-class-filter-panel">
-          <div className="programhead-class-filter-title">
-            <div>
-              <span>Class Directory</span>
-
-              <h2>Department Classes</h2>
-            </div>
-
-            <p>
-              {filteredClasses.length} of {classes.length} classes shown
-            </p>
-          </div>
-
-          <div className="programhead-class-filters">
-            <div className="programhead-class-search">
-              <label htmlFor="programhead-class-search">Search</label>
-
-              <input
-                id="programhead-class-search"
-                type="text"
-                value={search}
-                onChange={(event) => setSearch(event.target.value)}
-                placeholder="Subject, section, course, faculty..."
-              />
-            </div>
-
-            <div>
-              <label>Academic Year</label>
-
-              <select
-                value={academicYearFilter}
-                onChange={(event) => setAcademicYearFilter(event.target.value)}
-              >
-                <option value="All">All</option>
-
-                {academicYears.map(([id, label]) => (
-                  <option key={id} value={id}>
-                    {label}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label>Semester</label>
-
-              <select
-                value={semesterFilter}
-                onChange={(event) => setSemesterFilter(event.target.value)}
-              >
-                <option value="All">All</option>
-
-                {semesters.map(([id, label]) => (
-                  <option key={id} value={id}>
-                    {label}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label>Course</label>
-
-              <select
-                value={courseFilter}
-                onChange={(event) => setCourseFilter(event.target.value)}
-              >
-                <option value="All">All</option>
-
-                {courses.map(([id, label]) => (
-                  <option key={id} value={id}>
-                    {label}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label>Faculty</label>
-
-              <select
-                value={facultyFilter}
-                onChange={(event) => setFacultyFilter(event.target.value)}
-              >
-                <option value="All">All</option>
-
-                <option value="Unassigned">Unassigned</option>
-
-                {faculties.map(([id, label]) => (
-                  <option key={id} value={id}>
-                    {label}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label>Class Status</label>
-
-              <select
-                value={statusFilter}
-                onChange={(event) => setStatusFilter(event.target.value)}
-              >
-                <option value="All">All</option>
-
-                <option value="Open">Open</option>
-
-                <option value="Closed">Closed</option>
-              </select>
-            </div>
-
-            <div>
-              <label>Grading</label>
-
-              <select
-                value={gradingFilter}
-                onChange={(event) => setGradingFilter(event.target.value)}
-              >
-                <option value="All">All</option>
-
-                <option value="Ready">Ready</option>
-
-                <option value="Blocked">Blocked</option>
-              </select>
-            </div>
-
-            <button
-              type="button"
-              className="programhead-class-clear"
-              onClick={clearFilters}
-            >
-              Clear Filters
-            </button>
-          </div>
-        </section>
-
         {error && (
-          <section className="programhead-class-error">
+          <section className="programhead-class-error" role="alert">
             <div>
               <strong>Classes could not be loaded</strong>
-
               <p>{error}</p>
             </div>
-
             <button type="button" onClick={refreshClasses}>
               Try Again
             </button>
@@ -1418,220 +1040,104 @@ export default function ClassPROG() {
         )}
 
         {!error && (
-          <section className="programhead-class-table-card">
+          <section className="programhead-classes-list">
+            <header className="programhead-classes-list__heading">
+              <h2>Assigned classes</h2>
+              <span>
+                {loading
+                  ? "Loading..."
+                  : `${classes.length} class${classes.length === 1 ? "" : "es"}`}
+              </span>
+            </header>
+
             {loading ? (
               <div className="programhead-class-state">
                 <div className="programhead-class-spinner" />
-
-                <strong>Loading department classes</strong>
-
+                <strong>Loading your classes</strong>
+              </div>
+            ) : classes.length === 0 ? (
+              <div className="programhead-class-state">
+                <strong>No classes assigned</strong>
                 <p>
-                  Retrieving class offerings, Faculty assignments, and grade
-                  progress.
+                  Classes assigned to your faculty account will appear here.
                 </p>
               </div>
-            ) : filteredClasses.length === 0 ? (
-              <div className="programhead-class-state">
-                <div className="programhead-class-state-icon">0</div>
-
-                <strong>No classes found</strong>
-
-                <p>No department classes match the selected filters.</p>
-
-                <button type="button" onClick={clearFilters}>
-                  Clear Filters
-                </button>
-              </div>
             ) : (
-              <div className="programhead-class-table-scroll">
-                <table className="programhead-class-table">
+              <div className="programhead-classes-list__scroll">
+                <table className="programhead-classes-list__table">
                   <thead>
                     <tr>
-                      <th>Class</th>
-                      <th>Section</th>
-                      <th>Faculty</th>
-                      <th>Academic Period</th>
+                      <th>Subject</th>
+                      <th>Course and section</th>
+                      <th>Academic period</th>
                       <th>Schedule</th>
-                      <th>Students</th>
-                      <th>Grade Progress</th>
+                      <th>Students and grades</th>
                       <th>Status</th>
                       <th>Action</th>
                     </tr>
                   </thead>
-
                   <tbody>
-                    {filteredClasses.map((item) => {
-                      const totalStudents = item.capacity.official_students;
-
-                      const approvedPercent =
-                        totalStudents > 0
-                          ? Math.min(
-                              100,
-                              Math.round(
-                                (item.grades.approved / totalStudents) * 100,
-                              ),
-                            )
-                          : 0;
-
-                      return (
-                        <tr key={item.offering_id}>
-                          <td>
-                            <div className="programhead-class-subject">
-                              <div className="programhead-class-subject-code">
-                                {item.subject.subject_code}
-                              </div>
-
-                              <div>
-                                <strong>{item.subject.subject_name}</strong>
-
-                                <span>
-                                  {item.subject.units} unit
-                                  {item.subject.units === 1 ? "" : "s"}
-                                </span>
-                              </div>
-                            </div>
-                          </td>
-
-                          <td>
-                            <div className="programhead-class-section">
-                              <strong>{item.section.section_name}</strong>
-
-                              <span>
-                                {item.section.course.course_code} · Year{" "}
-                                {item.section.year_level}
-                              </span>
-                            </div>
-                          </td>
-
-                          <td>
-                            {item.faculty ? (
-                              <div className="programhead-class-faculty">
-                                <strong>{item.faculty.faculty_name}</strong>
-
-                                <span>{item.faculty.employee_number}</span>
-                              </div>
-                            ) : (
-                              <span className="programhead-class-unassigned">
-                                No Faculty
-                              </span>
-                            )}
-                          </td>
-
-                          <td>
-                            <div className="programhead-class-period">
-                              <strong>
-                                {item.academic_period.academic_year}
-                              </strong>
-
-                              <span>{item.academic_period.semester_name}</span>
-
-                              {item.academic_period
-                                .is_current_academic_year && (
-                                <small>Current AY</small>
-                              )}
-                            </div>
-                          </td>
-
-                          <td>
-                            <div className="programhead-class-schedule">
-                              <strong>{formatDays(item.schedule.days)}</strong>
-
-                              <span>
-                                {item.schedule.time || "No time assigned"}
-                              </span>
-
-                              <small>{getRoomLabel(item.room)}</small>
-                            </div>
-                          </td>
-
-                          <td>
-                            <div className="programhead-class-capacity">
-                              <strong>{item.capacity.official_students}</strong>
-
-                              <span>/ {item.capacity.max_students || "—"}</span>
-                            </div>
-                          </td>
-
-                          <td>
-                            <div className="programhead-class-grade-progress">
-                              <div className="programhead-class-grade-line">
-                                <span>
-                                  Approved {item.grades.approved}/
-                                  {totalStudents}
-                                </span>
-
-                                <strong>{approvedPercent}%</strong>
-                              </div>
-
-                              <div className="programhead-class-progress-track">
-                                <div
-                                  className="programhead-class-progress-value"
-                                  style={{
-                                    width: `${approvedPercent}%`,
-                                  }}
-                                />
-                              </div>
-
-                              <div className="programhead-class-grade-counts">
-                                {item.grades.submitted > 0 && (
-                                  <span className="submitted">
-                                    {item.grades.submitted} submitted
-                                  </span>
-                                )}
-
-                                {item.grades.returned > 0 && (
-                                  <span className="returned">
-                                    {item.grades.returned} returned
-                                  </span>
-                                )}
-
-                                {item.grades.draft > 0 && (
-                                  <span className="draft">
-                                    {item.grades.draft} draft
-                                  </span>
-                                )}
-
-                                {item.grades.without_grade > 0 && (
-                                  <span className="none">
-                                    {item.grades.without_grade} no grade
-                                  </span>
-                                )}
-                              </div>
-                            </div>
-                          </td>
-
-                          <td>
-                            <div className="programhead-class-status-stack">
-                              <span
-                                className={`programhead-class-status ${item.offering_status.toLowerCase()}`}
-                              >
-                                {item.offering_status}
-                              </span>
-
-                              <span
-                                className={`programhead-class-grading-status ${
-                                  item.grading_ready ? "ready" : "blocked"
-                                }`}
-                              >
-                                {item.grading_ready
-                                  ? "Grading Ready"
-                                  : "Grading Blocked"}
-                              </span>
-                            </div>
-                          </td>
-
-                          <td>
-                            <button
-                              type="button"
-                              className="programhead-class-manage"
-                              onClick={() => void openClass(item)}
-                            >
-                              Manage
-                            </button>
-                          </td>
-                        </tr>
-                      );
-                    })}
+                    {classes.map((item) => (
+                      <tr key={item.offering_id}>
+                        <td>
+                          <strong>{item.subject.subject_code}</strong>
+                          <span>{item.subject.subject_name}</span>
+                          <small>{item.subject.units} units</small>
+                        </td>
+                        <td>
+                          <strong>{item.section.section_name}</strong>
+                          <span>
+                            {item.section.course.course_code} · Year{" "}
+                            {item.section.year_level}
+                          </span>
+                        </td>
+                        <td>
+                          <strong>{item.academic_period.academic_year}</strong>
+                          <span>{item.academic_period.semester_name}</span>
+                        </td>
+                        <td>
+                          <strong>{formatDays(item.schedule.days)}</strong>
+                          <span>
+                            {item.schedule.time || "No time assigned"}
+                          </span>
+                          <small>{getRoomLabel(item.room)}</small>
+                        </td>
+                        <td>
+                          <strong>
+                            {item.capacity.official_students} /{" "}
+                            {item.capacity.max_students || "—"}
+                          </strong>
+                          <span>
+                            {item.grades.approved} approved ·{" "}
+                            {item.grades.submitted} submitted
+                          </span>
+                          <small>
+                            {item.grades.without_grade} without grades
+                          </small>
+                        </td>
+                        <td>
+                          <span
+                            className={`programhead-class-status ${item.offering_status.toLowerCase()}`}
+                          >
+                            {item.offering_status}
+                          </span>
+                          <small className="programhead-classes-list__grading">
+                            {item.grading_ready
+                              ? "Grade review ready"
+                              : "Grade review blocked"}
+                          </small>
+                        </td>
+                        <td>
+                          <button
+                            type="button"
+                            className="programhead-class-manage"
+                            onClick={() => void openClass(item)}
+                          >
+                            Manage grades
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
               </div>
@@ -1735,7 +1241,6 @@ export default function ClassPROG() {
                   <strong>Class gradebook could not be loaded</strong>
 
                   <p>{gradebookError}</p>
-
                   <button
                     type="button"
                     onClick={() => void loadGradebook(selectedClass)}

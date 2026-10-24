@@ -1,4 +1,4 @@
-// programHeadNav.ts
+// src/config/progheadNav.tsx
 
 export const programHeadSoloLinks = [
   {
@@ -20,6 +20,29 @@ export const programHeadSoloLinks = [
 
 export const programHeadNavGroups = [
   {
+    id: "class-management",
+    label: "Class Management",
+    icon: "📋",
+    children: [
+      {
+        label: "My Teaching Schedule",
+        path: "/programhead/class/schedule",
+      },
+      {
+        label: "Classes",
+        path: "/programhead/class/management",
+      },
+      {
+        label: "Offering Batches",
+        path: "/programhead/class/offering-batches",
+      },
+      {
+        label: "Faculty Schedule Summary",
+        path: "/programhead/class/faculty-schedule-summary",
+      },
+    ],
+  },
+  {
     id: "grade-approval",
     label: "Grade Approval",
     icon: "📋",
@@ -35,25 +58,6 @@ export const programHeadNavGroups = [
       {
         label: "Transfer Evaluations",
         path: "/programhead/transfer-evaluations",
-      },
-    ],
-  },
-  {
-    id: "class-management",
-    label: "Class Management",
-    icon: "📋",
-    children: [
-      {
-        label: "Classes",
-        path: "/programhead/class/management",
-      },
-      {
-        label: "Faculty Schedules",
-        path: "/programhead/class/faculty-schedules",
-      },
-      {
-        label: "My Teaching Schedule",
-        path: "/programhead/class/schedule",
       },
     ],
   },

@@ -1,2141 +1,1194 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
-
-import { useNavigate } from "react-router-dom";
-
+import {
+  type FormEvent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import {
   AlertCircle,
   BookOpenCheck,
   CalendarDays,
-  GraduationCap,
-  Layers3,
-  Plus,
+  CheckCircle2,
+  ClipboardList,
+  Eye,
   RefreshCw,
-  RotateCcw,
-  Settings2,
-  Sparkles,
+  Send,
   UsersRound,
+  X,
 } from "lucide-react";
-
 import DashboardLayout from "../../../components/Layout/DashboardLayout";
 import { authService } from "../../../services/auth.service";
 import { apiUrl } from "../../../services/api";
-import "../../../styles/ClassOfferingManagementR.css";
+import "../../../styles/OfferingBatchesR.css";
 
-import OfferingSetupFilters, {
-  type AcademicYearOption,
-  type SemesterOption,
-  type CourseOption,
-  type CurriculumOption,
-  type SectionOption,
-} from "./components/OfferingSetupFilters";
+const BATCH_API = apiUrl("/api/registrar/offering-batches");
+const SETUP_API = apiUrl("/api/registrar/offerings/setup-data");
 
-import OfferingReadiness, {
-  type OfferingReadinessSummary,
-} from "./components/OfferingReadiness";
+interface ApiResponse {
+  success: boolean;
+  message?: string;
+  error?: string;
+}
 
-import OfferingTable, {
-  type OfferingTableSubject,
-} from "./components/OfferingTable";
+interface AcademicYearOption {
+  academic_year_id: number;
+  academic_year: string;
+  is_current?: boolean | number;
+}
 
-import AddOfferingModal from "./components/AddOfferingModal";
+interface OpenPeriod {
+  enrollment_period_id: number;
+  academic_year_id: number;
+  semester_id: number;
+  academic_year: string;
+  semester_name: string;
+  status: string;
+}
 
-import EditOfferingModal from "./EditOfferingModal";
+interface CourseOption {
+  course_id: number;
+  course_code: string;
+  course_name: string;
+  total_years?: number;
+}
 
-import OfferingStatusModal from "./OfferingStatusModal";
+interface CurriculumOption {
+  curriculum_id: number;
+  course_id: number;
+  curriculum_name: string;
+  effective_year: number;
+  is_active?: boolean | number;
+}
 
-import SectionSubjectStatusModal from "./SectionSubjectStatusModal";
+interface SectionOption {
+  section_id: number;
+  section_name: string;
+  course_id: number;
+  academic_year_id: number;
+  year_level: number;
+  max_students: number;
+}
 
-import AddSpecialOfferingModal from "./AddSpecialOfferingModal";
+interface ProgramHeadOption {
+  user_id: number;
+  faculty_id: number;
+  program_head_name: string;
+  username: string;
+  department_id?: number;
+}
 
-import PrepareSectionSubjectsModal from "./PrepareSectionSubjectsModal";
+interface BatchOffering {
+  offering_id: number;
+  subject_code: string;
+  subject_name: string;
+  units: number;
+  section_name: string;
+  faculty_name: string | null;
+  schedule_days: string | null;
+  schedule_time: string | null;
+  offering_status: string;
+}
 
-// =====================================================
-// API
-// =====================================================
+interface BatchListItem {
+  batch_id: number;
+  academic_year_id: number;
+  academic_year: string;
+  semester_id: number;
+  semester_name: string;
+  course_id: number;
+  course_code: string;
+  course_name: string;
+  curriculum_id: number;
+  curriculum_name: string;
+  year_level: number;
+  batch_status: string;
+  offering_count: number;
+  scheduled_count: number;
+  submitted_at?: string;
+  returned_at?: string | null;
+  published_at?: string | null;
+}
 
-const API_BASE_URL = apiUrl("/api/registrar/offerings");
+interface BatchDetail extends BatchListItem {
+  section_ids?: number[];
+  program_head_user_id?: number;
+  submitted_by?: number;
+  returned_by?: number | null;
+  published_by?: number | null;
+  offerings: BatchOffering[];
+}
 
-// =====================================================
-// SAFE JSON
-// =====================================================
+interface SetupResponse extends ApiResponse {
+  academic_years?: AcademicYearOption[];
+  courses?: CourseOption[];
+  curricula?: CurriculumOption[];
+}
 
-async function readJsonResponse<T>(response: Response): Promise<T> {
+interface OpenPeriodsResponse extends ApiResponse {
+  open_periods?: OpenPeriod[];
+}
+
+interface SectionsResponse extends ApiResponse {
+  sections?: SectionOption[];
+  required_subject_count?: number;
+}
+
+interface ProgramHeadsResponse extends ApiResponse {
+  program_heads?: ProgramHeadOption[];
+}
+
+interface BatchListResponse extends ApiResponse {
+  batches?: BatchListItem[];
+}
+
+interface BatchDetailResponse extends ApiResponse {
+  batch?: BatchDetail;
+}
+
+interface CreateBatchResponse extends ApiResponse {
+  batch?: {
+    batch_id: number;
+    offering_count: number;
+    batch_status: string;
+  };
+}
+
+interface PublishResponse extends ApiResponse {
+  batch_id?: number;
+  published_offering_count?: number;
+}
+
+async function readResponse<T>(response: Response): Promise<T> {
   const contentType = response.headers.get("content-type") || "";
-
   if (!contentType.includes("application/json")) {
     const text = await response.text();
-
     throw new Error(
-      `Server returned a non-JSON response (${response.status}): ${text.slice(
-        0,
-        200,
-      )}`,
+      "Server returned a non-JSON response (" +
+        response.status +
+        "): " +
+        text.slice(0, 180),
     );
   }
-
   return response.json() as Promise<T>;
 }
 
-// =====================================================
-// SETUP TYPES
-// =====================================================
-
-interface FacultyOption {
-  faculty_id: number;
-
-  user_id?: number;
-
-  employee_number?: string;
-
-  faculty_name?: string;
-
-  first_name?: string;
-
-  middle_name?: string | null;
-
-  last_name?: string;
-
-  department_id?: number | null;
-
-  department_name?: string;
-
-  employment_status?: string;
-
-  username?: string;
-
-  role_id?: number;
-
-  role_name?: string;
-
-  is_active?: boolean;
-
-  is_verified?: boolean;
+function getErrorMessage(data: ApiResponse, fallback: string): string {
+  return data.message || data.error || fallback;
 }
 
-interface RoomOption {
-  room_id: number;
-
-  room_name: string;
-
-  room_code?: string;
-
-  capacity?: number;
+function formatDate(value?: string | null): string {
+  if (!value) return "—";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  return date.toLocaleString();
 }
 
-// =====================================================
-// SETUP SECTION SUBJECT SHAPE
-//
-// setup-data may expose section-subject fields either
-// flat or nested depending on the backend formatter.
-// We support both so Special / Retake rows can be
-// normalized to OfferingTableSubject safely.
-// =====================================================
-
-interface SetupSectionSubjectRow {
-  section_subject_id?: number;
-
-  subject_id?: number;
-
-  section_subject_status?: "Open" | "Closed" | "Cancelled" | string;
-
-  status?: "Open" | "Closed" | "Cancelled" | string;
-
-  max_students?: number;
-
-  subject?: {
-    subject_id?: number;
-  } | null;
-
-  section_subject?: {
-    section_subject_id?: number;
-
-    status?: "Open" | "Closed" | "Cancelled" | string;
-
-    max_students?: number;
-  } | null;
+function statusClass(status: string): string {
+  return status.toLowerCase().replace(/\s+/g, "-");
 }
-
-// =====================================================
-// SETUP OFFERING SHAPE
-//
-// setup-data / special readiness rows may expose offering
-// fields either flat or nested.  We normalize both forms.
-// =====================================================
-
-interface SetupOfferingRow {
-  offering_id?: number;
-
-  section_subject_id?: number;
-
-  subject_id?: number;
-
-  section_id?: number;
-
-  faculty_id?: number | null;
-
-  room_id?: number | null;
-
-  academic_year_id?: number;
-
-  semester_id?: number;
-
-  schedule_days?: string | null;
-
-  schedule_time?: string | null;
-
-  max_students?: number;
-
-  offering_max_students?: number;
-
-  enrolled_count?: number;
-
-  available_slots?: number;
-
-  status?: "Open" | "Closed" | "Cancelled" | string;
-
-  offering_status?: "Open" | "Closed" | "Cancelled" | string;
-
-  faculty_name?: string | null;
-
-  room_name?: string | null;
-
-  faculty?: {
-    faculty_id?: number;
-
-    faculty_name?: string;
-  } | null;
-
-  room?: {
-    room_id?: number;
-
-    room_name?: string;
-  } | null;
-
-  schedule?: {
-    days?: string | null;
-
-    time?: string | null;
-  } | null;
-
-  capacity?: {
-    max_students?: number;
-
-    enrolled_count?: number;
-
-    available_slots?: number;
-
-    is_full?: boolean;
-  } | null;
-
-  offering?: {
-    offering_id?: number;
-
-    section_subject_id?: number;
-
-    status?: "Open" | "Closed" | "Cancelled" | string;
-
-    faculty?: {
-      faculty_id?: number;
-
-      faculty_name?: string;
-    } | null;
-
-    room?: {
-      room_id?: number;
-
-      room_name?: string;
-    } | null;
-
-    schedule?: {
-      days?: string | null;
-
-      time?: string | null;
-    } | null;
-
-    capacity?: {
-      max_students?: number;
-
-      enrolled_count?: number;
-
-      available_slots?: number;
-
-      is_full?: boolean;
-    } | null;
-
-    schedule_days?: string | null;
-
-    schedule_time?: string | null;
-
-    max_students?: number;
-
-    enrolled_count?: number;
-  } | null;
-}
-
-// =====================================================
-// SETUP RESPONSE
-// =====================================================
-
-interface SetupDataResponse {
-  success: boolean;
-
-  message?: string;
-
-  error?: string;
-
-  academic_years?: AcademicYearOption[];
-
-  semesters?: SemesterOption[];
-
-  courses?: CourseOption[];
-
-  year_levels?: number[];
-
-  curricula?: CurriculumOption[];
-
-  sections?: SectionOption[];
-
-  faculty?: FacultyOption[];
-
-  rooms?: RoomOption[];
-
-  curriculum_subjects?: unknown[];
-
-  section_subjects?: SetupSectionSubjectRow[];
-
-  offerings?: SetupOfferingRow[];
-
-  // Legacy compatibility only; current backend setup-data returns `offerings`.
-  subject_offerings?: SetupOfferingRow[];
-
-  counts?: Record<string, number>;
-
-  actor?: {
-    user_id: number;
-
-    username: string;
-  };
-}
-
-// =====================================================
-// READINESS RESPONSE
-// =====================================================
-
-interface ReadinessResponse {
-  success: boolean;
-
-  message?: string;
-
-  error?: string;
-
-  ready: boolean;
-
-  academic_period: {
-    academic_year_id: number;
-
-    academic_year: string;
-
-    semester_id: number;
-
-    semester_name: string;
-  };
-
-  course: {
-    course_id: number;
-
-    course_code: string;
-
-    course_name: string;
-  };
-
-  curriculum: {
-    curriculum_id: number;
-
-    curriculum_name: string;
-
-    effective_year: number;
-
-    is_active: boolean;
-  };
-
-  section: {
-    section_id: number;
-
-    section_name: string;
-
-    year_level: number;
-
-    max_students: number;
-  };
-
-  summary: OfferingReadinessSummary;
-
-  subjects: OfferingTableSubject[];
-
-  extra_section_subjects: OfferingTableSubject[];
-
-  actor?: {
-    user_id: number;
-
-    username: string;
-  };
-}
-
-// =====================================================
-// COMPONENT
-// =====================================================
 
 export default function ClassOfferingManagementR() {
-  const navigate = useNavigate();
-
-  // =====================================================
-  // AUTH
-  // =====================================================
-
-  const user = authService.getSession();
-
-  const userRole = user?.role;
-
-  // =====================================================
-  // ACADEMIC SETUP
-  // =====================================================
+  const session = authService.getSession();
+  const userRole = session?.role;
+  const [periods, setPeriods] = useState<OpenPeriod[]>([]);
+  const [courses, setCourses] = useState<CourseOption[]>([]);
+  const [curricula, setCurricula] = useState<CurriculumOption[]>([]);
+  const [sections, setSections] = useState<SectionOption[]>([]);
+  const [programHeads, setProgramHeads] = useState<ProgramHeadOption[]>([]);
 
   const [academicYearId, setAcademicYearId] = useState("");
-
   const [semesterId, setSemesterId] = useState("");
-
   const [courseId, setCourseId] = useState("");
-
   const [yearLevel, setYearLevel] = useState("");
-
   const [curriculumId, setCurriculumId] = useState("");
+  const [programHeadUserId, setProgramHeadUserId] = useState("");
+  const [selectedSectionIds, setSelectedSectionIds] = useState<number[]>([]);
 
-  const [sectionId, setSectionId] = useState("");
+  const [requiredSubjectCount, setRequiredSubjectCount] = useState(0);
+  const [initialLoading, setInitialLoading] = useState(true);
+  const [curriculaLoading, setCurriculaLoading] = useState(false);
+  const [sectionsLoading, setSectionsLoading] = useState(false);
+  const [hasLoadedSections, setHasLoadedSections] = useState(false);
+  const [programHeadsLoading, setProgramHeadsLoading] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [queueLoading, setQueueLoading] = useState(false);
+  const [publishingBatchId, setPublishingBatchId] = useState<number | null>(
+    null,
+  );
 
-  // =====================================================
-  // SETUP DATA
-  // =====================================================
-
-  const [setupData, setSetupData] = useState<SetupDataResponse | null>(null);
-
-  const [setupLoading, setSetupLoading] = useState(true);
-
-  const [setupError, setSetupError] = useState("");
-
-  // =====================================================
-  // READINESS
-  // =====================================================
-
-  const [readiness, setReadiness] = useState<ReadinessResponse | null>(null);
-
-  const [readinessLoading, setReadinessLoading] = useState(false);
-
-  const [readinessError, setReadinessError] = useState("");
-
-  // =====================================================
-  // SELECTED SUBJECT
-  // =====================================================
-
-  const [selectedSubject, setSelectedSubject] =
-    useState<OfferingTableSubject | null>(null);
-
-  // =====================================================
-  // MODALS
-  // =====================================================
-
-  const [showPrepareSectionSubjects, setShowPrepareSectionSubjects] =
-    useState(false);
-
-  const [showAddOffering, setShowAddOffering] = useState(false);
-
-  const [showEditOffering, setShowEditOffering] = useState(false);
-
-  const [showOfferingStatus, setShowOfferingStatus] = useState(false);
-
-  const [showSectionSubjectStatus, setShowSectionSubjectStatus] =
-    useState(false);
-
-  const [showAddSpecialOffering, setShowAddSpecialOffering] = useState(false);
-
-  // =====================================================
-  // REFRESH
-  // =====================================================
-
+  const [batches, setBatches] = useState<BatchListItem[]>([]);
+  const [statusFilter, setStatusFilter] = useState("All");
+  const [selectedBatch, setSelectedBatch] = useState<BatchDetail | null>(null);
+  const [detailLoading, setDetailLoading] = useState(false);
+  const [initialError, setInitialError] = useState("");
+  const [formError, setFormError] = useState("");
+  const [queueError, setQueueError] = useState("");
+  const [notice, setNotice] = useState("");
   const [refreshKey, setRefreshKey] = useState(0);
-
-  // =====================================================
-  // ROLE GUARD
-  // =====================================================
-
-  useEffect(() => {
-    if (userRole !== "Registrar") {
-      navigate("/login", {
-        replace: true,
-      });
-    }
-  }, [userRole, navigate]);
-
-  // =====================================================
-  // UNAUTHORIZED
-  // =====================================================
 
   const handleUnauthorized = useCallback(() => {
     authService.logout();
+    window.location.assign("/login");
+  }, []);
 
-    navigate("/login", {
-      replace: true,
-    });
-  }, [navigate]);
+  const requestJson = useCallback(
+    async <T extends ApiResponse>(
+      url: string,
+      options: RequestInit = {},
+    ): Promise<T> => {
+      const headers = new Headers(options.headers || {});
+      headers.set("Accept", "application/json");
+      const response = await authService.authFetch(url, {
+        ...options,
+        headers,
+      });
 
-  // =====================================================
-  // SETUP QUERY
-  // =====================================================
-
-  const setupQueryString = useMemo(() => {
-    const params = new URLSearchParams();
-
-    if (academicYearId) {
-      params.set("academic_year_id", academicYearId);
-    }
-
-    const semesterIsSupported = [1, 2].includes(Number(semesterId));
-
-    if (semesterIsSupported) {
-      params.set("semester_id", semesterId);
-    }
-
-    if (courseId) {
-      params.set("course_id", courseId);
-    }
-
-    if (yearLevel) {
-      params.set("year_level", yearLevel);
-    }
-
-    if (curriculumId) {
-      params.set("curriculum_id", curriculumId);
-    }
-
-    if (sectionId) {
-      params.set("section_id", sectionId);
-    }
-
-    return params.toString();
-  }, [
-    academicYearId,
-    semesterId,
-    courseId,
-    yearLevel,
-    curriculumId,
-    sectionId,
-  ]);
-
-  // =====================================================
-  // LOAD SETUP DATA
-  // =====================================================
+      const data = await readResponse<T>(response);
+      if (response.status === 401) {
+        handleUnauthorized();
+        throw new Error("Your session expired. Please sign in again.");
+      }
+      if (!response.ok || data.success === false) {
+        throw new Error(
+          getErrorMessage(data, "The request could not be completed."),
+        );
+      }
+      return data;
+    },
+    [handleUnauthorized],
+  );
 
   useEffect(() => {
-    if (userRole !== "Registrar") {
-      return;
-    }
-
+    if (userRole !== "Registrar") return;
     const controller = new AbortController();
+    let active = true;
 
-    const loadSetupData = async () => {
+    const loadInitialData = async () => {
+      setInitialLoading(true);
+      setInitialError("");
       try {
-        setSetupLoading(true);
-
-        setSetupError("");
-
-        const url = setupQueryString
-          ? `${API_BASE_URL}/setup-data?${setupQueryString}`
-          : `${API_BASE_URL}/setup-data`;
-
-        console.log("GET REGISTRAR OFFERING SETUP:", url);
-
-        const response = await authService.authFetch(url, {
-          method: "GET",
-
-          signal: controller.signal,
-
-          headers: {
-            Accept: "application/json",
-          },
-        });
-
-        const data = await readJsonResponse<SetupDataResponse>(response);
-
-        // ===============================================
-        // 401
-        // ===============================================
-
-        if (response.status === 401) {
-          handleUnauthorized();
-
-          return;
-        }
-
-        // ===============================================
-        // 403
-        // ===============================================
-
-        if (response.status === 403) {
-          throw new Error(
-            data.message ||
-              data.error ||
-              "You are not authorized to manage class offerings.",
-          );
-        }
-
-        // ===============================================
-        // API ERROR
-        // ===============================================
-
-        if (!response.ok || !data.success) {
-          throw new Error(
-            data.message ||
-              data.error ||
-              "Failed to load class offering setup data.",
-          );
-        }
-
-        // ===============================================
-        // SUCCESS
-        //
-        // PTC Portal supports only:
-        // 1 = First Semester
-        // 2 = Second Semester
-        //
-        // Summer is intentionally excluded.
-        // Backend remains authoritative, but the parent
-        // sanitizes setup data before it reaches children.
-        // ===============================================
-
-        const supportedSemesters = (data.semesters || []).filter((semester) =>
-          [1, 2].includes(Number(semester.semester_id)),
-        );
-
-        setSetupData({
-          ...data,
-          semesters: supportedSemesters,
-        });
+        const [periodData, setupData] = await Promise.all([
+          requestJson<OpenPeriodsResponse>(BATCH_API + "/open-periods", {
+            signal: controller.signal,
+          }),
+          requestJson<SetupResponse>(SETUP_API, {
+            signal: controller.signal,
+          }),
+        ]);
+        if (!active) return;
+        setPeriods(periodData.open_periods || []);
+        setCourses(setupData.courses || []);
       } catch (error) {
-        if (error instanceof DOMException && error.name === "AbortError") {
+        if (error instanceof DOMException && error.name === "AbortError")
           return;
-        }
-
-        console.error("LOAD OFFERING SETUP ERROR:", error);
-
-        setSetupData(null);
-
-        setSetupError(
+        if (!active) return;
+        setInitialError(
           error instanceof Error
             ? error.message
-            : "Unable to load class offering setup.",
+            : "Could not load Registrar setup data.",
         );
       } finally {
-        if (!controller.signal.aborted) {
-          setSetupLoading(false);
-        }
+        if (active) setInitialLoading(false);
       }
     };
 
-    loadSetupData();
-
+    void loadInitialData();
     return () => {
+      active = false;
       controller.abort();
     };
-  }, [userRole, setupQueryString, refreshKey, handleUnauthorized]);
+  }, [userRole, requestJson, refreshKey]);
 
-  // =====================================================
-  // AUTO SELECT CURRENT ACADEMIC YEAR
-  // =====================================================
+  const academicYears = useMemo(() => {
+    const unique = new Map<number, AcademicYearOption>();
+    periods.forEach((period) => {
+      unique.set(period.academic_year_id, {
+        academic_year_id: period.academic_year_id,
+        academic_year: period.academic_year,
+      });
+    });
+    return Array.from(unique.values());
+  }, [periods]);
+
+  const semestersForYear = useMemo(
+    () =>
+      periods.filter(
+        (period) => String(period.academic_year_id) === academicYearId,
+      ),
+    [periods, academicYearId],
+  );
+
+  const selectedCourse = useMemo(
+    () => courses.find((course) => String(course.course_id) === courseId),
+    [courses, courseId],
+  );
+
+  const yearLevels = useMemo(() => {
+    const totalYears = Number(selectedCourse?.total_years || 4);
+    return Array.from(
+      { length: Math.max(1, Math.min(totalYears, 8)) },
+      (_, index) => index + 1,
+    );
+  }, [selectedCourse]);
+
+  const selectedPeriod = useMemo(
+    () =>
+      periods.find(
+        (period) =>
+          String(period.academic_year_id) === academicYearId &&
+          String(period.semester_id) === semesterId,
+      ),
+    [periods, academicYearId, semesterId],
+  );
 
   useEffect(() => {
-    if (academicYearId || !setupData?.academic_years?.length) {
+    if (!courseId) {
+      setCurricula([]);
+      setCurriculumId("");
       return;
     }
+    const controller = new AbortController();
+    let active = true;
+    setCurriculaLoading(true);
+    setCurricula([]);
+    setCurriculumId("");
 
-    const currentAcademicYear = setupData.academic_years.find(
-      (item) => item.is_current,
-    );
+    requestJson<SetupResponse>(
+      SETUP_API + "?course_id=" + encodeURIComponent(courseId),
+      {
+        signal: controller.signal,
+      },
+    )
+      .then((data) => {
+        if (active) setCurricula(data.curricula || []);
+      })
+      .catch((error: unknown) => {
+        if (error instanceof DOMException && error.name === "AbortError")
+          return;
+        if (active)
+          setFormError(
+            error instanceof Error
+              ? error.message
+              : "Could not load curricula.",
+          );
+      })
+      .finally(() => {
+        if (active) setCurriculaLoading(false);
+      });
 
-    if (currentAcademicYear) {
-      setAcademicYearId(String(currentAcademicYear.academic_year_id));
+    return () => {
+      active = false;
+      controller.abort();
+    };
+  }, [courseId, requestJson]);
+
+  useEffect(() => {
+    if (!courseId) {
+      setProgramHeads([]);
+      setProgramHeadUserId("");
+      return;
     }
-  }, [setupData?.academic_years, academicYearId]);
+    const controller = new AbortController();
+    let active = true;
+    setProgramHeadsLoading(true);
+    setProgramHeads([]);
+    setProgramHeadUserId("");
 
-  // =====================================================
-  // SELECTION COMPLETE
-  // =====================================================
+    requestJson<ProgramHeadsResponse>(
+      BATCH_API + "/program-heads?course_id=" + encodeURIComponent(courseId),
+      { signal: controller.signal },
+    )
+      .then((data) => {
+        if (active) setProgramHeads(data.program_heads || []);
+      })
+      .catch((error: unknown) => {
+        if (error instanceof DOMException && error.name === "AbortError")
+          return;
+        if (active)
+          setFormError(
+            error instanceof Error
+              ? error.message
+              : "Could not load Program Heads.",
+          );
+      })
+      .finally(() => {
+        if (active) setProgramHeadsLoading(false);
+      });
 
-  const semesterIsSupported = [1, 2].includes(Number(semesterId));
-
-  const selectionComplete =
-    Boolean(academicYearId) &&
-    semesterIsSupported &&
-    Boolean(courseId) &&
-    Boolean(yearLevel) &&
-    Boolean(curriculumId) &&
-    Boolean(sectionId);
-
-  // =====================================================
-  // READINESS QUERY
-  // =====================================================
-
-  const readinessQueryString = useMemo(() => {
-    if (!selectionComplete) {
-      return "";
-    }
-
-    const params = new URLSearchParams();
-
-    params.set("academic_year_id", academicYearId);
-
-    params.set("semester_id", semesterId);
-
-    params.set("course_id", courseId);
-
-    params.set("year_level", yearLevel);
-
-    params.set("curriculum_id", curriculumId);
-
-    params.set("section_id", sectionId);
-
-    return params.toString();
-  }, [
-    selectionComplete,
-    academicYearId,
-    semesterId,
-    courseId,
-    yearLevel,
-    curriculumId,
-    sectionId,
-  ]);
-
-  // =====================================================
-  // LOAD READINESS
-  // =====================================================
+    return () => {
+      active = false;
+      controller.abort();
+    };
+  }, [courseId, requestJson]);
 
   useEffect(() => {
     if (
-      userRole !== "Registrar" ||
-      !selectionComplete ||
-      !readinessQueryString
+      !academicYearId ||
+      !semesterId ||
+      !courseId ||
+      !yearLevel ||
+      !curriculumId
     ) {
-      setReadiness(null);
-
-      setReadinessError("");
-
+      setSections([]);
+      setSelectedSectionIds([]);
+      setRequiredSubjectCount(0);
+      setHasLoadedSections(false);
       return;
     }
 
     const controller = new AbortController();
+    let active = true;
+    const params = new URLSearchParams({
+      academic_year_id: academicYearId,
+      semester_id: semesterId,
+      course_id: courseId,
+      curriculum_id: curriculumId,
+      year_level: yearLevel,
+    });
+    setSectionsLoading(true);
+    setSections([]);
+    setSelectedSectionIds([]);
+    setFormError("");
 
-    const loadReadiness = async () => {
-      try {
-        setReadinessLoading(true);
-
-        setReadinessError("");
-
-        const url = `${API_BASE_URL}/readiness?${readinessQueryString}`;
-
-        console.log("GET REGISTRAR OFFERING READINESS:", url);
-
-        const response = await authService.authFetch(url, {
-          method: "GET",
-
-          signal: controller.signal,
-
-          headers: {
-            Accept: "application/json",
-          },
-        });
-
-        const data = await readJsonResponse<ReadinessResponse>(response);
-
-        // ===============================================
-        // 401
-        // ===============================================
-
-        if (response.status === 401) {
-          handleUnauthorized();
-
+    requestJson<SectionsResponse>(
+      BATCH_API + "/sections?" + params.toString(),
+      {
+        signal: controller.signal,
+      },
+    )
+      .then((data) => {
+        if (!active) return;
+        setSections(data.sections || []);
+        setRequiredSubjectCount(Number(data.required_subject_count || 0));
+        setHasLoadedSections(true);
+      })
+      .catch((error: unknown) => {
+        if (error instanceof DOMException && error.name === "AbortError")
           return;
-        }
-
-        // ===============================================
-        // 403
-        // ===============================================
-
-        if (response.status === 403) {
-          throw new Error(
-            data.message ||
-              data.error ||
-              "You are not authorized to view offering readiness.",
+        if (active)
+          setFormError(
+            error instanceof Error
+              ? error.message
+              : "Could not load matching sections.",
           );
-        }
-
-        // ===============================================
-        // API ERROR
-        // ===============================================
-
-        if (!response.ok || !data.success) {
-          throw new Error(
-            data.message || data.error || "Failed to load offering readiness.",
-          );
-        }
-
-        // ===============================================
-        // SUCCESS
-        // ===============================================
-
-        setReadiness(data);
-      } catch (error) {
-        if (error instanceof DOMException && error.name === "AbortError") {
-          return;
-        }
-
-        console.error("LOAD OFFERING READINESS ERROR:", error);
-
-        setReadiness(null);
-
-        setReadinessError(
-          error instanceof Error
-            ? error.message
-            : "Unable to load offering readiness.",
-        );
-      } finally {
-        if (!controller.signal.aborted) {
-          setReadinessLoading(false);
-        }
-      }
-    };
-
-    loadReadiness();
+      })
+      .finally(() => {
+        if (active) setSectionsLoading(false);
+      });
 
     return () => {
+      active = false;
       controller.abort();
     };
   }, [
-    userRole,
-    selectionComplete,
-    readinessQueryString,
-    refreshKey,
-    handleUnauthorized,
+    academicYearId,
+    semesterId,
+    courseId,
+    yearLevel,
+    curriculumId,
+    requestJson,
   ]);
 
-  // =====================================================
-  // OPTION ARRAYS
-  // =====================================================
-
-  const academicYears = setupData?.academic_years || [];
-
-  const semesters = (setupData?.semesters || []).filter((semester) =>
-    [1, 2].includes(Number(semester.semester_id)),
-  );
-
-  const courses = setupData?.courses || [];
-
-  const curricula = setupData?.curricula || [];
-
-  const sections = setupData?.sections || [];
-
-  const faculty = setupData?.faculty || [];
-
-  const rooms = setupData?.rooms || [];
-
-  // =====================================================
-  // SELECTED SETUP OBJECTS
-  // =====================================================
-
-  const selectedAcademicYear = academicYears.find(
-    (item) => String(item.academic_year_id) === academicYearId,
-  );
-
-  const selectedSemester = semesterIsSupported
-    ? semesters.find((item) => String(item.semester_id) === semesterId)
-    : undefined;
-
-  const selectedCourse = courses.find(
-    (item) => String(item.course_id) === courseId,
-  );
-
-  const selectedCurriculum = curricula.find(
-    (item) => String(item.curriculum_id) === curriculumId,
-  );
-
-  const selectedSection = sections.find(
-    (item) => String(item.section_id) === sectionId,
-  );
-
-  // =====================================================
-  // ENRICH CURRICULUM OFFERINGS WITH INSTRUCTOR ROLE
-  //
-  // Readiness contains the assigned faculty ID, while
-  // setup-data contains the authenticated user's actual
-  // teaching role. Match them here so the table can show
-  // Faculty vs Program Head without changing the backend
-  // readiness response shape.
-  // =====================================================
-
-  const normalizedCurriculumSubjects = useMemo<OfferingTableSubject[]>(() => {
-    const subjects = readiness?.subjects || [];
-
-    return subjects.map((item) => {
-      if (!item.offering?.faculty) {
-        return item;
-      }
-
-      const assignedFacultyId = Number(item.offering.faculty.faculty_id);
-
-      const instructor = faculty.find(
-        (candidate) => Number(candidate.faculty_id) === assignedFacultyId,
+  const loadBatches = useCallback(async () => {
+    setQueueLoading(true);
+    setQueueError("");
+    try {
+      const data = await requestJson<BatchListResponse>(BATCH_API);
+      setBatches(data.batches || []);
+    } catch (error) {
+      setQueueError(
+        error instanceof Error
+          ? error.message
+          : "Could not load offering batches.",
       );
-
-      if (!instructor) {
-        return item;
-      }
-
-      return {
-        ...item,
-
-        offering: {
-          ...item.offering,
-
-          faculty: {
-            ...item.offering.faculty,
-            employee_number: instructor.employee_number,
-            role_name: instructor.role_name,
-          },
-        },
-      };
-    });
-  }, [readiness?.subjects, faculty]);
-
-  // =====================================================
-  // NORMALIZE SPECIAL / RETAKE SUBJECTS
-  //
-  // Special / retake readiness rows must behave exactly
-  // like normal OfferingTableSubject rows.
-  //
-  // We therefore resolve BOTH layers:
-  //
-  //   section_subject
-  //   subject_offering
-  //
-  // Primary relationship:
-  //   subject_offerings.section_subject_id
-  //       =
-  //   section_subjects.section_subject_id
-  //
-  // This prevents a real existing offering from being
-  // rendered as "NO OFFERING".
-  // =====================================================
-
-  const normalizedSpecialSubjects = useMemo<OfferingTableSubject[]>(() => {
-    const extraSubjects = readiness?.extra_section_subjects || [];
-
-    const setupSectionSubjects = setupData?.section_subjects || [];
-
-    const setupOfferings =
-      setupData?.offerings || setupData?.subject_offerings || [];
-
-    const getFacultyNameById = (facultyId: number | null) => {
-      if (!facultyId) {
-        return null;
-      }
-
-      const match = faculty.find(
-        (item) => Number(item.faculty_id) === facultyId,
-      );
-
-      if (!match) {
-        return `Faculty #${facultyId}`;
-      }
-
-      if (match.faculty_name) {
-        return match.faculty_name;
-      }
-
-      const name = [match.first_name, match.middle_name, match.last_name]
-        .filter(Boolean)
-        .join(" ");
-
-      return name || `Faculty #${facultyId}`;
-    };
-
-    const getRoomNameById = (roomId: number | null) => {
-      if (!roomId) {
-        return null;
-      }
-
-      const match = rooms.find((item) => Number(item.room_id) === roomId);
-
-      return match?.room_name || `Room #${roomId}`;
-    };
-
-    return extraSubjects.map((item) => {
-      // -------------------------------------------------
-      // RAW SPECIAL ROW
-      // -------------------------------------------------
-
-      const rawItem = item as OfferingTableSubject &
-        SetupSectionSubjectRow &
-        SetupOfferingRow;
-
-      // -------------------------------------------------
-      // RESOLVE SECTION SUBJECT
-      // -------------------------------------------------
-
-      const setupSectionMatch = setupSectionSubjects.find((row) => {
-        const rowSectionSubjectId = Number(
-          row.section_subject?.section_subject_id ??
-            row.section_subject_id ??
-            0,
-        );
-
-        const itemSectionSubjectId = Number(
-          item.section_subject?.section_subject_id ??
-            rawItem.section_subject_id ??
-            0,
-        );
-
-        if (rowSectionSubjectId > 0 && itemSectionSubjectId > 0) {
-          return rowSectionSubjectId === itemSectionSubjectId;
-        }
-
-        const rowSubjectId = Number(
-          row.subject?.subject_id ?? row.subject_id ?? 0,
-        );
-
-        return rowSubjectId === Number(item.subject.subject_id);
-      });
-
-      const sectionSubjectId = Number(
-        item.section_subject?.section_subject_id ??
-          rawItem.section_subject_id ??
-          setupSectionMatch?.section_subject?.section_subject_id ??
-          setupSectionMatch?.section_subject_id ??
-          0,
-      );
-
-      const rawSectionStatus =
-        item.section_subject?.status ??
-        rawItem.section_subject_status ??
-        setupSectionMatch?.section_subject?.status ??
-        setupSectionMatch?.status;
-
-      const sectionSubjectStatus: "Open" | "Closed" | "Cancelled" =
-        rawSectionStatus === "Closed" || rawSectionStatus === "Cancelled"
-          ? rawSectionStatus
-          : "Open";
-
-      const sectionSubjectCapacity = Number(
-        item.section_subject?.max_students ??
-          setupSectionMatch?.section_subject?.max_students ??
-          setupSectionMatch?.max_students ??
-          selectedSection?.max_students ??
-          50,
-      );
-
-      const canonicalSectionSubject =
-        Number.isInteger(sectionSubjectId) && sectionSubjectId > 0
-          ? {
-              section_subject_id: sectionSubjectId,
-
-              status: sectionSubjectStatus,
-
-              max_students:
-                Number.isFinite(sectionSubjectCapacity) &&
-                sectionSubjectCapacity > 0
-                  ? sectionSubjectCapacity
-                  : 50,
-            }
-          : null;
-
-      // -------------------------------------------------
-      // RESOLVE EXISTING OFFERING
-      //
-      // IMPORTANT:
-      // readiness.extra_section_subjects is intentionally
-      // sparse. It may contain only offering_id + status.
-      // setup-data.offerings contains the complete offering
-      // configuration (faculty, room, schedule, capacity).
-      //
-      // Therefore prefer the full setup-data offering matched
-      // by section_subject_id before using the sparse readiness
-      // row.
-      // -------------------------------------------------
-
-      const setupOfferingMatch =
-        sectionSubjectId > 0
-          ? setupOfferings.find((row) => {
-              const nestedSectionSubjectId = Number(
-                row.offering?.section_subject_id ?? 0,
-              );
-
-              const flatSectionSubjectId = Number(row.section_subject_id ?? 0);
-
-              return (
-                nestedSectionSubjectId === sectionSubjectId ||
-                flatSectionSubjectId === sectionSubjectId
-              );
-            })
-          : undefined;
-
-      const rawOfferingSource: SetupOfferingRow | null =
-        setupOfferingMatch ||
-        (item.offering
-          ? ({
-              offering: item.offering,
-            } as SetupOfferingRow)
-          : Number(rawItem.offering_id ?? 0) > 0
-            ? rawItem
-            : null);
-
-      let canonicalOffering: OfferingTableSubject["offering"] = null;
-
-      if (rawOfferingSource) {
-        const nested = rawOfferingSource.offering || null;
-
-        const offeringId = Number(
-          nested?.offering_id ?? rawOfferingSource.offering_id ?? 0,
-        );
-
-        if (Number.isInteger(offeringId) && offeringId > 0) {
-          const rawOfferingStatus =
-            nested?.status ??
-            rawOfferingSource.offering_status ??
-            rawOfferingSource.status;
-
-          const offeringStatus: "Open" | "Closed" | "Cancelled" =
-            rawOfferingStatus === "Open" || rawOfferingStatus === "Cancelled"
-              ? rawOfferingStatus
-              : "Closed";
-
-          const facultyIdValue = Number(
-            nested?.faculty?.faculty_id ??
-              rawOfferingSource.faculty?.faculty_id ??
-              rawOfferingSource.faculty_id ??
-              0,
-          );
-
-          const facultyId =
-            Number.isInteger(facultyIdValue) && facultyIdValue > 0
-              ? facultyIdValue
-              : null;
-
-          const facultyName =
-            nested?.faculty?.faculty_name ??
-            rawOfferingSource.faculty?.faculty_name ??
-            rawOfferingSource.faculty_name ??
-            getFacultyNameById(facultyId);
-
-          const roomIdValue = Number(
-            nested?.room?.room_id ??
-              rawOfferingSource.room?.room_id ??
-              rawOfferingSource.room_id ??
-              0,
-          );
-
-          const roomId =
-            Number.isInteger(roomIdValue) && roomIdValue > 0
-              ? roomIdValue
-              : null;
-
-          const roomName =
-            nested?.room?.room_name ??
-            rawOfferingSource.room?.room_name ??
-            rawOfferingSource.room_name ??
-            getRoomNameById(roomId);
-
-          const scheduleDays =
-            nested?.schedule?.days ??
-            nested?.schedule_days ??
-            rawOfferingSource.schedule?.days ??
-            rawOfferingSource.schedule_days ??
-            null;
-
-          const scheduleTime =
-            nested?.schedule?.time ??
-            nested?.schedule_time ??
-            rawOfferingSource.schedule?.time ??
-            rawOfferingSource.schedule_time ??
-            null;
-
-          const offeringMaxStudents = Number(
-            nested?.capacity?.max_students ??
-              nested?.max_students ??
-              rawOfferingSource.capacity?.max_students ??
-              rawOfferingSource.offering_max_students ??
-              rawOfferingSource.max_students ??
-              canonicalSectionSubject?.max_students ??
-              50,
-          );
-
-          const enrolledCount = Number(
-            nested?.capacity?.enrolled_count ??
-              nested?.enrolled_count ??
-              rawOfferingSource.capacity?.enrolled_count ??
-              rawOfferingSource.enrolled_count ??
-              0,
-          );
-
-          const explicitAvailableSlots =
-            nested?.capacity?.available_slots ??
-            rawOfferingSource.capacity?.available_slots ??
-            rawOfferingSource.available_slots;
-
-          const maxStudents =
-            Number.isFinite(offeringMaxStudents) && offeringMaxStudents > 0
-              ? offeringMaxStudents
-              : canonicalSectionSubject?.max_students || 50;
-
-          const safeEnrolledCount =
-            Number.isFinite(enrolledCount) && enrolledCount >= 0
-              ? enrolledCount
-              : 0;
-
-          const availableSlots =
-            explicitAvailableSlots !== undefined &&
-            explicitAvailableSlots !== null &&
-            Number.isFinite(Number(explicitAvailableSlots))
-              ? Math.max(0, Number(explicitAvailableSlots))
-              : Math.max(0, maxStudents - safeEnrolledCount);
-
-          const explicitIsFull =
-            nested?.capacity?.is_full ?? rawOfferingSource.capacity?.is_full;
-
-          canonicalOffering = {
-            offering_id: offeringId,
-
-            status: offeringStatus,
-
-            faculty:
-              facultyId && facultyName
-                ? {
-                    faculty_id: facultyId,
-
-                    faculty_name: facultyName,
-                  }
-                : null,
-
-            room:
-              roomId && roomName
-                ? {
-                    room_id: roomId,
-
-                    room_name: roomName,
-                  }
-                : null,
-
-            schedule: {
-              days: scheduleDays || null,
-
-              time: scheduleTime || null,
-            },
-
-            capacity: {
-              max_students: maxStudents,
-
-              enrolled_count: safeEnrolledCount,
-
-              available_slots: availableSlots,
-
-              is_full:
-                typeof explicitIsFull === "boolean"
-                  ? explicitIsFull
-                  : maxStudents > 0 && safeEnrolledCount >= maxStudents,
-            },
-          };
-        }
-      }
-
-      // -------------------------------------------------
-      // READINESS FLAGS
-      //
-      // Keep Special / Retake rows aligned with the exact
-      // readiness contract returned by GET /readiness.
-      // -------------------------------------------------
-
-      const hasSectionSubject = Boolean(canonicalSectionSubject);
-
-      const hasOffering = Boolean(canonicalOffering);
-
-      const configurationComplete = Boolean(
-        canonicalOffering &&
-        canonicalOffering.faculty &&
-        canonicalOffering.schedule.days &&
-        canonicalOffering.schedule.time &&
-        canonicalOffering.capacity.max_students > 0,
-      );
-
-      // Match backend GET /readiness exactly.
-      // Capacity fullness is handled by enrollment placement;
-      // it does not make the offering configuration incomplete.
-      const readyForEnrollment = Boolean(
-        configurationComplete &&
-        canonicalSectionSubject?.status === "Open" &&
-        canonicalOffering?.status === "Open",
-      );
-
-      const missingConfiguration: string[] = [];
-
-      // -------------------------------------------------
-      // SECTION SUBJECT
-      // -------------------------------------------------
-
-      if (!hasSectionSubject) {
-        missingConfiguration.push("section_subject");
-      } else if (canonicalSectionSubject?.status !== "Open") {
-        missingConfiguration.push("section_subject_open");
-      }
-
-      // -------------------------------------------------
-      // SUBJECT OFFERING
-      // -------------------------------------------------
-
-      if (!hasOffering) {
-        missingConfiguration.push("offering");
-      } else {
-        if (!canonicalOffering?.faculty) {
-          missingConfiguration.push("faculty_id");
-        }
-
-        if (!canonicalOffering?.schedule.days) {
-          missingConfiguration.push("schedule_days");
-        }
-
-        if (!canonicalOffering?.schedule.time) {
-          missingConfiguration.push("schedule_time");
-        }
-
-        if (Number(canonicalOffering?.capacity.max_students || 0) <= 0) {
-          missingConfiguration.push("max_students");
-        }
-
-        if (canonicalOffering?.status !== "Open") {
-          missingConfiguration.push("offering_open");
-        }
-      }
-
-      if (!hasSectionSubject) {
-        console.warn(
-          "SPECIAL SUBJECT COULD NOT RESOLVE SECTION SUBJECT:",
-          item,
-        );
-      }
-
-      if (hasSectionSubject && !hasOffering && setupOfferings.length > 0) {
-        console.warn("SPECIAL SUBJECT HAS NO RESOLVED OFFERING:", {
-          section_subject_id: sectionSubjectId,
-
-          subject_id: item.subject.subject_id,
-
-          setup_offerings: setupOfferings,
-        });
-      }
-
-      return {
-        ...item,
-
-        section_subject: canonicalSectionSubject,
-
-        offering: canonicalOffering,
-
-        has_section_subject: hasSectionSubject,
-
-        has_offering: hasOffering,
-
-        configuration_complete: configurationComplete,
-
-        ready_for_enrollment: readyForEnrollment,
-
-        missing_configuration: missingConfiguration,
-      };
-    });
-  }, [
-    readiness?.extra_section_subjects,
-    setupData?.section_subjects,
-    setupData?.offerings,
-    setupData?.subject_offerings,
-    selectedSection?.max_students,
-    faculty,
-    rooms,
-  ]);
-
-  // =====================================================
-  // YEAR LEVELS
-  // =====================================================
-
-  const yearLevels = useMemo(() => {
-    if (setupData?.year_levels && setupData.year_levels.length > 0) {
-      return setupData.year_levels;
+    } finally {
+      setQueueLoading(false);
     }
+  }, [requestJson]);
 
-    const selectedCourseOption = courses.find(
-      (course) => String(course.course_id) === courseId,
+  useEffect(() => {
+    if (userRole === "Registrar") void loadBatches();
+  }, [userRole, loadBatches, refreshKey]);
+
+  const visibleBatches = useMemo(
+    () =>
+      statusFilter === "All"
+        ? batches
+        : batches.filter((batch) => batch.batch_status === statusFilter),
+    [batches, statusFilter],
+  );
+
+  const statusCounts = useMemo(
+    () => ({
+      pending: batches.filter(
+        (batch) => batch.batch_status === "Pending Program Head",
+      ).length,
+      ready: batches.filter(
+        (batch) => batch.batch_status === "Ready for Registrar",
+      ).length,
+      published: batches.filter((batch) => batch.batch_status === "Published")
+        .length,
+    }),
+    [batches],
+  );
+
+  const toggleSection = (sectionId: number) => {
+    setSelectedSectionIds((current) =>
+      current.includes(sectionId)
+        ? current.filter((id) => id !== sectionId)
+        : [...current, sectionId],
     );
-
-    const totalYears = Number(selectedCourseOption?.total_years || 0);
-
-    if (totalYears > 0) {
-      return Array.from(
-        {
-          length: totalYears,
-        },
-        (_, index) => index + 1,
-      );
-    }
-
-    return [1, 2, 3, 4];
-  }, [setupData?.year_levels, courses, courseId]);
-
-  // =====================================================
-  // RESET MODALS / SUBJECT
-  // =====================================================
-
-  const resetOfferingUi = () => {
-    setReadiness(null);
-
-    setSelectedSubject(null);
-
-    setShowPrepareSectionSubjects(false);
-
-    setShowAddOffering(false);
-
-    setShowEditOffering(false);
-
-    setShowOfferingStatus(false);
-
-    setShowSectionSubjectStatus(false);
-
-    setShowAddSpecialOffering(false);
   };
 
-  // =====================================================
-  // ACADEMIC YEAR CHANGE
-  // =====================================================
+  const selectAllSections = () => {
+    setSelectedSectionIds((current) =>
+      current.length === sections.length
+        ? []
+        : sections.map((section) => section.section_id),
+    );
+  };
 
   const handleAcademicYearChange = (value: string) => {
     setAcademicYearId(value);
-
     setSemesterId("");
-
-    setCourseId("");
-
-    setYearLevel("");
-
-    setCurriculumId("");
-
-    setSectionId("");
-
-    resetOfferingUi();
+    setSelectedSectionIds([]);
   };
-
-  // =====================================================
-  // SEMESTER CHANGE
-  // =====================================================
-
-  const handleSemesterChange = (value: string) => {
-    const normalizedSemesterId = [1, 2].includes(Number(value)) ? value : "";
-
-    setSemesterId(normalizedSemesterId);
-
-    setCourseId("");
-
-    setYearLevel("");
-
-    setCurriculumId("");
-
-    setSectionId("");
-
-    resetOfferingUi();
-  };
-
-  // =====================================================
-  // COURSE CHANGE
-  // =====================================================
 
   const handleCourseChange = (value: string) => {
     setCourseId(value);
-
     setYearLevel("");
-
     setCurriculumId("");
-
-    setSectionId("");
-
-    resetOfferingUi();
+    setSelectedSectionIds([]);
+    setFormError("");
   };
 
-  // =====================================================
-  // YEAR LEVEL CHANGE
-  // =====================================================
+  const handleCreateBatch = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setFormError("");
+    setNotice("");
 
-  const handleYearLevelChange = (value: string) => {
-    setYearLevel(value);
-
-    setCurriculumId("");
-
-    setSectionId("");
-
-    resetOfferingUi();
-  };
-
-  // =====================================================
-  // CURRICULUM CHANGE
-  // =====================================================
-
-  const handleCurriculumChange = (value: string) => {
-    setCurriculumId(value);
-
-    setSectionId("");
-
-    resetOfferingUi();
-  };
-
-  // =====================================================
-  // SECTION CHANGE
-  // =====================================================
-
-  const handleSectionChange = (value: string) => {
-    setSectionId(value);
-
-    resetOfferingUi();
-  };
-
-  // =====================================================
-  // REFRESH
-  // =====================================================
-
-  const refreshOfferingData = useCallback(() => {
-    setRefreshKey((current) => current + 1);
-  }, []);
-
-  // =====================================================
-  // PREPARE SECTION SUBJECTS
-  // =====================================================
-
-  const openPrepareSectionSubjects = () => {
-    if (!selectionComplete) {
+    if (!selectedPeriod) {
+      setFormError("Select an academic year and an open semester.");
+      return;
+    }
+    if (!courseId || !curriculumId || !yearLevel) {
+      setFormError("Select the course, curriculum, and year level.");
+      return;
+    }
+    if (selectedSectionIds.length === 0) {
+      setFormError("Select at least one section to send.");
+      return;
+    }
+    if (!programHeadUserId) {
+      setFormError("Choose the Program Head who will receive this batch.");
       return;
     }
 
-    setShowPrepareSectionSubjects(true);
-  };
-
-  const closePrepareSectionSubjects = () => {
-    setShowPrepareSectionSubjects(false);
-  };
-
-  const handlePrepareSectionSubjectsSuccess = () => {
-    setShowPrepareSectionSubjects(false);
-
-    refreshOfferingData();
-  };
-
-  // =====================================================
-  // CREATE OFFERING
-  // =====================================================
-
-  const openAddOffering = (subject: OfferingTableSubject) => {
-    setSelectedSubject(subject);
-
-    setShowAddOffering(true);
-  };
-
-  const closeAddOfferingModal = () => {
-    setShowAddOffering(false);
-
-    setSelectedSubject(null);
-  };
-
-  const handleAddOfferingSuccess = () => {
-    refreshOfferingData();
-  };
-
-  // =====================================================
-  // EDIT OFFERING
-  // =====================================================
-
-  const openEditOffering = (subject: OfferingTableSubject) => {
-    setSelectedSubject(subject);
-
-    setShowEditOffering(true);
-  };
-
-  const closeEditOfferingModal = () => {
-    setShowEditOffering(false);
-
-    setSelectedSubject(null);
-  };
-
-  const handleEditOfferingSuccess = () => {
-    refreshOfferingData();
-  };
-
-  // =====================================================
-  // OFFERING STATUS
-  // =====================================================
-
-  const openOfferingStatus = (subject: OfferingTableSubject) => {
-    setSelectedSubject(subject);
-
-    setShowOfferingStatus(true);
-  };
-
-  const closeOfferingStatusModal = () => {
-    setShowOfferingStatus(false);
-
-    setSelectedSubject(null);
-  };
-
-  const handleOfferingStatusSuccess = () => {
-    setShowOfferingStatus(false);
-
-    setSelectedSubject(null);
-
-    refreshOfferingData();
-  };
-
-  // =====================================================
-  // SECTION SUBJECT STATUS
-  // =====================================================
-
-  const openSectionSubjectStatus = (subject: OfferingTableSubject) => {
-    setSelectedSubject(subject);
-
-    setShowSectionSubjectStatus(true);
-  };
-
-  const closeSectionSubjectStatusModal = () => {
-    setShowSectionSubjectStatus(false);
-
-    setSelectedSubject(null);
-  };
-
-  const handleSectionSubjectStatusSuccess = () => {
-    setShowSectionSubjectStatus(false);
-
-    setSelectedSubject(null);
-
-    refreshOfferingData();
-  };
-
-  // =====================================================
-  // SPECIAL / RETAKE OFFERING
-  // =====================================================
-
-  const openAddSpecialOffering = () => {
-    if (!selectionComplete) {
-      return;
+    setSubmitting(true);
+    try {
+      const data = await requestJson<CreateBatchResponse>(BATCH_API, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          academic_year_id: Number(academicYearId),
+          semester_id: Number(semesterId),
+          course_id: Number(courseId),
+          curriculum_id: Number(curriculumId),
+          year_level: Number(yearLevel),
+          section_ids: selectedSectionIds,
+          program_head_user_id: Number(programHeadUserId),
+        }),
+      });
+      const createdCount = Number(data.batch?.offering_count || 0);
+      setNotice(
+        (data.message || "Offering batch sent to the Program Head.") +
+          (createdCount
+            ? " " + createdCount + " unassigned offerings were created."
+            : ""),
+      );
+      setSelectedSectionIds([]);
+      await loadBatches();
+    } catch (error) {
+      setFormError(
+        error instanceof Error
+          ? error.message
+          : "Could not create the offering batch.",
+      );
+    } finally {
+      setSubmitting(false);
     }
-
-    // Special / Retake creation is its own workflow.
-    // Clear any subject previously selected by Edit / Status
-    // so stale row state cannot leak into this modal.
-    setSelectedSubject(null);
-
-    setShowAddSpecialOffering(true);
   };
 
-  const closeAddSpecialOfferingModal = () => {
-    setShowAddSpecialOffering(false);
-
-    setSelectedSubject(null);
+  const openBatchDetail = async (batchId: number) => {
+    setSelectedBatch(null);
+    setDetailLoading(true);
+    setQueueError("");
+    try {
+      const data = await requestJson<BatchDetailResponse>(
+        BATCH_API + "/" + batchId,
+      );
+      setSelectedBatch(data.batch || null);
+    } catch (error) {
+      setQueueError(
+        error instanceof Error
+          ? error.message
+          : "Could not load batch details.",
+      );
+    } finally {
+      setDetailLoading(false);
+    }
   };
 
-  const handleAddSpecialOfferingSuccess = () => {
-    // The updated AddSpecialOfferingModal creates:
-    //
-    //   1. special section_subject
-    //   2. linked blank subject_offering
-    //
-    // The blank subject_offering is intentionally Closed and
-    // configuration-incomplete until Registrar edits faculty /
-    // schedule / optional room.
-    setShowAddSpecialOffering(false);
+  const publishBatch = async (batch: BatchDetail) => {
+    if (batch.batch_status !== "Ready for Registrar") return;
+    const confirmed = window.confirm(
+      "Publish batch #" +
+        batch.batch_id +
+        "? Its offerings will become Open and available for enrollment.",
+    );
+    if (!confirmed) return;
 
-    setSelectedSubject(null);
-
-    // refreshKey is consumed by BOTH setup-data and readiness,
-    // so the newly created offering is available to the special
-    // row normalizer immediately after the mutation.
-    refreshOfferingData();
+    setPublishingBatchId(batch.batch_id);
+    setQueueError("");
+    setNotice("");
+    try {
+      const data = await requestJson<PublishResponse>(
+        BATCH_API + "/" + batch.batch_id + "/publish",
+        {
+          method: "POST",
+        },
+      );
+      setNotice(
+        (data.message || "The schedule was published.") +
+          (data.published_offering_count
+            ? " " + data.published_offering_count + " offerings are now open."
+            : ""),
+      );
+      await loadBatches();
+      const refreshed = await requestJson<BatchDetailResponse>(
+        BATCH_API + "/" + batch.batch_id,
+      );
+      setSelectedBatch(refreshed.batch || null);
+    } catch (error) {
+      setQueueError(
+        error instanceof Error
+          ? error.message
+          : "Could not publish this batch.",
+      );
+    } finally {
+      setPublishingBatchId(null);
+    }
   };
 
-  // =====================================================
-  // RESET CURRENT SETUP SELECTION
-  //
-  // Keep the selected/current academic year in place and
-  // clear the remaining cascade. This is frontend-only and
-  // does not mutate offering data.
-  // =====================================================
-
-  const resetSetupSelection = () => {
-    setSemesterId("");
-
-    setCourseId("");
-
-    setYearLevel("");
-
-    setCurriculumId("");
-
-    setSectionId("");
-
-    resetOfferingUi();
-  };
-
-  const hasSetupSelection = Boolean(
-    semesterId || courseId || yearLevel || curriculumId || sectionId,
-  );
-
-  // =====================================================
-  // AUTH GUARD
-  // =====================================================
-
-  if (!user || userRole !== "Registrar") {
-    return null;
-  }
-
-  // =====================================================
-  // RENDER
-  // =====================================================
+  if (userRole !== "Registrar") return null;
 
   return (
     <DashboardLayout>
-      <main className="registrar-class-offering">
-        <section className="registrar-class-offering__hero">
-          <div className="registrar-class-offering__hero-copy">
-            <div className="registrar-class-offering__eyebrow">
-              <span className="registrar-class-offering__eyebrow-icon">
-                <BookOpenCheck size={16} aria-hidden="true" />
-              </span>
-              Registrar · Academic Setup
-            </div>
-
+      <main className="offering-batches-page">
+        <header className="offering-batches-hero">
+          <div>
+            <span className="offering-batches-eyebrow">
+              <BookOpenCheck size={16} /> Registrar · Enrollment
+            </span>
             <h1>Class Offerings</h1>
-
             <p>
-              Prepare section subjects and configure faculty, schedules, rooms,
-              capacity, and enrollment availability for each class offering.
+              Choose an open academic period, select sections, and send the
+              unassigned offerings to a Program Head for scheduling.
             </p>
           </div>
-
-          <div className="registrar-class-offering__hero-actions">
-            {hasSetupSelection && (
-              <button
-                type="button"
-                className="registrar-class-offering__button registrar-class-offering__button--secondary"
-                onClick={resetSetupSelection}
-              >
-                <RotateCcw size={16} aria-hidden="true" />
-                Reset Setup
-              </button>
-            )}
-
-            <button
-              type="button"
-              className="registrar-class-offering__button registrar-class-offering__button--primary"
-              onClick={refreshOfferingData}
-              disabled={setupLoading || readinessLoading}
-            >
-              <RefreshCw
-                size={16}
-                className={
-                  setupLoading || readinessLoading
-                    ? "registrar-class-offering__spin"
-                    : undefined
-                }
-                aria-hidden="true"
-              />
-              Refresh
-            </button>
-          </div>
-        </section>
+          <button
+            type="button"
+            className="offering-batches-button offering-batches-button--secondary"
+            onClick={() => setRefreshKey((value) => value + 1)}
+            disabled={initialLoading || queueLoading}
+          >
+            <RefreshCw size={16} /> Refresh
+          </button>
+        </header>
 
         <section
-          className="registrar-class-offering__overview"
-          aria-label="Selected class offering setup"
+          className="offering-batches-stats"
+          aria-label="Batch status summary"
         >
-          <article className="registrar-class-offering__overview-card">
-            <span className="registrar-class-offering__overview-icon">
-              <CalendarDays size={18} aria-hidden="true" />
-            </span>
-            <div>
-              <span>Academic Period</span>
-              <strong>
-                {selectedAcademicYear?.academic_year || "Select year"}
-              </strong>
-              <small>
-                {selectedSemester?.semester_name || "Semester not selected"}
-              </small>
-            </div>
+          <article>
+            <span>Pending Program Head</span>
+            <strong>{statusCounts.pending}</strong>
           </article>
-
-          <article className="registrar-class-offering__overview-card">
-            <span className="registrar-class-offering__overview-icon">
-              <GraduationCap size={18} aria-hidden="true" />
-            </span>
-            <div>
-              <span>Program</span>
-              <strong>{selectedCourse?.course_code || "Select course"}</strong>
-              <small>
-                {yearLevel
-                  ? `Year ${yearLevel}`
-                  : selectedCourse?.course_name || "Year level not selected"}
-              </small>
-            </div>
+          <article>
+            <span>Ready for Registrar</span>
+            <strong>{statusCounts.ready}</strong>
           </article>
-
-          <article className="registrar-class-offering__overview-card">
-            <span className="registrar-class-offering__overview-icon">
-              <UsersRound size={18} aria-hidden="true" />
-            </span>
-            <div>
-              <span>Section</span>
-              <strong>
-                {selectedSection?.section_name || "Select section"}
-              </strong>
-              <small>
-                {selectedSection?.max_students
-                  ? `Capacity ${selectedSection.max_students}`
-                  : selectedCurriculum?.curriculum_name ||
-                    "Curriculum and section not selected"}
-              </small>
-            </div>
-          </article>
-
-          <article
-            className={`registrar-class-offering__overview-card ${
-              readiness?.ready
-                ? "registrar-class-offering__overview-card--ready"
-                : ""
-            }`}
-          >
-            <span className="registrar-class-offering__overview-icon">
-              <Layers3 size={18} aria-hidden="true" />
-            </span>
-            <div>
-              <span>Enrollment Readiness</span>
-              <strong>
-                {!selectionComplete
-                  ? "Awaiting setup"
-                  : readinessLoading
-                    ? "Checking…"
-                    : readiness?.ready
-                      ? "Ready"
-                      : readiness
-                        ? "Needs setup"
-                        : "Not checked"}
-              </strong>
-              <small>
-                {readiness
-                  ? `${readiness.summary.ready_for_enrollment}/${readiness.summary.curriculum_subjects} curriculum offerings ready`
-                  : "Complete the setup filters to check readiness"}
-              </small>
-            </div>
+          <article>
+            <span>Published</span>
+            <strong>{statusCounts.published}</strong>
           </article>
         </section>
 
-        {setupError && (
-          <div className="class-offering-error" role="alert">
-            <AlertCircle size={18} aria-hidden="true" />
-            <div>
-              <strong>Unable to load offering setup</strong>
-              <span>{setupError}</span>
-            </div>
-            <button type="button" onClick={refreshOfferingData}>
-              Try Again
-            </button>
+        {initialError && (
+          <div className="offering-batches-alert offering-batches-alert--error">
+            <AlertCircle size={18} />
+            {initialError}
+          </div>
+        )}
+        {notice && (
+          <div className="offering-batches-alert offering-batches-alert--success">
+            <CheckCircle2 size={18} />
+            {notice}
           </div>
         )}
 
-        <OfferingSetupFilters
-          academicYears={academicYears}
-          semesters={semesters}
-          courses={courses}
-          yearLevels={yearLevels}
-          curricula={curricula}
-          sections={sections}
-          academicYearId={academicYearId}
-          semesterId={semesterId}
-          courseId={courseId}
-          yearLevel={yearLevel}
-          curriculumId={curriculumId}
-          sectionId={sectionId}
-          loading={setupLoading}
-          onAcademicYearChange={handleAcademicYearChange}
-          onSemesterChange={handleSemesterChange}
-          onCourseChange={handleCourseChange}
-          onYearLevelChange={handleYearLevelChange}
-          onCurriculumChange={handleCurriculumChange}
-          onSectionChange={handleSectionChange}
-        />
-
-        {!selectionComplete && (
-          <section className="class-offering-section">
-            <div className="class-offering-empty class-offering-empty--setup">
-              <span className="class-offering-empty-icon">
-                <Settings2 size={24} aria-hidden="true" />
-              </span>
-              <h3>Select an Academic Setup</h3>
+        <section className="offering-batches-panel">
+          <div className="offering-batches-panel-heading">
+            <div className="offering-batches-step">1</div>
+            <div>
+              <h2>Prepare and send a batch</h2>
               <p>
-                Complete Academic Year, Semester, Course, Year Level,
-                Curriculum, and Section to review and configure class offerings.
+                The backend creates closed, unpublished offerings for each
+                selected section.
               </p>
             </div>
-          </section>
-        )}
-
-        {selectionComplete && readinessError && (
-          <div className="class-offering-error" role="alert">
-            <AlertCircle size={18} aria-hidden="true" />
-            <div>
-              <strong>Unable to check offering readiness</strong>
-              <span>{readinessError}</span>
-            </div>
-            <button type="button" onClick={refreshOfferingData}>
-              Try Again
-            </button>
           </div>
-        )}
 
-        {selectionComplete && readinessLoading && (
-          <section className="class-offering-section">
-            <div className="class-offering-loading">
-              <RefreshCw
-                size={18}
-                className="registrar-class-offering__spin"
-                aria-hidden="true"
-              />
-              Checking class offering readiness…
+          {formError && (
+            <div className="offering-batches-alert offering-batches-alert--error">
+              <AlertCircle size={18} />
+              {formError}
             </div>
-          </section>
-        )}
+          )}
 
-        {selectionComplete && !readinessLoading && readiness && (
-          <>
-            <OfferingReadiness
-              ready={readiness.ready}
-              courseCode={readiness.course.course_code}
-              sectionName={readiness.section.section_name}
-              academicYear={readiness.academic_period.academic_year}
-              semesterName={readiness.academic_period.semester_name}
-              summary={readiness.summary}
-            />
+          <form onSubmit={handleCreateBatch}>
+            <div className="offering-batches-form-grid">
+              <label>
+                <span>Academic year</span>
+                <select
+                  value={academicYearId}
+                  onChange={(event) =>
+                    handleAcademicYearChange(event.target.value)
+                  }
+                  disabled={initialLoading}
+                >
+                  <option value="">Select academic year</option>
+                  {academicYears.map((year) => (
+                    <option
+                      key={year.academic_year_id}
+                      value={String(year.academic_year_id)}
+                    >
+                      {year.academic_year}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label>
+                <span>Open semester</span>
+                <select
+                  value={semesterId}
+                  onChange={(event) => setSemesterId(event.target.value)}
+                  disabled={!academicYearId}
+                >
+                  <option value="">Select open semester</option>
+                  {semestersForYear.map((period) => (
+                    <option
+                      key={period.enrollment_period_id}
+                      value={String(period.semester_id)}
+                    >
+                      {period.semester_name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label>
+                <span>Course / program</span>
+                <select
+                  value={courseId}
+                  onChange={(event) => handleCourseChange(event.target.value)}
+                  disabled={!semesterId}
+                >
+                  <option value="">Select course</option>
+                  {courses.map((course) => (
+                    <option
+                      key={course.course_id}
+                      value={String(course.course_id)}
+                    >
+                      {course.course_code} — {course.course_name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label>
+                <span>Year level</span>
+                <select
+                  value={yearLevel}
+                  onChange={(event) => {
+                    setYearLevel(event.target.value);
+                    setSelectedSectionIds([]);
+                  }}
+                  disabled={!courseId}
+                >
+                  <option value="">Select year level</option>
+                  {yearLevels.map((level) => (
+                    <option key={level} value={String(level)}>
+                      Year {level}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label>
+                <span>Curriculum</span>
+                <select
+                  value={curriculumId}
+                  onChange={(event) => {
+                    setCurriculumId(event.target.value);
+                    setSelectedSectionIds([]);
+                  }}
+                  disabled={!yearLevel || curriculaLoading}
+                >
+                  <option value="">
+                    {curriculaLoading
+                      ? "Loading curricula…"
+                      : "Select active curriculum"}
+                  </option>
+                  {curricula.map((curriculum) => (
+                    <option
+                      key={curriculum.curriculum_id}
+                      value={String(curriculum.curriculum_id)}
+                    >
+                      {curriculum.curriculum_name} ({curriculum.effective_year})
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label>
+                <span>Program Head recipient</span>
+                <select
+                  value={programHeadUserId}
+                  onChange={(event) => setProgramHeadUserId(event.target.value)}
+                  disabled={!courseId || programHeadsLoading}
+                >
+                  <option value="">
+                    {programHeadsLoading
+                      ? "Loading Program Heads…"
+                      : "Choose a Program Head"}
+                  </option>
+                  {programHeads.map((head) => (
+                    <option key={head.user_id} value={String(head.user_id)}>
+                      {head.program_head_name} ({head.username})
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </div>
 
-            {readiness.summary.missing_section_subjects > 0 && (
-              <section className="class-offering-prepare-section">
-                <div className="class-offering-prepare-section-content">
-                  <div className="class-offering-prepare-icon">
-                    <AlertCircle size={20} aria-hidden="true" />
-                  </div>
-
-                  <div className="class-offering-prepare-section-text">
-                    <h3>Section Setup Required</h3>
-
-                    <p>
-                      <strong>{readiness.section.section_name}</strong> has{" "}
-                      <strong>
-                        {readiness.summary.missing_section_subjects}
-                      </strong>{" "}
-                      curriculum subject
-                      {readiness.summary.missing_section_subjects !== 1
-                        ? "s"
-                        : ""}{" "}
-                      that still need to be prepared before their class
-                      offerings can be configured.
-                    </p>
-                  </div>
-                </div>
-
-                <button type="button" onClick={openPrepareSectionSubjects}>
-                  <Layers3 size={16} aria-hidden="true" />
-                  Prepare {readiness.summary.missing_section_subjects} Section
-                  Subject
-                  {readiness.summary.missing_section_subjects !== 1 ? "s" : ""}
-                </button>
-              </section>
-            )}
-
-            <OfferingTable
-              subjects={normalizedCurriculumSubjects}
-              onCreateOffering={openAddOffering}
-              onEditOffering={openEditOffering}
-              onOfferingStatus={openOfferingStatus}
-              onSectionSubjectStatus={openSectionSubjectStatus}
-            />
-
-            <section className="class-offering-section">
-              <div className="class-offering-section-header">
+            <div className="offering-batches-section-picker">
+              <div className="offering-batches-section-heading">
                 <div>
-                  <div className="class-offering-section-kicker">
-                    <Sparkles size={14} aria-hidden="true" />
-                    Exceptions
-                  </div>
-                  <h2>Special / Retake Offerings</h2>
-
+                  <h3>
+                    <UsersRound size={18} /> Matching sections
+                  </h3>
                   <p>
-                    Manage exception and retake classes outside the normal
-                    curriculum subjects for this term. New special offerings
-                    start Closed and remain incomplete until faculty and
-                    schedule are configured.
+                    {sectionsLoading
+                      ? "Loading sections for the selected setup…"
+                      : sections.length
+                        ? "Select one or more sections to include in this batch."
+                        : hasLoadedSections
+                          ? "No matching sections were found for this setup."
+                          : "Select the open term, course, year level, and curriculum to load sections."}
                   </p>
                 </div>
-
-                <button
-                  type="button"
-                  className="class-offering-section-action"
-                  onClick={openAddSpecialOffering}
-                >
-                  <Plus size={16} aria-hidden="true" />
-                  Add Special Offering
-                </button>
+                {sections.length > 0 && (
+                  <button
+                    type="button"
+                    className="offering-batches-link-button"
+                    onClick={selectAllSections}
+                  >
+                    {selectedSectionIds.length === sections.length
+                      ? "Clear selection"
+                      : "Select all"}
+                  </button>
+                )}
               </div>
 
-              {normalizedSpecialSubjects.length > 0 ? (
-                <OfferingTable
-                  subjects={normalizedSpecialSubjects}
-                  onCreateOffering={openAddOffering}
-                  onEditOffering={openEditOffering}
-                  onOfferingStatus={openOfferingStatus}
-                  onSectionSubjectStatus={openSectionSubjectStatus}
-                />
-              ) : (
-                <div className="class-offering-empty">
-                  <span className="class-offering-empty-icon">
-                    <Sparkles size={22} aria-hidden="true" />
-                  </span>
-                  <h3>No Special Offerings</h3>
-                  <p>
-                    No special or retake offerings have been created for this
-                    academic setup.
-                  </p>
-                </div>
+              {sections.length > 0 && (
+                <>
+                  <div className="offering-batches-section-list">
+                    {sections.map((section) => {
+                      const checked = selectedSectionIds.includes(
+                        section.section_id,
+                      );
+                      return (
+                        <label
+                          className={
+                            "offering-batches-section-option" +
+                            (checked ? " is-selected" : "")
+                          }
+                          key={section.section_id}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={checked}
+                            onChange={() => toggleSection(section.section_id)}
+                          />
+                          <span
+                            className="offering-batches-section-check"
+                            aria-hidden="true"
+                          />
+                          <span className="offering-batches-section-copy">
+                            <strong>{section.section_name}</strong>
+                            <small>
+                              Year {section.year_level} · Capacity{" "}
+                              {section.max_students}
+                            </small>
+                          </span>
+                        </label>
+                      );
+                    })}
+                  </div>
+                  <div className="offering-batches-selection-summary">
+                    <ClipboardList size={17} />
+                    <span>{selectedSectionIds.length} section(s) selected</span>
+                    <span>
+                      {requiredSubjectCount} required subject(s) per section
+                    </span>
+                    <strong>
+                      {selectedSectionIds.length * requiredSubjectCount}{" "}
+                      offering row(s) to create
+                    </strong>
+                  </div>
+                </>
               )}
+            </div>
+
+            <div className="offering-batches-form-footer">
+              <span>
+                {selectedPeriod
+                  ? selectedPeriod.academic_year +
+                    " · " +
+                    selectedPeriod.semester_name
+                  : "Only Registrar-open semesters can be selected."}
+              </span>
+              <button
+                type="submit"
+                className="offering-batches-button offering-batches-button--primary"
+                disabled={
+                  submitting ||
+                  initialLoading ||
+                  !selectedPeriod ||
+                  !courseId ||
+                  !curriculumId ||
+                  !yearLevel ||
+                  !selectedSectionIds.length ||
+                  !programHeadUserId
+                }
+              >
+                <Send size={16} />{" "}
+                {submitting ? "Sending batch…" : "Create and send batch"}
+              </button>
+            </div>
+          </form>
+        </section>
+
+        <section className="offering-batches-panel offering-batches-queue">
+          <div className="offering-batches-panel-heading offering-batches-panel-heading--queue">
+            <div className="offering-batches-step">2</div>
+            <div>
+              <h2>Batch review and publication</h2>
+              <p>
+                Review the schedule returned by the Program Head, then publish
+                the valid batch.
+              </p>
+            </div>
+            <label className="offering-batches-filter">
+              <span>Status</span>
+              <select
+                value={statusFilter}
+                onChange={(event) => setStatusFilter(event.target.value)}
+              >
+                <option>All</option>
+                <option>Pending Program Head</option>
+                <option>Ready for Registrar</option>
+                <option>Published</option>
+              </select>
+            </label>
+          </div>
+          {queueError && (
+            <div className="offering-batches-alert offering-batches-alert--error">
+              <AlertCircle size={18} />
+              {queueError}
+            </div>
+          )}
+          {queueLoading ? (
+            <div className="offering-batches-empty">
+              <RefreshCw size={18} className="offering-batches-spin" /> Loading
+              batches…
+            </div>
+          ) : visibleBatches.length === 0 ? (
+            <div className="offering-batches-empty">
+              No batches match this status.
+            </div>
+          ) : (
+            <div className="offering-batches-list">
+              {visibleBatches.map((batch) => (
+                <article className="offering-batches-card" key={batch.batch_id}>
+                  <div className="offering-batches-card-main">
+                    <div className="offering-batches-card-title">
+                      <strong>
+                        {batch.course_code} · Year {batch.year_level}
+                      </strong>
+                      <span
+                        className={
+                          "offering-batches-status offering-batches-status--" +
+                          statusClass(batch.batch_status)
+                        }
+                      >
+                        {batch.batch_status}
+                      </span>
+                    </div>
+                    <p>
+                      {batch.academic_year} · {batch.semester_name} ·{" "}
+                      {batch.curriculum_name}
+                    </p>
+                    <small>
+                      {batch.offering_count} offerings ·{" "}
+                      {batch.scheduled_count || 0} scheduled · Submitted{" "}
+                      {formatDate(batch.submitted_at)}
+                    </small>
+                  </div>
+                  <button
+                    type="button"
+                    className="offering-batches-button offering-batches-button--secondary"
+                    onClick={() => void openBatchDetail(batch.batch_id)}
+                  >
+                    <Eye size={16} /> Review
+                  </button>
+                </article>
+              ))}
+            </div>
+          )}
+        </section>
+
+        {(detailLoading || selectedBatch) && (
+          <div
+            className="offering-batches-modal-backdrop"
+            role="presentation"
+            onMouseDown={(event) => {
+              if (event.target === event.currentTarget && !detailLoading)
+                setSelectedBatch(null);
+            }}
+          >
+            <section
+              className="offering-batches-modal"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="offering-batches-modal-title"
+            >
+              <header className="offering-batches-modal-header">
+                <div>
+                  <span className="offering-batches-eyebrow">
+                    <ClipboardList size={15} /> Registrar batch review
+                  </span>
+                  <h2 id="offering-batches-modal-title">
+                    {selectedBatch
+                      ? "Batch #" + selectedBatch.batch_id
+                      : "Loading batch…"}
+                  </h2>
+                </div>
+                <button
+                  type="button"
+                  className="offering-batches-icon-button"
+                  aria-label="Close"
+                  onClick={() => setSelectedBatch(null)}
+                  disabled={detailLoading}
+                >
+                  <X size={20} />
+                </button>
+              </header>
+              {detailLoading ? (
+                <div className="offering-batches-empty">
+                  <RefreshCw size={18} className="offering-batches-spin" />{" "}
+                  Loading batch details…
+                </div>
+              ) : selectedBatch ? (
+                <>
+                  <div className="offering-batches-detail-meta">
+                    <span>
+                      {selectedBatch.course_code} · Year{" "}
+                      {selectedBatch.year_level}
+                    </span>
+                    <span>
+                      {selectedBatch.academic_year} ·{" "}
+                      {selectedBatch.semester_name}
+                    </span>
+                    <span>{selectedBatch.curriculum_name}</span>
+                    <span
+                      className={
+                        "offering-batches-status offering-batches-status--" +
+                        statusClass(selectedBatch.batch_status)
+                      }
+                    >
+                      {selectedBatch.batch_status}
+                    </span>
+                  </div>
+                  <div className="offering-batches-table-wrap">
+                    <table className="offering-batches-table">
+                      <thead>
+                        <tr>
+                          <th>Subject</th>
+                          <th>Section</th>
+                          <th>Faculty</th>
+                          <th>Days</th>
+                          <th>Time</th>
+                          <th>Status</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {(selectedBatch.offerings || []).map((offering) => (
+                          <tr key={offering.offering_id}>
+                            <td>
+                              <strong>{offering.subject_code}</strong>
+                              <small>
+                                {offering.subject_name} · {offering.units} units
+                              </small>
+                            </td>
+                            <td>{offering.section_name}</td>
+                            <td>{offering.faculty_name || "Unassigned"}</td>
+                            <td>{offering.schedule_days || "—"}</td>
+                            <td>{offering.schedule_time || "—"}</td>
+                            <td>{offering.offering_status}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                  <footer className="offering-batches-modal-footer">
+                    <span>
+                      <CalendarDays size={16} /> Returned{" "}
+                      {formatDate(selectedBatch.returned_at)}
+                    </span>
+                    {selectedBatch.batch_status === "Ready for Registrar" && (
+                      <button
+                        type="button"
+                        className="offering-batches-button offering-batches-button--primary"
+                        onClick={() => void publishBatch(selectedBatch)}
+                        disabled={publishingBatchId === selectedBatch.batch_id}
+                      >
+                        <CheckCircle2 size={16} />{" "}
+                        {publishingBatchId === selectedBatch.batch_id
+                          ? "Publishing…"
+                          : "Publish schedule"}
+                      </button>
+                    )}
+                    {selectedBatch.batch_status === "Published" && (
+                      <span className="offering-batches-published-note">
+                        <CheckCircle2 size={16} /> Published{" "}
+                        {formatDate(selectedBatch.published_at)}
+                      </span>
+                    )}
+                  </footer>
+                </>
+              ) : null}
             </section>
-          </>
+          </div>
         )}
-
-        <PrepareSectionSubjectsModal
-          open={showPrepareSectionSubjects}
-          academicYearId={academicYearId}
-          semesterId={semesterId}
-          courseId={courseId}
-          yearLevel={yearLevel}
-          curriculumId={curriculumId}
-          sectionId={sectionId}
-          academicYear={
-            selectedAcademicYear?.academic_year ||
-            readiness?.academic_period.academic_year ||
-            ""
-          }
-          semesterName={
-            selectedSemester?.semester_name ||
-            readiness?.academic_period.semester_name ||
-            ""
-          }
-          courseCode={
-            selectedCourse?.course_code || readiness?.course.course_code || ""
-          }
-          curriculumName={
-            selectedCurriculum?.curriculum_name ||
-            readiness?.curriculum.curriculum_name ||
-            ""
-          }
-          sectionName={
-            selectedSection?.section_name ||
-            readiness?.section.section_name ||
-            ""
-          }
-          subjects={readiness?.subjects || []}
-          onClose={closePrepareSectionSubjects}
-          onSuccess={handlePrepareSectionSubjectsSuccess}
-          onUnauthorized={handleUnauthorized}
-        />
-
-        <AddOfferingModal
-          open={showAddOffering}
-          subject={selectedSubject}
-          faculty={faculty}
-          onClose={closeAddOfferingModal}
-          onSuccess={handleAddOfferingSuccess}
-          onUnauthorized={handleUnauthorized}
-        />
-
-        <EditOfferingModal
-          open={showEditOffering}
-          subject={selectedSubject}
-          faculty={faculty}
-          onClose={closeEditOfferingModal}
-          onSuccess={handleEditOfferingSuccess}
-          onUnauthorized={handleUnauthorized}
-        />
-
-        <OfferingStatusModal
-          open={showOfferingStatus}
-          subject={selectedSubject}
-          onClose={closeOfferingStatusModal}
-          onSuccess={handleOfferingStatusSuccess}
-          onUnauthorized={handleUnauthorized}
-        />
-
-        <SectionSubjectStatusModal
-          open={showSectionSubjectStatus}
-          subject={selectedSubject}
-          onClose={closeSectionSubjectStatusModal}
-          onSuccess={handleSectionSubjectStatusSuccess}
-          onUnauthorized={handleUnauthorized}
-        />
-
-        <AddSpecialOfferingModal
-          open={showAddSpecialOffering}
-          academicYearId={academicYearId}
-          semesterId={semesterId}
-          courseId={courseId}
-          yearLevel={yearLevel}
-          curriculumId={curriculumId}
-          sectionId={sectionId}
-          academicYear={
-            selectedAcademicYear?.academic_year ||
-            readiness?.academic_period.academic_year ||
-            ""
-          }
-          semesterName={
-            selectedSemester?.semester_name ||
-            readiness?.academic_period.semester_name ||
-            ""
-          }
-          courseCode={
-            selectedCourse?.course_code || readiness?.course.course_code || ""
-          }
-          sectionName={
-            selectedSection?.section_name ||
-            readiness?.section.section_name ||
-            ""
-          }
-          defaultCapacity={
-            Number(
-              selectedSection?.max_students ??
-                readiness?.section.max_students ??
-                50,
-            ) || 50
-          }
-          existingSubjectIds={[
-            ...(readiness?.subjects || []).map(
-              (item) => item.subject.subject_id,
-            ),
-            ...normalizedSpecialSubjects
-              .filter((item) => item.has_offering)
-              .map((item) => item.subject.subject_id),
-          ]}
-          onClose={closeAddSpecialOfferingModal}
-          onSuccess={handleAddSpecialOfferingSuccess}
-          onUnauthorized={handleUnauthorized}
-        />
       </main>
     </DashboardLayout>
   );

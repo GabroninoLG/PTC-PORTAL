@@ -568,6 +568,7 @@ router.put("/:offeringId/schedule", async (req, res) => {
       `
         SELECT
             so.offering_id,
+            so.batch_id,
             so.section_subject_id,
             so.subject_id,
             so.section_id,
@@ -649,6 +650,17 @@ router.put("/:offeringId/schedule", async (req, res) => {
     }
 
     const offering = offeringRows[0];
+
+    if (offering.batch_id !== null && offering.batch_id !== undefined) {
+      await connection.rollback();
+
+      return res.status(409).json({
+        success: false,
+        message:
+          "Batch offerings must be scheduled through the Program Head offering-batch workflow.",
+        batch_id: Number(offering.batch_id),
+      });
+    }
 
     // =================================================
     // DEPARTMENT SAFETY
@@ -1269,6 +1281,7 @@ router.put("/:offeringId/faculty-schedule", async (req, res) => {
       `
           SELECT
               so.offering_id,
+              so.batch_id,
               so.section_subject_id,
               so.subject_id,
               so.section_id,
@@ -1382,6 +1395,17 @@ router.put("/:offeringId/faculty-schedule", async (req, res) => {
     }
 
     const offering = offeringRows[0];
+
+    if (offering.batch_id !== null && offering.batch_id !== undefined) {
+      await connection.rollback();
+
+      return res.status(409).json({
+        success: false,
+        message:
+          "Batch offerings must be scheduled through the Program Head offering-batch workflow.",
+        batch_id: Number(offering.batch_id),
+      });
+    }
 
     // =================================================
     // DEPARTMENT CHECK

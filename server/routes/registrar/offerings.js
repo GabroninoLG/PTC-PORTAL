@@ -1879,6 +1879,45 @@ router.post("/section-subjects", async (req, res) => {
       validSubjectRows = rows;
     }
 
+    // Required curriculum subjects must be provisioned through the batch
+    // workflow so the backend creates their closed, unassigned offerings
+    // together when the Registrar submits selected sections.
+    const requiredSubjectPlaceholders = subjectIds.map(() => "?").join(",");
+    const [requiredSubjectRows] = await connection.execute(
+      `
+        SELECT DISTINCT cs.subject_id
+        FROM curriculum_subjects cs
+        INNER JOIN curriculum cu
+          ON cu.curriculum_id = cs.curriculum_id
+        WHERE cu.course_id = ?
+          AND cu.is_active = 1
+          AND cs.year_level = ?
+          AND cs.semester_id = ?
+          AND cs.is_required = 1
+          AND cs.subject_id IN (${requiredSubjectPlaceholders})
+      `,
+      [
+        Number(section.course_id),
+        Number(section.year_level),
+        semesterId,
+        ...subjectIds,
+      ],
+    );
+
+    if (requiredSubjectRows.length > 0) {
+      await connection.rollback();
+
+      return res.status(409).json({
+        success: false,
+        message:
+          "Required curriculum subjects must be created through the Registrar offering-batch workflow.",
+        batch_endpoint: "/api/registrar/offering-batches",
+        required_subject_ids: requiredSubjectRows.map((row) =>
+          Number(row.subject_id),
+        ),
+      });
+    }
+
     // =================================================
     // CHECK EXISTING SECTION SUBJECTS
     // =================================================
@@ -3296,6 +3335,38 @@ router.post("/subject-offerings", async (req, res) => {
       });
     }
 
+    const [curriculumSubjectRows] = await connection.execute(
+      `
+        SELECT cs.curriculum_id
+        FROM curriculum_subjects cs
+        INNER JOIN curriculum cu ON cu.curriculum_id = cs.curriculum_id
+        WHERE cu.course_id = ?
+          AND cu.is_active = 1
+          AND cs.subject_id = ?
+          AND cs.year_level = ?
+          AND cs.semester_id = ?
+          AND cs.is_required = 1
+        LIMIT 1
+      `,
+      [
+        Number(sectionSubject.course_id),
+        Number(sectionSubject.subject_id),
+        Number(sectionSubject.year_level),
+        Number(sectionSubject.semester_id),
+      ],
+    );
+
+    if (curriculumSubjectRows.length > 0) {
+      await connection.rollback();
+
+      return res.status(409).json({
+        success: false,
+        message:
+          "Required curriculum subjects must be created through the Registrar offering-batch workflow.",
+        batch_endpoint: "/api/registrar/offering-batches",
+      });
+    }
+
     // =================================================
     // CHECK EXISTING OFFERING
     //
@@ -3832,6 +3903,7 @@ router.put("/subject-offerings/:id", async (req, res) => {
       `
           SELECT
               so.offering_id,
+              so.batch_id,
               so.section_subject_id,
               so.subject_id,
               so.section_id,
@@ -3919,6 +3991,17 @@ router.put("/subject-offerings/:id", async (req, res) => {
     }
 
     const current = currentRows[0];
+
+    if (current.batch_id !== null && current.batch_id !== undefined) {
+      await connection.rollback();
+
+      return res.status(409).json({
+        success: false,
+        message:
+          "Batch offerings are managed through the Registrar and Program Head offering-batch workflow.",
+        batch_id: Number(current.batch_id),
+      });
+    }
 
     // =================================================
     // CANCELLED OFFERING
@@ -4535,6 +4618,7 @@ router.patch("/subject-offerings/:id/status", async (req, res) => {
       `
           SELECT
               so.offering_id,
+              so.batch_id,
               so.section_subject_id,
               so.subject_id,
               so.section_id,
@@ -4630,6 +4714,17 @@ router.patch("/subject-offerings/:id/status", async (req, res) => {
     }
 
     const current = rows[0];
+
+    if (current.batch_id !== null && current.batch_id !== undefined) {
+      await connection.rollback();
+
+      return res.status(409).json({
+        success: false,
+        message:
+          "Batch offering status can only be changed when the Registrar publishes the whole batch.",
+        batch_id: Number(current.batch_id),
+      });
+    }
 
     // =================================================
     // SAME STATUS = SAFE NO-OP
@@ -6174,6 +6269,7 @@ router.patch("/section-subjects/:id/status", async (req, res) => {
               sem.semester_name,
 
               so.offering_id,
+              so.batch_id,
               so.status
                   AS offering_status
 
@@ -6222,6 +6318,17 @@ router.patch("/section-subjects/:id/status", async (req, res) => {
     }
 
     const current = rows[0];
+
+    if (current.batch_id !== null && current.batch_id !== undefined) {
+      await connection.rollback();
+
+      return res.status(409).json({
+        success: false,
+        message:
+          "Section subjects inside a submitted offering batch are managed through the batch workflow.",
+        batch_id: Number(current.batch_id),
+      });
+    }
 
     // =================================================
     // ENROLLMENT COUNTS

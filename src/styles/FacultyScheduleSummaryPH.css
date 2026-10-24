@@ -1,0 +1,234 @@
+.faculty-summary-page {
+  --fsp-green: #176b3a;
+  --fsp-text: #202a23;
+  --fsp-muted: #68746c;
+  --fsp-border: #dce5de;
+  width: 100%;
+  min-height: 100%;
+  padding: 22px 24px 30px;
+  box-sizing: border-box;
+  color: var(--fsp-text);
+  background: #f7f9f7;
+  font-family:
+    Inter,
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+}
+
+.faculty-summary-page *,
+.faculty-summary-page *::before,
+.faculty-summary-page *::after {
+  box-sizing: border-box;
+}
+
+.faculty-summary-page button {
+  font: inherit;
+}
+
+.faculty-summary-page__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.faculty-summary-page h1 {
+  margin: 0;
+  color: var(--fsp-text);
+  font-size: 26px;
+  font-weight: 700;
+}
+
+.faculty-summary-page__header p {
+  margin: 5px 0 0;
+  color: var(--fsp-muted);
+  font-size: 12px;
+}
+
+.faculty-summary-page__refresh {
+  display: inline-flex;
+  min-height: 36px;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 8px 12px;
+  border: 1px solid var(--fsp-border);
+  border-radius: 7px;
+  color: var(--fsp-green);
+  background: #fff;
+  font-size: 11px;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.faculty-summary-page__refresh:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.faculty-summary-page__refresh:focus-visible {
+  outline: 3px solid rgba(23, 107, 58, 0.2);
+  outline-offset: 2px;
+}
+
+.faculty-summary-page .is-spinning {
+  animation: fsp-spin 0.8s linear infinite;
+}
+
+.faculty-summary-page__alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 12px;
+  padding: 10px 12px;
+  border: 1px solid #efcfcc;
+  border-radius: 7px;
+  color: #913b35;
+  background: #fff5f4;
+  font-size: 12px;
+}
+
+.faculty-summary-page__empty {
+  padding: 32px 15px;
+  color: var(--fsp-muted);
+  text-align: center;
+  font-size: 12px;
+}
+
+.faculty-summary-table-card {
+  overflow: hidden;
+  border: 1px solid var(--fsp-border);
+  border-radius: 9px;
+  background: #fff;
+}
+
+.faculty-summary-table-card__heading {
+  display: flex;
+  min-height: 48px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 11px 14px;
+  border-bottom: 1px solid #e9eeea;
+}
+
+.faculty-summary-table-card__heading h2 {
+  margin: 0;
+  color: #24382b;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.faculty-summary-table-card__heading span {
+  color: var(--fsp-muted);
+  font-size: 10px;
+  text-align: right;
+}
+
+.faculty-summary-table-scroll {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.faculty-summary-table {
+  width: 100%;
+  min-width: 820px;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.faculty-summary-table th {
+  padding: 10px 12px;
+  border-bottom: 1px solid #e9eeea;
+  color: var(--fsp-muted);
+  background: #f8faf8;
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.faculty-summary-table td {
+  padding: 11px 12px;
+  border-bottom: 1px solid #eef2ef;
+  color: var(--fsp-text);
+  font-size: 11px;
+  vertical-align: middle;
+}
+
+.faculty-summary-table tr:last-child td {
+  border-bottom: 0;
+}
+
+.faculty-summary-table td strong,
+.faculty-summary-table td small {
+  display: block;
+}
+
+.faculty-summary-table td strong {
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.faculty-summary-table td small {
+  margin-top: 3px;
+  color: var(--fsp-muted);
+  font-size: 10px;
+  line-height: 1.4;
+}
+
+.faculty-summary-table__muted {
+  color: var(--fsp-muted);
+  font-size: 10px;
+}
+
+.faculty-summary-page__status {
+  display: inline-flex;
+  width: fit-content;
+  padding: 4px 7px;
+  border-radius: 99px;
+  font-size: 9px;
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+.faculty-summary-page__status.is-scheduled {
+  color: #176b3a;
+  background: #eaf7ed;
+}
+
+.faculty-summary-page__status.is-unscheduled {
+  color: #805900;
+  background: #fff5d9;
+}
+
+@keyframes fsp-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 700px) {
+  .faculty-summary-page {
+    padding: 18px 12px 24px;
+  }
+
+  .faculty-summary-page__header {
+    align-items: flex-start;
+  }
+
+  .faculty-summary-table-card__heading {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .faculty-summary-table-card__heading span {
+    text-align: left;
+  }
+}

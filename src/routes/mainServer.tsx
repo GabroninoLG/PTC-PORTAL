@@ -98,7 +98,6 @@ import EditUser from "../pages/admin/UserManagement/EditUser";
 
 // ProgramHead
 import ProgramHeadDashboard from "../pages/programhead/dashboard/Dashboard";
-import ProgramHeadProfile from "../pages/programhead/Profile/Profile";
 import AnnouncementProg from "../pages/programhead/Announcement/AnnouncementProg";
 import AnnouncementProgD from "../pages/programhead/Announcement/AnnouncementDProg";
 import PendingGrades from "../pages/programhead/GradeApproval/PendingGrades";
@@ -136,10 +135,9 @@ import CoursemanagementR from "../pages/registrar/Courses/CourseManagementR";
 import DepartmentManagementR from "../pages/registrar/Department/DepartmentManagementR";
 import EnrollmentPeriodMR from "../pages/registrar/Enrollment/EnrollmentPeriodMR";
 import ClassOfferingManagementR from "../pages/registrar/ClassOffering.tsx/ClassOfferingManagementR";
+import ClassOfferingSpecialR from "../pages/registrar/ClassOffering.tsx/ClassOfferingSpecialR";
 import ClassPROG from "../pages/programhead/Classmanagement/ClassPROG";
 import TransferEvaluationR from "../pages/registrar/StudentRecord/TransferEvaluationR";
-import ScheduleList from "../pages/programhead/ScheduleVerification/ScheduleList";
-import FacultySchedules from "../pages/programhead/ScheduleVerification/FacultySchedules";
 import FacultySchedulesR from "../pages/registrar/Schedules/FacultySchedulesR";
 import DocumentRequest from "../pages/registrar/Documents/DocumentRequests";
 import StudentCORR from "../pages/registrar/StudentRecord/StudentCORR";
@@ -151,6 +149,10 @@ import FinanceTransactionTypes from "../pages/finance/FinanceTransactionTypes";
 import FinanceReports from "../pages/finance/FinanceReports";
 import GradeChangeRequests from "../pages/programhead/GradeApproval/GradeChangeRequests";
 import GradeChangeRequestsR from "../pages/registrar/StudentRecord/GradeChangeRequestsR";
+import ManualPaymentVerifications from "../pages/registrar/Documents/ManualPaymentVerifications";
+import OfferingBatchesPH from "../pages/programhead/Classmanagement/OfferingBatchesPH";
+import ScheduleList from "../pages/programhead/ScheduleVerification/ScheduleList";
+import FacultyScheduleSummaryPH from "../pages/programhead/ScheduleVerification/FacultyScheduleSummaryPH";
 
 // ─── Role guard ───────────────────────────────────────────────
 function ProtectedRoute({
@@ -506,11 +508,6 @@ export default function AppRoutes() {
         />
 
         <Route
-          path="/programhead/profile"
-          element={<ProgramHeadRoute element={<ProgramHeadProfile />} />}
-        />
-
-        <Route
           path="/programhead/announcementprog"
           element={<ProgramHeadRoute element={<AnnouncementProg />} />}
         />
@@ -524,6 +521,7 @@ export default function AppRoutes() {
           path="/programhead/gradeapproval/pending"
           element={<ProgramHeadRoute element={<PendingGrades />} />}
         />
+
         <Route
           path="/programhead/grade-change-requests"
           element={<ProgramHeadRoute element={<GradeChangeRequests />} />}
@@ -540,14 +538,25 @@ export default function AppRoutes() {
         />
 
         <Route
+          path="/programhead/class/offering-batches"
+          element={<ProgramHeadRoute element={<OfferingBatchesPH />} />}
+        />
+
+        <Route
+          path="/programhead/class/faculty-schedule-summary"
+          element={<ProgramHeadRoute element={<FacultyScheduleSummaryPH />} />}
+        />
+
+        {/* Keep this path working for existing links. */}
+        <Route
+          path="/programhead/class/faculty-schedules"
+          element={<ProgramHeadRoute element={<FacultyScheduleSummaryPH />} />}
+        />
+
+        <Route
           path="/programhead/class/schedule"
           element={<ProgramHeadRoute element={<ScheduleList />} />}
         />
-        <Route
-          path="/programhead/class/faculty-schedules"
-          element={<ProgramHeadRoute element={<FacultySchedules />} />}
-        />
-
         {/* ── Registrar ── */}
         <Route
           path="/registrar/dashboard"
@@ -636,6 +645,10 @@ export default function AppRoutes() {
           path="/registrar/offering/managementR"
           element={<RegistrarRoute element={<ClassOfferingManagementR />} />}
         />
+        <Route
+          path="/registrar/offering/special"
+          element={<RegistrarRoute element={<ClassOfferingSpecialR />} />}
+        />
 
         <Route
           path="/registrar/schedules/faculty"
@@ -671,6 +684,11 @@ export default function AppRoutes() {
           path="/registrar/document-requests"
           element={<RegistrarRoute element={<DocumentRequest />} />}
         />
+        <Route
+          path="/registrar/manual-payment"
+          element={<RegistrarRoute element={<ManualPaymentVerifications />} />}
+        />
+
         {/* ── Finance ── */}
         <Route
           path="/finance/dashboard"
