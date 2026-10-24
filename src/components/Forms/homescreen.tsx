@@ -4,10 +4,9 @@ import "../../styles/herolayout.css";
 
 import ptcBackground from "../../assets/ptcbackground.jpg";
 import campusExterior from "../../assets/campus.webp";
-import classroom from "../../assets/classrooms.webp";
-import assembly from "../../assets/student activities.png";
-import library from "../../assets/GROUP6.png";
-import studentsWalking from "../../assets/BG.png";
+import ptcHome from "../../assets/ptc home.png";
+import loginBackground from "../../assets/loginbg.png";
+import pathsImage from "../../assets/paths.png";
 
 interface GalleryImage {
   url: string;
@@ -24,20 +23,16 @@ const IMAGES: GalleryImage[] = [
     caption: "Our Campus",
   },
   {
-    url: classroom,
-    caption: "Modern Classrooms",
+    url: ptcHome,
+    caption: "Pateros Technological College",
   },
   {
-    url: assembly,
-    caption: "Student Activities",
+    url: loginBackground,
+    caption: "Learning Environment",
   },
   {
-    url: library,
-    caption: "Research Facilities",
-  },
-  {
-    url: studentsWalking,
-    caption: "Student Community",
+    url: pathsImage,
+    caption: "Academic Journey",
   },
 ];
 
@@ -58,7 +53,9 @@ export default function HomeScreen() {
       <main className="main">
         {/* LEFT PANEL */}
         <div className="leftPanel">
-          <p className="greeting">Welcome to Pateros Technological College</p>
+          <p className="greeting">
+            Welcome to Pateros Technological College
+          </p>
 
           <h1 className="headline">
             Where great <br />
