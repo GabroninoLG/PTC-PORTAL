@@ -153,6 +153,7 @@ import ManualPaymentVerifications from "../pages/registrar/Documents/ManualPayme
 import OfferingBatchesPH from "../pages/programhead/Classmanagement/OfferingBatchesPH";
 import ScheduleList from "../pages/programhead/ScheduleVerification/ScheduleList";
 import FacultyScheduleSummaryPH from "../pages/programhead/ScheduleVerification/FacultyScheduleSummaryPH";
+import ProgramHeadProfile from "../pages/programhead/Profile/Profile";
 
 // ─── Role guard ───────────────────────────────────────────────
 function ProtectedRoute({
@@ -505,6 +506,11 @@ export default function AppRoutes() {
         <Route
           path="/programhead/dashboard"
           element={<ProgramHeadRoute element={<ProgramHeadDashboard />} />}
+        />
+
+        <Route
+          path="/programhead/profile"
+          element={<ProgramHeadRoute element={<ProgramHeadProfile />} />}
         />
 
         <Route

@@ -668,7 +668,7 @@ export default function LoginForm() {
                   type="button"
                   className={styles.devBtn}
                   disabled={loading}
-                  onClick={() => handleDevLogin("MS.CASHIER")}
+                  onClick={() => handleDevLogin("MS.CHRISTINE")}
                 >
                   Login as Finance
                 </button>

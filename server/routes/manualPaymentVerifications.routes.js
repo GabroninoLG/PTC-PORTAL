@@ -5,13 +5,11 @@ const router = express.Router();
 
 const role = (req, res, expected) => {
   if (req.user?.role_name !== expected) {
-    res
-      .status(403)
-      .json({
-        success: false,
-        code: `${expected.toUpperCase()}_ACCESS_REQUIRED`,
-        message: `${expected} access is required.`,
-      });
+    res.status(403).json({
+      success: false,
+      code: `${expected.toUpperCase()}_ACCESS_REQUIRED`,
+      message: `${expected} access is required.`,
+    });
     return false;
   }
   return true;
@@ -68,49 +66,41 @@ router.post("/", async (req, res) => {
     .trim()
     .toUpperCase();
   if (!ticketNumber)
-    return res
-      .status(400)
-      .json({
-        success: false,
-        code: "TICKET_NUMBER_REQUIRED",
-        message: "Ticket number is required.",
-      });
+    return res.status(400).json({
+      success: false,
+      code: "TICKET_NUMBER_REQUIRED",
+      message: "Ticket number is required.",
+    });
   try {
     const [tickets] = await db.execute(
       "SELECT ticket_id, student_id, payment_status, source_type, document_request_id FROM finance_tickets WHERE ticket_number = ? LIMIT 1",
       [ticketNumber],
     );
     if (!tickets.length)
-      return res
-        .status(404)
-        .json({
-          success: false,
-          code: "FINANCE_TICKET_NOT_FOUND",
-          message: "Finance ticket was not found.",
-        });
+      return res.status(404).json({
+        success: false,
+        code: "FINANCE_TICKET_NOT_FOUND",
+        message: "Finance ticket was not found.",
+      });
     const ticket = tickets[0];
     if (
       ticket.source_type !== "FINANCE_MANUAL" ||
       ticket.document_request_id !== null
     )
-      return res
-        .status(409)
-        .json({
-          success: false,
-          code: "MANUAL_TICKET_REQUIRED",
-          message:
-            "Only manual Finance tickets can be registered for verification.",
-        });
+      return res.status(409).json({
+        success: false,
+        code: "MANUAL_TICKET_REQUIRED",
+        message:
+          "Only manual Finance tickets can be registered for verification.",
+      });
     if (ticket.payment_status !== "Paid")
-      return res
-        .status(409)
-        .json({
-          success: false,
-          code: "MANUAL_PAYMENT_NOT_PAID",
-          message:
-            "Only paid manual transactions can be registered for Registrar verification.",
-          payment_status: ticket.payment_status,
-        });
+      return res.status(409).json({
+        success: false,
+        code: "MANUAL_PAYMENT_NOT_PAID",
+        message:
+          "Only paid manual transactions can be registered for Registrar verification.",
+        payment_status: ticket.payment_status,
+      });
     const [existing] = await db.execute(
       `${selectSql} WHERE mv.ticket_id = ? LIMIT 1`,
       [ticket.ticket_id],
@@ -130,23 +120,78 @@ router.post("/", async (req, res) => {
       `${selectSql} WHERE mv.verification_id = ? LIMIT 1`,
       [result.insertId],
     );
-    return res
-      .status(201)
-      .json({
-        success: true,
-        code: "MANUAL_PAYMENT_VERIFICATION_CREATED",
-        message: "Manual payment registered for verification.",
-        verification: map(created[0]),
-      });
+    return res.status(201).json({
+      success: true,
+      code: "MANUAL_PAYMENT_VERIFICATION_CREATED",
+      message: "Manual payment registered for verification.",
+      verification: map(created[0]),
+    });
   } catch (error) {
     console.error("CREATE MANUAL PAYMENT VERIFICATION ERROR:", error);
-    return res
-      .status(500)
-      .json({
-        success: false,
-        code: "MANUAL_PAYMENT_VERIFICATION_CREATE_FAILED",
-        message: "Failed to register the manual payment for verification.",
-      });
+    return res.status(500).json({
+      success: false,
+      code: "MANUAL_PAYMENT_VERIFICATION_CREATE_FAILED",
+      message: "Failed to register the manual payment for verification.",
+    });
+  }
+});
+
+// ============================================================
+// GET STUDENT'S MANUAL PAYMENT VERIFICATIONS
+//
+// GET /api/manual-payment-verifications/student
+//
+// Returns only manual payment verification records belonging
+// to the authenticated Student.
+// ============================================================
+
+router.get("/student", async (req, res) => {
+  // 1. SECURITY: Student access only
+  if (!role(req, res, "Student")) {
+    return;
+  }
+
+  const userId = Number(req.user?.user_id);
+
+  if (!Number.isInteger(userId) || userId <= 0) {
+    return res.status(401).json({
+      success: false,
+      code: "INVALID_AUTHENTICATED_USER",
+      message: "Authenticated user ID is invalid.",
+    });
+  }
+
+  try {
+    // 2. Load verifications belonging only to this student
+    const [rows] = await db.execute(
+      `
+        ${selectSql}
+
+        WHERE s.user_id = ?
+          AND ft.source_type = 'FINANCE_MANUAL'
+          AND ft.document_request_id IS NULL
+
+        ORDER BY
+          mv.created_at DESC,
+          mv.verification_id DESC
+      `,
+      [userId],
+    );
+
+    // 3. Return records using the existing response mapper
+    return res.status(200).json({
+      success: true,
+      code: "STUDENT_MANUAL_PAYMENT_VERIFICATIONS_RETRIEVED",
+      verifications: rows.map(map),
+    });
+  } catch (error) {
+    console.error("GET STUDENT MANUAL PAYMENT VERIFICATIONS ERROR:", error);
+
+    return res.status(500).json({
+      success: false,
+      code: "STUDENT_MANUAL_PAYMENT_VERIFICATIONS_LOAD_FAILED",
+      message: "Failed to load your manual payment verification status.",
+    });
   }
 });
 
@@ -163,13 +208,11 @@ router.get("/registrar", async (req, res) => {
     });
   } catch (error) {
     console.error("GET REGISTRAR MANUAL PAYMENT VERIFICATIONS ERROR:", error);
-    return res
-      .status(500)
-      .json({
-        success: false,
-        code: "MANUAL_PAYMENT_VERIFICATIONS_LOAD_FAILED",
-        message: "Failed to load manual payments for verification.",
-      });
+    return res.status(500).json({
+      success: false,
+      code: "MANUAL_PAYMENT_VERIFICATIONS_LOAD_FAILED",
+      message: "Failed to load manual payments for verification.",
+    });
   }
 });
 
@@ -192,35 +235,29 @@ router.patch("/:ticketNumber/verify", async (req, res) => {
     );
     if (!rows.length) {
       await connection.rollback();
-      return res
-        .status(404)
-        .json({
-          success: false,
-          code: "MANUAL_PAYMENT_VERIFICATION_NOT_FOUND",
-          message: "Manual payment verification record was not found.",
-        });
+      return res.status(404).json({
+        success: false,
+        code: "MANUAL_PAYMENT_VERIFICATION_NOT_FOUND",
+        message: "Manual payment verification record was not found.",
+      });
     }
     const item = rows[0];
     if (item.payment_status !== "Paid") {
       await connection.rollback();
-      return res
-        .status(409)
-        .json({
-          success: false,
-          code: "PAYMENT_NOT_PAID",
-          message: "Only Paid manual transactions can be verified.",
-          payment_status: item.payment_status,
-        });
+      return res.status(409).json({
+        success: false,
+        code: "PAYMENT_NOT_PAID",
+        message: "Only Paid manual transactions can be verified.",
+        payment_status: item.payment_status,
+      });
     }
     if (item.verification_status === "Verified") {
       await connection.rollback();
-      return res
-        .status(409)
-        .json({
-          success: false,
-          code: "MANUAL_PAYMENT_ALREADY_VERIFIED",
-          message: "This manual payment is already verified.",
-        });
+      return res.status(409).json({
+        success: false,
+        code: "MANUAL_PAYMENT_ALREADY_VERIFIED",
+        message: "This manual payment is already verified.",
+      });
     }
     const userId = Number(req.user.user_id);
     await connection.execute(
@@ -247,13 +284,11 @@ router.patch("/:ticketNumber/verify", async (req, res) => {
   } catch (error) {
     if (connection) await connection.rollback();
     console.error("VERIFY MANUAL PAYMENT ERROR:", error);
-    return res
-      .status(500)
-      .json({
-        success: false,
-        code: "MANUAL_PAYMENT_VERIFICATION_FAILED",
-        message: "Failed to verify the manual payment.",
-      });
+    return res.status(500).json({
+      success: false,
+      code: "MANUAL_PAYMENT_VERIFICATION_FAILED",
+      message: "Failed to verify the manual payment.",
+    });
   } finally {
     connection?.release();
   }
