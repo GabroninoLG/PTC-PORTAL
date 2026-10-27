@@ -1124,15 +1124,21 @@
   white-space: nowrap;
 }
 
-.registrar-dashboard__announcement-card > p {
+.registrar-dashboard__announcement-text {
   display: -webkit-box;
-  overflow: hidden;
-  margin: 7px 0 14px;
   color: var(--rd-text-600);
-  font-size: 10.8px;
+  font-size: 0.8rem;
   line-height: 1.55;
   -webkit-box-orient: vertical;
+
+  /* Standard property */
+  line-clamp: 3;
+
+  /* Browser compatibility */
   -webkit-line-clamp: 3;
+
+  /* Hide overflowing text */
+  overflow: hidden;
 }
 
 .registrar-dashboard__announcement-footer {
@@ -1357,5 +1363,822 @@
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+}
+
+/* =========================================================
+   VISUAL REFRESH V2 — BOLD PTC ACADEMIC THEME
+   Intentionally stronger than the original light dashboard.
+========================================================= */
+
+.registrar-dashboard {
+  --rd-gold: #d4a72c;
+  --rd-gold-deep: #a97908;
+  --rd-gold-soft: #fff7dc;
+  --rd-blue: #2563eb;
+  --rd-blue-soft: #eef5ff;
+  --rd-violet: #7c3aed;
+  --rd-violet-soft: #f5f0ff;
+  --rd-page-top: #edf7f0;
+  --rd-page-bottom: #f8faf9;
+
+  background:
+    radial-gradient(circle at 8% 0%, rgba(21, 148, 82, 0.11), transparent 28%),
+    radial-gradient(circle at 92% 8%, rgba(212, 167, 44, 0.10), transparent 24%),
+    linear-gradient(180deg, var(--rd-page-top) 0%, #f5f9f6 42%, var(--rd-page-bottom) 100%);
+}
+
+/* HERO — clearly different from the old pale card */
+.registrar-dashboard__hero {
+  min-height: 190px;
+  padding: 30px 32px;
+  border: 0;
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at 84% 18%, rgba(255, 255, 255, 0.18) 0 8%, transparent 8.5%),
+    radial-gradient(circle at 91% 52%, rgba(255, 255, 255, 0.08) 0 13%, transparent 13.5%),
+    linear-gradient(120deg, #064e2f 0%, #0d6b3e 46%, #15803d 72%, #1d8d4d 100%);
+  box-shadow: 0 18px 42px rgba(6, 78, 47, 0.24);
+}
+
+.registrar-dashboard__hero::before {
+  content: "";
+  position: absolute;
+  inset: auto -60px -95px auto;
+  width: 270px;
+  height: 270px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 50%;
+}
+
+.registrar-dashboard__hero::after {
+  top: -115px;
+  right: 105px;
+  width: 250px;
+  height: 250px;
+  border: 44px solid rgba(255, 255, 255, 0.055);
+}
+
+.registrar-dashboard__eyebrow {
+  color: #dff8e8;
+}
+
+.registrar-dashboard__eyebrow-icon {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+.registrar-dashboard__hero h1 {
+  color: #ffffff;
+  font-size: clamp(30px, 3.4vw, 40px);
+  letter-spacing: -0.035em;
+}
+
+.registrar-dashboard__hero p {
+  max-width: 790px;
+  color: rgba(239, 255, 245, 0.82);
+  font-size: 14.5px;
+}
+
+.registrar-dashboard__user-badge {
+  border-color: rgba(255, 255, 255, 0.20);
+  background: rgba(255, 255, 255, 0.13);
+  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.10);
+  backdrop-filter: blur(14px);
+}
+
+.registrar-dashboard__user-badge-icon {
+  color: #0a5a34;
+  background: linear-gradient(145deg, #ffffff, #dff7e8);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.13);
+}
+
+.registrar-dashboard__user-badge small {
+  color: rgba(255, 255, 255, 0.68);
+}
+
+.registrar-dashboard__user-badge strong {
+  color: #ffffff;
+}
+
+.registrar-dashboard__hero .registrar-dashboard__button--secondary {
+  color: #0b5e37;
+  background: #ffffff;
+  border-color: rgba(255, 255, 255, 0.82);
+  box-shadow: 0 9px 20px rgba(0, 0, 0, 0.12);
+}
+
+.registrar-dashboard__hero .registrar-dashboard__button--secondary:hover:not(:disabled) {
+  background: #f1fff6;
+  border-color: #ffffff;
+}
+
+/* KPI CARDS — each one now has a visibly different personality */
+.registrar-dashboard__stats {
+  gap: 16px;
+  margin-bottom: 22px;
+}
+
+.registrar-dashboard__stat-card {
+  overflow: hidden;
+  min-height: 118px;
+  padding: 20px;
+  border: 0;
+  border-radius: 19px;
+  box-shadow: 0 12px 28px rgba(31, 56, 40, 0.09);
+}
+
+.registrar-dashboard__stat-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 5px;
+  border-radius: 19px 0 0 19px;
+  background: var(--rd-green-600);
+}
+
+.registrar-dashboard__stat-card::after {
+  content: "";
+  position: absolute;
+  top: -42px;
+  right: -38px;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: rgba(21, 148, 82, 0.08);
+  pointer-events: none;
+}
+
+.registrar-dashboard__stat-card:nth-child(1) {
+  background: linear-gradient(145deg, #ffffff 0%, #ecfbf2 100%);
+}
+
+.registrar-dashboard__stat-card:nth-child(2) {
+  background: linear-gradient(145deg, #ffffff 0%, #fff8e4 100%);
+}
+.registrar-dashboard__stat-card:nth-child(2)::before { background: var(--rd-gold); }
+.registrar-dashboard__stat-card:nth-child(2)::after { background: rgba(212, 167, 44, 0.10); }
+
+.registrar-dashboard__stat-card:nth-child(3) {
+  background: linear-gradient(145deg, #ffffff 0%, #edf5ff 100%);
+}
+.registrar-dashboard__stat-card:nth-child(3)::before { background: var(--rd-blue); }
+.registrar-dashboard__stat-card:nth-child(3)::after { background: rgba(37, 99, 235, 0.08); }
+
+.registrar-dashboard__stat-card:nth-child(4) {
+  background: linear-gradient(145deg, #ffffff 0%, #f6efff 100%);
+}
+.registrar-dashboard__stat-card:nth-child(4)::before { background: var(--rd-violet); }
+.registrar-dashboard__stat-card:nth-child(4)::after { background: rgba(124, 58, 237, 0.08); }
+
+.registrar-dashboard__stat-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 18px 34px rgba(31, 56, 40, 0.14);
+}
+
+.registrar-dashboard__stat-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 15px;
+  box-shadow: 0 8px 18px rgba(15, 122, 69, 0.10);
+}
+
+.registrar-dashboard__stat-card:nth-child(2) .registrar-dashboard__stat-icon {
+  color: var(--rd-gold-deep);
+  background: var(--rd-gold-soft);
+  border-color: #edd796;
+}
+
+.registrar-dashboard__stat-card:nth-child(3) .registrar-dashboard__stat-icon {
+  color: var(--rd-blue);
+  background: var(--rd-blue-soft);
+  border-color: #cfe0ff;
+}
+
+.registrar-dashboard__stat-card:nth-child(4) .registrar-dashboard__stat-icon {
+  color: var(--rd-violet);
+  background: var(--rd-violet-soft);
+  border-color: #dfd1ff;
+}
+
+.registrar-dashboard__stat-copy > span {
+  font-size: 11px;
+  font-weight: 760;
+  letter-spacing: 0.025em;
+  text-transform: uppercase;
+}
+
+.registrar-dashboard__stat-copy strong {
+  font-size: 29px;
+}
+
+/* PANELS — stronger hierarchy */
+.registrar-dashboard__panel {
+  border: 0;
+  border-radius: 22px;
+  box-shadow: 0 14px 34px rgba(31, 56, 40, 0.09);
+}
+
+.registrar-dashboard__panel-header {
+  padding: 22px 24px 18px;
+  background: linear-gradient(180deg, #ffffff 0%, #fbfdfb 100%);
+  border-bottom-color: #e6eee8;
+}
+
+.registrar-dashboard__section-kicker {
+  width: fit-content;
+  padding: 5px 8px;
+  border-radius: 999px;
+  color: #0c6b3d;
+  background: #eaf7ef;
+  font-size: 9.8px;
+}
+
+.registrar-dashboard__panel-header h2 {
+  margin-top: 7px;
+  font-size: 20px;
+}
+
+/* EMPTY STATES — less dead space */
+.registrar-dashboard__inline-state {
+  min-height: 210px;
+  flex-direction: column;
+  gap: 14px;
+  padding: 38px 24px;
+  text-align: center;
+  background:
+    radial-gradient(circle at center, rgba(21, 148, 82, 0.055), transparent 45%),
+    linear-gradient(180deg, #ffffff, #fbfdfb);
+}
+
+.registrar-dashboard__inline-state > svg {
+  width: 54px;
+  height: 54px;
+  padding: 13px;
+  border-radius: 50%;
+  color: #ffffff;
+  background: linear-gradient(145deg, #18a75d, #0b6c3c);
+  box-shadow: 0 10px 24px rgba(13, 101, 59, 0.20);
+}
+
+.registrar-dashboard__inline-state--warning > svg {
+  color: #8a5c00;
+  background: linear-gradient(145deg, #fff6d9, #ffe5a0);
+  box-shadow: 0 10px 24px rgba(180, 125, 0, 0.12);
+}
+
+.registrar-dashboard__inline-state strong {
+  font-size: 14px;
+}
+
+.registrar-dashboard__inline-state p {
+  max-width: 420px;
+  font-size: 11.8px;
+}
+
+/* ACADEMIC PERIOD — blue/green contrast */
+.registrar-dashboard__period-card {
+  background: linear-gradient(180deg, #ffffff 0%, #f7fbff 100%);
+}
+
+.registrar-dashboard__period-focus {
+  border-color: #cfe4fb;
+  background: linear-gradient(135deg, #f7fbff, #edf7ff);
+}
+
+.registrar-dashboard__period-focus-icon {
+  color: var(--rd-blue);
+  border-color: #d6e6ff;
+  background: #ffffff;
+  box-shadow: 0 7px 16px rgba(37, 99, 235, 0.10);
+}
+
+.registrar-dashboard__period-status--open {
+  color: #0a6c3d;
+  background: #e9f9ef;
+  border-color: #bde5ca;
+  box-shadow: 0 0 0 4px rgba(21, 148, 82, 0.05);
+}
+
+/* QUICK ACTIONS */
+.registrar-dashboard__quick-panel {
+  background: linear-gradient(180deg, #ffffff 0%, #fbfcff 100%);
+}
+
+.registrar-dashboard__quick-grid {
+  gap: 14px;
+  padding: 18px 20px 22px;
+}
+
+.registrar-dashboard__quick-card {
+  position: relative;
+  overflow: hidden;
+  min-height: 86px;
+  padding: 16px;
+  border: 1px solid #e3ebe5;
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow: 0 6px 18px rgba(31, 56, 40, 0.045);
+}
+
+.registrar-dashboard__quick-card::after {
+  content: "";
+  position: absolute;
+  top: -30px;
+  right: -30px;
+  width: 85px;
+  height: 85px;
+  border-radius: 50%;
+  background: rgba(21, 148, 82, 0.06);
+}
+
+.registrar-dashboard__quick-card:nth-child(2)::after,
+.registrar-dashboard__quick-card:nth-child(5)::after { background: rgba(212, 167, 44, 0.07); }
+.registrar-dashboard__quick-card:nth-child(3)::after,
+.registrar-dashboard__quick-card:nth-child(6)::after { background: rgba(37, 99, 235, 0.06); }
+
+.registrar-dashboard__quick-card:hover {
+  transform: translateY(-4px);
+  border-color: #b9d9c5;
+  background: #ffffff;
+  box-shadow: 0 14px 26px rgba(31, 56, 40, 0.10);
+}
+
+.registrar-dashboard__quick-icon {
+  width: 45px;
+  height: 45px;
+  border-radius: 14px;
+  color: #ffffff;
+  border: 0;
+  background: linear-gradient(145deg, #159452, #0b6339);
+  box-shadow: 0 8px 18px rgba(13, 101, 59, 0.17);
+}
+
+.registrar-dashboard__quick-card:nth-child(2) .registrar-dashboard__quick-icon,
+.registrar-dashboard__quick-card:nth-child(5) .registrar-dashboard__quick-icon {
+  background: linear-gradient(145deg, #d7ad36, #ad7c08);
+}
+
+.registrar-dashboard__quick-card:nth-child(3) .registrar-dashboard__quick-icon,
+.registrar-dashboard__quick-card:nth-child(6) .registrar-dashboard__quick-icon {
+  background: linear-gradient(145deg, #3b82f6, #1d4ed8);
+}
+
+.registrar-dashboard__quick-copy strong {
+  font-size: 12.6px;
+}
+
+.registrar-dashboard__quick-copy small {
+  white-space: normal;
+  font-size: 10.5px;
+}
+
+/* ANNOUNCEMENTS */
+.registrar-dashboard__announcement-card {
+  min-height: 200px;
+  padding: 18px;
+  border: 1px solid #e5e9ef;
+  border-radius: 17px;
+  background: linear-gradient(180deg, #ffffff 0%, #fbfbff 100%);
+  box-shadow: 0 7px 18px rgba(31, 56, 40, 0.045);
+}
+
+.registrar-dashboard__announcement-card:hover {
+  transform: translateY(-4px);
+  border-color: #d6cbf5;
+  background: #ffffff;
+  box-shadow: 0 14px 28px rgba(31, 56, 40, 0.10);
+}
+
+.registrar-dashboard__announcement-card > strong {
+  font-size: 14px;
+}
+
+/* Footer meta */
+.registrar-dashboard__footer-meta {
+  margin-top: 4px;
+  padding: 8px 4px 0;
+}
+
+@media (max-width: 720px) {
+  .registrar-dashboard__hero {
+    min-height: 0;
+    padding: 24px;
+  }
+
+  .registrar-dashboard__stat-card {
+    min-height: 105px;
+  }
+
+  .registrar-dashboard__inline-state {
+    min-height: 180px;
+  }
+}
+
+/* =========================================================
+   VISUAL REFRESH V3 — DESIGNED PAGE BACKGROUND
+   Adds visible depth behind the dashboard cards while
+   preserving the V2 PTC academic theme.
+========================================================= */
+
+.registrar-dashboard {
+  --rd-canvas: #edf5f0;
+  --rd-canvas-deep: #e5f0e9;
+  --rd-canvas-light: #f8fbf9;
+
+  position: relative;
+  isolation: isolate;
+
+  background-color: var(--rd-canvas);
+  background-image:
+    radial-gradient(
+      circle at 8% 8%,
+      rgba(21, 148, 82, 0.18) 0,
+      rgba(21, 148, 82, 0.07) 15%,
+      transparent 32%
+    ),
+    radial-gradient(
+      circle at 91% 5%,
+      rgba(212, 167, 44, 0.16) 0,
+      rgba(212, 167, 44, 0.055) 14%,
+      transparent 29%
+    ),
+    radial-gradient(
+      circle at 88% 72%,
+      rgba(37, 99, 235, 0.09) 0,
+      transparent 25%
+    ),
+    radial-gradient(
+      circle at 14% 88%,
+      rgba(124, 58, 237, 0.055) 0,
+      transparent 24%
+    ),
+    linear-gradient(
+      120deg,
+      rgba(255, 255, 255, 0.68) 0%,
+      rgba(255, 255, 255, 0.24) 35%,
+      transparent 35.2%,
+      transparent 66%,
+      rgba(255, 255, 255, 0.28) 66.2%,
+      rgba(255, 255, 255, 0.58) 100%
+    ),
+    radial-gradient(
+      circle at 1px 1px,
+      rgba(7, 59, 36, 0.055) 1px,
+      transparent 1.15px
+    ),
+    linear-gradient(
+      180deg,
+      var(--rd-canvas-light) 0%,
+      #f0f6f2 38%,
+      var(--rd-canvas) 72%,
+      var(--rd-canvas-deep) 100%
+    );
+
+  background-size:
+    auto,
+    auto,
+    auto,
+    auto,
+    auto,
+    28px 28px,
+    auto;
+
+  background-attachment: scroll;
+}
+
+/* A soft highlighted strip behind the top dashboard area. */
+.registrar-dashboard::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  top: 18px;
+  right: 18px;
+  left: 18px;
+  height: 360px;
+  border: 1px solid rgba(255, 255, 255, 0.68);
+  border-radius: 30px;
+  background:
+    linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.58),
+      rgba(220, 245, 230, 0.30)
+    );
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.72),
+    0 24px 55px rgba(31, 56, 40, 0.055);
+  pointer-events: none;
+}
+
+/* Decorative contour rings in the page canvas. */
+.registrar-dashboard::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  top: 430px;
+  right: -120px;
+  width: 420px;
+  height: 420px;
+  border: 1px solid rgba(21, 148, 82, 0.09);
+  border-radius: 50%;
+  box-shadow:
+    0 0 0 44px rgba(21, 148, 82, 0.025),
+    0 0 0 88px rgba(21, 148, 82, 0.018);
+  pointer-events: none;
+}
+
+/* Let the cards stand clearly above the designed canvas. */
+.registrar-dashboard__hero,
+.registrar-dashboard__stat-card,
+.registrar-dashboard__panel {
+  position: relative;
+  z-index: 1;
+}
+
+/* Slight glass treatment on white panels to blend with the canvas. */
+.registrar-dashboard__panel {
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* Preserve the intentional colored surfaces from V2. */
+.registrar-dashboard__period-card {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.98) 0%,
+    rgba(247, 251, 255, 0.98) 100%
+  );
+}
+
+.registrar-dashboard__quick-panel {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.98) 0%,
+    rgba(251, 252, 255, 0.98) 100%
+  );
+}
+
+@media (max-width: 720px) {
+  .registrar-dashboard::before {
+    top: 10px;
+    right: 8px;
+    left: 8px;
+    height: 300px;
+    border-radius: 22px;
+  }
+
+  .registrar-dashboard::after {
+    top: 520px;
+    right: -210px;
+  }
+
+  .registrar-dashboard {
+    background-size:
+      auto,
+      auto,
+      auto,
+      auto,
+      auto,
+      24px 24px,
+      auto;
+  }
+}
+
+/* =========================================================
+   VISUAL REFRESH V4 — VISIBLE ACADEMIC CANVAS
+   Stronger background treatment so the page no longer reads
+   as a plain white dashboard.
+========================================================= */
+
+.registrar-dashboard {
+  --rd-v4-mint: #e6f1e9;
+  --rd-v4-mint-deep: #dcebe1;
+  --rd-v4-cream: #f8f3df;
+  --rd-v4-blue: #eaf2ff;
+
+  background-color: var(--rd-v4-mint) !important;
+  background-image:
+    linear-gradient(135deg, rgba(15, 122, 69, 0.08) 25%, transparent 25%),
+    linear-gradient(225deg, rgba(15, 122, 69, 0.055) 25%, transparent 25%),
+    linear-gradient(45deg, rgba(212, 167, 44, 0.045) 25%, transparent 25%),
+    linear-gradient(315deg, rgba(37, 99, 235, 0.035) 25%, transparent 25%),
+    radial-gradient(circle at 12% 10%, rgba(21, 148, 82, 0.22), transparent 25%),
+    radial-gradient(circle at 88% 6%, rgba(212, 167, 44, 0.18), transparent 23%),
+    radial-gradient(circle at 92% 72%, rgba(37, 99, 235, 0.10), transparent 24%),
+    linear-gradient(180deg, #edf6f0 0%, #e5f0e9 48%, #dce9e0 100%) !important;
+  background-size:
+    96px 96px,
+    96px 96px,
+    128px 128px,
+    128px 128px,
+    auto,
+    auto,
+    auto,
+    auto !important;
+  background-position:
+    0 0,
+    48px 48px,
+    0 0,
+    64px 64px,
+    center,
+    center,
+    center,
+    center !important;
+}
+
+/* More visible top canvas, framing the hero and KPI cards. */
+.registrar-dashboard::before {
+  top: 14px !important;
+  right: 16px !important;
+  left: 16px !important;
+  height: 374px !important;
+  border: 1px solid rgba(15, 122, 69, 0.14) !important;
+  border-radius: 30px !important;
+  background:
+    linear-gradient(120deg, rgba(255, 255, 255, 0.70), rgba(240, 248, 242, 0.48)),
+    radial-gradient(circle at 86% 12%, rgba(212, 167, 44, 0.12), transparent 28%) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.95),
+    0 26px 55px rgba(7, 59, 36, 0.11) !important;
+}
+
+/* Larger decorative rings so the lower canvas has personality. */
+.registrar-dashboard::after {
+  top: 405px !important;
+  right: -92px !important;
+  width: 470px !important;
+  height: 470px !important;
+  border: 2px solid rgba(15, 122, 69, 0.13) !important;
+  box-shadow:
+    0 0 0 48px rgba(15, 122, 69, 0.045),
+    0 0 0 96px rgba(212, 167, 44, 0.025),
+    0 0 0 144px rgba(15, 122, 69, 0.018) !important;
+}
+
+/* Give the KPI row its own soft floating strip. */
+.registrar-dashboard__stats {
+  position: relative;
+  z-index: 1;
+  padding: 10px;
+  margin: -2px -2px 20px;
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.42);
+  box-shadow: 0 14px 34px rgba(7, 59, 36, 0.08);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* Place the work queue area on a visibly tinted section canvas. */
+.registrar-dashboard__priority-grid {
+  position: relative;
+  z-index: 1;
+  padding: 16px;
+  margin: 0 -2px 20px;
+  border: 1px solid rgba(15, 122, 69, 0.10);
+  border-radius: 26px;
+  background:
+    linear-gradient(135deg, rgba(240, 249, 243, 0.88), rgba(229, 241, 233, 0.82)),
+    radial-gradient(circle at 8% 20%, rgba(21, 148, 82, 0.09), transparent 32%);
+  box-shadow: 0 18px 42px rgba(7, 59, 36, 0.07);
+}
+
+/* Bottom workspace sections get subtle tinted canvases too. */
+.registrar-dashboard__quick-panel,
+.registrar-dashboard__announcement-panel {
+  border-color: rgba(15, 122, 69, 0.13) !important;
+  box-shadow: 0 16px 38px rgba(7, 59, 36, 0.09) !important;
+}
+
+.registrar-dashboard__quick-panel {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 252, 249, 0.96)) !important;
+}
+
+.registrar-dashboard__announcement-panel {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(250, 248, 255, 0.96)) !important;
+}
+
+/* Make the empty queue feel intentional rather than like unused white space. */
+.registrar-dashboard__panel--queue .registrar-dashboard__inline-state {
+  margin: 18px;
+  min-height: 190px;
+  border: 1px dashed rgba(15, 122, 69, 0.22);
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(21, 148, 82, 0.09), transparent 38%),
+    linear-gradient(135deg, #fbfefc, #f0f8f3);
+}
+
+.registrar-dashboard__footer-meta {
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.45);
+}
+
+@media (max-width: 720px) {
+  .registrar-dashboard__stats,
+  .registrar-dashboard__priority-grid {
+    margin-right: 0;
+    margin-left: 0;
+    padding: 10px;
+    border-radius: 18px;
+  }
+
+  .registrar-dashboard::before {
+    right: 6px !important;
+    left: 6px !important;
+    height: 340px !important;
+    border-radius: 22px !important;
+  }
+}
+
+/* =========================================================
+   V5 — FILL THE OUTER DASHBOARD WORKSPACE
+   The white strips in the screenshot belong to DashboardLayout:
+   .dashboard-content has 20px padding, and the hidden header
+   container still occupies layout height.
+   These rules affect only pages containing .registrar-dashboard.
+========================================================= */
+
+/* Remove the shared 20px white gutter for the Registrar dashboard
+   and let the designed canvas reach the full workspace edges. */
+.dashboard-main:has(.registrar-dashboard) .dashboard-content {
+  padding: 0;
+  background:
+    radial-gradient(
+      circle at 7% 10%,
+      rgba(21, 148, 82, 0.17) 0,
+      rgba(21, 148, 82, 0.055) 20%,
+      transparent 38%
+    ),
+    radial-gradient(
+      circle at 92% 8%,
+      rgba(212, 167, 44, 0.14) 0,
+      rgba(212, 167, 44, 0.045) 18%,
+      transparent 34%
+    ),
+    linear-gradient(
+      180deg,
+      #eef7f1 0%,
+      #e8f3ec 48%,
+      #e4f0e8 100%
+    );
+  overflow-x: hidden;
+}
+
+/* The header is translated upward when hidden, but its parent normally
+   still keeps the 58px height. Collapse that parent so there is no
+   empty white bar above the page. */
+.dashboard-main:has(.registrar-dashboard)
+  .header-container:has(.app-header.hide) {
+  height: 0;
+  min-height: 0;
+  border: 0;
+}
+
+/* Restore the header's normal space whenever it is shown. */
+.dashboard-main:has(.registrar-dashboard)
+  .header-container:has(.app-header.show) {
+  height: 58px;
+  min-height: 58px;
+}
+
+/* Match the visible header to the Registrar theme instead of leaving
+   the generic layout color around the page. */
+.dashboard-main:has(.registrar-dashboard) .app-header {
+  background:
+    linear-gradient(
+      90deg,
+      rgba(235, 247, 239, 0.98),
+      rgba(242, 248, 238, 0.98)
+    );
+  border-bottom-color: rgba(13, 101, 59, 0.12);
+}
+
+/* The Registrar page itself becomes the full designed workspace.
+   Internal padding still keeps cards comfortably away from the edges. */
+.dashboard-main:has(.registrar-dashboard) .registrar-dashboard {
+  width: 100%;
+  min-height: 100%;
+  overflow-x: clip;
+}
+
+/* Prevent decorative pseudo-elements from producing the horizontal
+   scrollbar that was visible in the screenshot. */
+.dashboard-main:has(.registrar-dashboard) .registrar-dashboard::before,
+.dashboard-main:has(.registrar-dashboard) .registrar-dashboard::after {
+  max-width: 100%;
+}
+
+/* Mobile: keep edge-to-edge canvas but use the page's own smaller
+   internal spacing. */
+@media (max-width: 720px) {
+  .dashboard-main:has(.registrar-dashboard) .dashboard-content {
+    padding: 0;
   }
 }
