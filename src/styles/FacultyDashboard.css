@@ -633,3 +633,368 @@
     display: none;
   }
 }
+
+/* =====================================================================
+   FACULTY DASHBOARD — PTC APPROVED GREEN DESIGN
+   Matches the subtle 96px unified Registrar canvas, not the oversized
+   circles/diagonal diamonds from earlier Admin pages.
+   This section scopes every UI change to the Faculty Dashboard route.
+   It preserves all original JSX, navigation, sidebar and footer.
+   ===================================================================== */
+
+/* Remove only the content gutter beside the shared sidebar. */
+.dashboard-main:has(> .dashboard-content > .faculty-dashboard) > .dashboard-content {
+  padding: 0 !important;
+  min-width: 0;
+  overflow-x: clip;
+  background-color: var(--ptc-canvas-color, #e6f1e9) !important;
+  background-image: var(--ptc-canvas-pattern, linear-gradient(180deg, #edf6f0, #e2eee6)) !important;
+  background-size: var(--ptc-canvas-tiles, auto) !important;
+  background-position: var(--ptc-canvas-offsets, center) !important;
+  background-repeat: repeat, repeat, repeat, repeat, no-repeat, no-repeat, no-repeat, no-repeat !important;
+}
+
+/* A hidden shared header must not leave a white horizontal strip. */
+.dashboard-main:has(.faculty-dashboard) > .header-container:has(.app-header.hide) {
+  height: 0;
+  min-height: 0;
+  border: 0;
+}
+
+.faculty-dashboard {
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  min-height: 100%;
+  padding: 27px 27px 42px;
+  overflow-x: clip;
+  background-color: var(--ptc-canvas-color, #e6f1e9) !important;
+  background-image: var(--ptc-canvas-pattern, linear-gradient(180deg, #edf6f0, #e2eee6)) !important;
+  background-size: var(--ptc-canvas-tiles, auto) !important;
+  background-position: var(--ptc-canvas-offsets, center) !important;
+  background-repeat: repeat, repeat, repeat, repeat, no-repeat, no-repeat, no-repeat, no-repeat !important;
+  --fd-border: #dce9e0;
+  --fd-border-strong: #c6ddce;
+  --fd-surface: #ffffff;
+  --fd-text-950: #18241d;
+  --fd-text-800: #2b4032;
+  --fd-text-600: #607267;
+  --fd-text-500: #718177;
+}
+
+/* Explicitly disable giant decorative rings; no ring should spill out of
+   a header or card. The subtle tiled canvas is the only page decoration. */
+.faculty-dashboard::before,
+.faculty-dashboard::after,
+.faculty-dashboard__hero::before,
+.faculty-dashboard__hero::after,
+.faculty-dashboard__quick-card::before,
+.faculty-dashboard__quick-card::after {
+  content: none !important;
+  display: none !important;
+}
+
+/* Faculty hero: same hierarchy and treatment as the approved Registrar hero. */
+.faculty-dashboard__hero {
+  position: relative;
+  min-height: 182px;
+  padding: 29px 31px;
+  margin-bottom: 16px;
+  border: 1px solid rgba(213, 255, 234, .17);
+  border-radius: 23px;
+  background: linear-gradient(108deg, #06482e 0%, #086b3c 55%, #138848 100%);
+  box-shadow: 0 15px 32px rgba(5, 76, 43, .14);
+}
+.faculty-dashboard__eyebrow {
+  margin-bottom: 12px;
+  color: #e9fff2;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .06em;
+}
+.faculty-dashboard__eyebrow-icon {
+  width: 30px;
+  height: 30px;
+  color: #ffffff;
+  border: 1px solid rgba(255,255,255,.24);
+  background: rgba(255,255,255,.16);
+}
+.faculty-dashboard__hero h1 {
+  color: #ffffff !important;
+  font-size: clamp(28px, 2.7vw, 38px);
+  font-weight: 800;
+  letter-spacing: -.04em;
+}
+.faculty-dashboard__hero p {
+  color: #e2f7eb !important;
+  font-size: 13px;
+  line-height: 1.7;
+}
+.faculty-dashboard__identity {
+  padding: 10px 14px;
+  min-height: 59px;
+  border: 1px solid rgba(255,255,255,.24);
+  border-radius: 14px;
+  background: rgba(242,255,247,.17);
+  box-shadow: none;
+  backdrop-filter: none;
+}
+.faculty-dashboard__identity-icon {
+  color: #07623a;
+  background: #e8fff0;
+  box-shadow: 0 5px 12px rgba(0,0,0,.08);
+}
+.faculty-dashboard__identity-copy small { color: #d2f5df; }
+.faculty-dashboard__identity-copy strong { color: #ffffff; }
+.faculty-dashboard__identity-copy > span { color: #e5f9eb; }
+
+/* Existing four QUICK LINKS, not invented statistics. Matching palette. */
+.faculty-dashboard__quick-grid {
+  gap: 12px;
+  padding: 11px;
+  margin-bottom: 19px;
+  border: 1px solid rgba(255,255,255,.76);
+  border-radius: 23px;
+  background: rgba(255,255,255,.55);
+  box-shadow: 0 10px 25px rgba(8,70,37,.075);
+}
+.faculty-dashboard__quick-card {
+  position: relative;
+  min-width: 0;
+  min-height: 112px;
+  padding: 18px 15px;
+  overflow: hidden;
+  border: 1px solid #d9ebdd;
+  border-left: 4px solid #0b9b57;
+  border-radius: 16px;
+  background: linear-gradient(115deg,#f4fcf7,#e9f8ef);
+  box-shadow: 0 6px 17px rgba(11,70,37,.06);
+}
+.faculty-dashboard__quick-card:nth-child(2) {
+  border-color: #f1e5c4;
+  border-left-color: #dca318;
+  background: linear-gradient(115deg,#fffaf0,#fff5de);
+}
+.faculty-dashboard__quick-card:nth-child(3) {
+  border-color: #d5e5ff;
+  border-left-color: #2563eb;
+  background: linear-gradient(115deg,#f5f9ff,#e9f1ff);
+}
+.faculty-dashboard__quick-card:nth-child(4) {
+  border-color: #e6dcff;
+  border-left-color: #873cec;
+  background: linear-gradient(115deg,#faf7ff,#f1e9ff);
+}
+.faculty-dashboard__quick-icon {
+  width: 47px;
+  height: 47px;
+  color: #ffffff;
+  border: 0;
+  border-radius: 13px;
+  background: linear-gradient(140deg,#0b9855,#075a35);
+  box-shadow: 0 6px 12px rgba(4,105,56,.16);
+}
+.faculty-dashboard__quick-card:nth-child(2) .faculty-dashboard__quick-icon {
+  color: #a36a00;
+  border: 1px solid #f1d995;
+  background: #fff4d8;
+  box-shadow: none;
+}
+.faculty-dashboard__quick-card:nth-child(3) .faculty-dashboard__quick-icon {
+  color: #2463ec;
+  border: 1px solid #ccdeff;
+  background: #e8f1ff;
+  box-shadow: none;
+}
+.faculty-dashboard__quick-card:nth-child(4) .faculty-dashboard__quick-icon {
+  color: #7c38e3;
+  border: 1px solid #e0d0ff;
+  background: #f3ebff;
+  box-shadow: none;
+}
+.faculty-dashboard__quick-copy strong {
+  color: #1a281e;
+  font-size: 13px;
+  font-weight: 790;
+}
+.faculty-dashboard__quick-copy small {
+  color: #60746a;
+  font-size: 10.3px;
+  line-height: 1.5;
+}
+.faculty-dashboard__quick-arrow { color: #82978a; }
+.faculty-dashboard__quick-card:hover {
+  transform: translateY(-2px);
+  border-top-color: #c5e2d0;
+  box-shadow: 0 10px 22px rgba(12,66,36,.1);
+}
+
+/* White content surfaces and consistent text hierarchy. */
+.faculty-dashboard__main-grid { gap: 17px; margin-bottom: 18px; }
+.faculty-dashboard__panel,
+.faculty-dashboard__grades {
+  padding: 22px;
+  border: 1px solid #d9e7dc;
+  border-radius: 20px;
+  background: #ffffff;
+  box-shadow: 0 10px 26px rgba(8,66,36,.07);
+}
+.faculty-dashboard__section-kicker {
+  display: inline-flex;
+  width: fit-content;
+  margin-bottom: 9px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  color: #087b44;
+  background: #e8f7ee;
+  font-size: 9px;
+  font-weight: 800;
+}
+.faculty-dashboard__panel-header h2,
+.faculty-dashboard__grades-header h2 {
+  color: #18251d;
+  font-size: 18px;
+  font-weight: 800;
+}
+.faculty-dashboard__panel-header p { color: #6a7d70; }
+.faculty-dashboard__text-action {
+  color: #087044;
+  background: #fbfffc;
+  border-color: #c5decd;
+}
+.faculty-dashboard__workflow-item,
+.faculty-dashboard__workspace-actions > button,
+.faculty-dashboard__grade-card {
+  border-color: #e0eae3;
+  background: #f9fcfa;
+  border-radius: 13px;
+}
+.faculty-dashboard__workflow-icon,
+.faculty-dashboard__workspace-actions > button > span,
+.faculty-dashboard__grade-icon {
+  color: #087b45;
+  background: #e5f7ec;
+}
+.faculty-dashboard__workflow-item:nth-child(2) .faculty-dashboard__workflow-icon,
+.faculty-dashboard__grade-card:nth-child(2) .faculty-dashboard__grade-icon {
+  color: #a36a00;
+  background: #fff4d8;
+}
+.faculty-dashboard__workflow-item:nth-child(3) .faculty-dashboard__workflow-icon,
+.faculty-dashboard__grade-card:nth-child(3) .faculty-dashboard__grade-icon {
+  color: #2563eb;
+  background: #e9f1ff;
+}
+.faculty-dashboard__workflow-item:nth-child(4) .faculty-dashboard__workflow-icon {
+  color: #7c38e3;
+  background: #f3ebff;
+}
+.faculty-dashboard__reminder {
+  border-color: #cde7d5;
+  background: linear-gradient(120deg,#f7fcf8,#eef9f2);
+}
+.faculty-dashboard__grades-header { margin-bottom: 17px; }
+.faculty-dashboard__grade-grid { gap: 12px; }
+.faculty-dashboard__grade-card { min-height: 98px; padding: 16px; }
+.faculty-dashboard__grade-card:hover,
+.faculty-dashboard__workspace-actions > button:hover {
+  background: #f0faf4;
+  border-color: #b8dbc4;
+}
+
+/* Dark mode: explicit charcoal background and surfaces; no bright page flash. */
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,
+    .dark-mode,.theme-dark,.dark) .dashboard-main:has(> .dashboard-content > .faculty-dashboard) > .dashboard-content {
+  background-color: #151d1a !important;
+  background-image: linear-gradient(135deg,rgba(59,94,73,.15) 25%,transparent 25%),
+    linear-gradient(225deg,rgba(54,81,64,.10) 25%,transparent 25%),
+    linear-gradient(180deg,#17211c,#111816) !important;
+  background-size: 96px 96px,96px 96px,auto !important;
+  background-repeat: repeat,repeat,no-repeat !important;
+}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,
+    .dark-mode,.theme-dark,.dark) .faculty-dashboard {
+  --fd-text-950: #ecf6ee;
+  --fd-text-800: #dceae0;
+  --fd-text-600: #b7cbbd;
+  --fd-text-500: #a1b5a6;
+  --fd-surface: #1c2922;
+  --fd-border: #354b3c;
+  background-color: #151d1a !important;
+  background-image: linear-gradient(135deg,rgba(59,94,73,.15) 25%,transparent 25%),
+    linear-gradient(225deg,rgba(54,81,64,.10) 25%,transparent 25%),
+    linear-gradient(180deg,#17211c,#111816) !important;
+  background-size: 96px 96px,96px 96px,auto !important;
+  background-repeat: repeat,repeat,no-repeat !important;
+}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,
+    .dark-mode,.theme-dark,.dark) .faculty-dashboard__quick-grid {
+  background: rgba(20,29,23,.7);
+  border-color: #385341;
+}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,
+    .dark-mode,.theme-dark,.dark) .faculty-dashboard__quick-card {
+  background: #1f3327;
+  border-color: #345740;
+  border-left-color: #20a965;
+}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,
+    .dark-mode,.theme-dark,.dark) .faculty-dashboard__quick-card:nth-child(2) { background: #342d20; border-left-color: #dfab36; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,
+    .dark-mode,.theme-dark,.dark) .faculty-dashboard__quick-card:nth-child(3) { background: #202d41; border-left-color: #598cf0; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,
+    .dark-mode,.theme-dark,.dark) .faculty-dashboard__quick-card:nth-child(4) { background: #30263c; border-left-color: #a57ff1; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,
+    .dark-mode,.theme-dark,.dark) .faculty-dashboard__quick-copy strong { color: #f0f6f1; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,
+    .dark-mode,.theme-dark,.dark) .faculty-dashboard__quick-copy small { color: #b9c9bd; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,
+    .dark-mode,.theme-dark,.dark) :is(.faculty-dashboard__panel,.faculty-dashboard__grades) {
+  background: #1d2922;
+  border-color: #344a3b;
+  box-shadow: 0 8px 24px rgba(0,0,0,.16);
+}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,
+    .dark-mode,.theme-dark,.dark) :is(.faculty-dashboard__panel-header h2,.faculty-dashboard__grades-header h2,
+    .faculty-dashboard__workflow-item strong,.faculty-dashboard__workspace-actions strong,
+    .faculty-dashboard__grade-copy strong) { color: #eef6ef; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,
+    .dark-mode,.theme-dark,.dark) :is(.faculty-dashboard__panel-header p,.faculty-dashboard__workflow-item p,
+    .faculty-dashboard__workspace-actions small,.faculty-dashboard__grade-copy small,
+    .faculty-dashboard__reminder p) { color: #b9c8bd; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,
+    .dark-mode,.theme-dark,.dark) :is(.faculty-dashboard__workflow-item,.faculty-dashboard__workspace-actions > button,
+    .faculty-dashboard__grade-card) {
+  background: #24332a;
+  border-color: #385143;
+  color: #edf6ed;
+}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,
+    .dark-mode,.theme-dark,.dark) :is(.faculty-dashboard__text-action,.faculty-dashboard__reminder) {
+  color: #c6f1d5;
+  background: #20392b;
+  border-color: #386148;
+}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,
+    .dark-mode,.theme-dark,.dark) .faculty-dashboard__reminder strong { color: #e8f7ec; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,
+    .dark-mode,.theme-dark,.dark) .faculty-dashboard__reminder-icon { color: #9ddfb5; background: #294734; }
+
+/* Keep Faculty's original responsive breakpoints and shrink only canvas padding. */
+@media (max-width: 860px) {
+  .faculty-dashboard { padding: 21px 18px 34px; }
+  .faculty-dashboard__hero { min-height: 0; padding: 26px 23px; }
+  .faculty-dashboard__quick-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+}
+@media (max-width: 640px) {
+  .faculty-dashboard { padding: 16px 12px 29px; }
+  .faculty-dashboard__hero { padding: 24px 19px; border-radius: 17px; }
+  .faculty-dashboard__quick-grid { grid-template-columns: 1fr; border-radius: 17px; padding: 8px; }
+  .faculty-dashboard__quick-card { min-height: 94px; }
+  .faculty-dashboard__panel,.faculty-dashboard__grades { padding: 16px; border-radius: 15px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .faculty-dashboard * { transition-duration: 0.01ms !important; }
+}
