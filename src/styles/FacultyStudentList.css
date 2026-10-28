@@ -731,3 +731,500 @@
     animation-duration: 1.5s;
   }
 }
+
+
+/* ===========================================================================
+   PTC PORTAL / FACULTY CLASS STUDENT LIST — APPROVED UNIFIED DESIGN
+   Source page: src/pages/faculty/Classes/StudentList.tsx
+   CSS remains scoped to .faculty-student-list-page and its workspace.
+   Uses EXACT shared ptc-unified-canvas.css variables (no custom tile pattern).
+   No edits to app sidebar, footer, routing, student data, or API behavior.
+   =========================================================================== */
+
+/* Remove the blank white dashboard-content gutter only on this route. */
+html body .dashboard-wrapper .dashboard-main:has(> .dashboard-content > .faculty-student-list-page) > .dashboard-content {
+  padding: 0 !important;
+  min-width: 0;
+  overflow-x: clip;
+  background-color: var(--ptc-canvas-color, #e6f1e9) !important;
+  background-image: var(--ptc-canvas-pattern) !important;
+  background-size: var(--ptc-canvas-tiles) !important;
+  background-position: var(--ptc-canvas-offsets) !important;
+  background-repeat: repeat, repeat, repeat, repeat, no-repeat, no-repeat, no-repeat, no-repeat !important;
+}
+/* The hidden app header must not leave an empty white band above this page. */
+.dashboard-main:has(.faculty-student-list-page) > .header-container:has(.app-header.hide) {
+  height: 0;
+  min-height: 0;
+  border: 0;
+}
+html body .dashboard-wrapper .dashboard-main .dashboard-content > .faculty-student-list-page {
+  --fsr-text-950: #17251e;
+  --fsr-text-900: #253a2b;
+  --fsr-text-700: #425b4b;
+  --fsr-text-600: #607469;
+  --fsr-text-500: #73867b;
+  --fsr-border: #d8e8dd;
+  --fsr-border-soft: #e8f0e9;
+  --fsr-surface: #ffffff;
+  --fsr-surface-soft: #f5faf7;
+  gap: 17px;
+  max-width: 100%;
+  min-width: 0;
+  padding: 27px 28px 42px;
+  color: var(--fsr-text-950);
+  background-color: var(--ptc-canvas-color, #e6f1e9) !important;
+  background-image: var(--ptc-canvas-pattern) !important;
+  background-size: var(--ptc-canvas-tiles) !important;
+  background-position: var(--ptc-canvas-offsets) !important;
+  background-repeat: repeat, repeat, repeat, repeat, no-repeat, no-repeat, no-repeat, no-repeat !important;
+}
+
+/* Dark PTC green hero — no huge decorative circle pseudo-elements. */
+.faculty-student-list-page .faculty-student-list-header {
+  isolation: isolate;
+  min-height: 181px;
+  padding: 29px 31px;
+  border-radius: 23px;
+  border: 1px solid rgba(222, 255, 237, 0.18);
+  background: linear-gradient(108deg, #06482e 0%, #086b3c 55%, #138848 100%);
+  box-shadow: 0 16px 34px rgba(4, 71, 36, 0.15);
+}
+.faculty-student-list-page .faculty-student-list-header::before,
+.faculty-student-list-page .faculty-student-list-header::after {
+  content: none !important;
+  display: none !important;
+}
+.faculty-student-list-page .faculty-roster-back {
+  width: fit-content;
+  margin-bottom: 13px;
+  padding: 7px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 10px;
+  color: #f0fff5;
+  background: rgba(255, 255, 255, 0.14);
+  font-size: 11px;
+}
+.faculty-student-list-page .faculty-roster-back:hover {
+  color: #074a2d;
+  border-color: #e2f7e9;
+  background: #f3fff6;
+}
+.faculty-student-list-page .faculty-roster-eyebrow {
+  margin-bottom: 13px;
+  color: #e8fff0;
+  font-size: 11px;
+  font-weight: 800;
+}
+.faculty-student-list-page .faculty-roster-eyebrow__icon {
+  width: 30px;
+  height: 30px;
+  flex-basis: 30px;
+  color: #f6fff9;
+  border: 1px solid rgba(255,255,255,.23);
+  background: rgba(255,255,255,.15);
+}
+.faculty-student-list-page .faculty-student-list-header h1 {
+  color: #ffffff !important;
+  font-size: clamp(29px, 2.5vw, 38px);
+  font-weight: 820;
+  letter-spacing: -0.045em;
+}
+.faculty-student-list-page .faculty-student-list-header p {
+  color: #e1f7e9 !important;
+  max-width: 740px;
+  font-size: 13px;
+  line-height: 1.68;
+}
+.faculty-student-list-page .faculty-roster-header-actions {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+}
+.faculty-student-list-page .faculty-roster-action-button,
+.faculty-student-list-page .faculty-roster-refresh {
+  min-height: 44px;
+  padding: 10px 15px;
+  border-radius: 11px;
+  font-size: 11.5px;
+  font-weight: 750;
+}
+.faculty-student-list-page .faculty-roster-action-button {
+  color: #0a6840;
+  border: 1px solid #ffffff;
+  background: #e9fff1;
+  box-shadow: 0 6px 14px rgba(1, 47, 24, .09);
+}
+.faculty-student-list-page .faculty-roster-action-button:hover:not(:disabled) {
+  background: #ffffff;
+  border-color: #ffffff;
+}
+.faculty-student-list-page .faculty-roster-refresh {
+  color: #08653c;
+  border: 1px solid #ffffff;
+  background: #ffffff;
+  box-shadow: 0 6px 14px rgba(1, 47, 24, .11);
+}
+.faculty-student-list-page .faculty-roster-refresh:hover:not(:disabled) {
+  color: #064f2d;
+  background: #e8f8ed;
+  border-color: #e8f8ed;
+}
+
+/* Class identity / subject section. */
+.faculty-student-list-page .faculty-roster-class-card {
+  gap: 15px;
+  padding: 18px;
+  border: 1px solid #d9e9df;
+  border-radius: 21px;
+  background: #ffffff;
+  box-shadow: 0 10px 25px rgba(8, 66, 36, .07);
+}
+.faculty-student-list-page .faculty-roster-subject {
+  padding: 19px;
+  border: 1px solid #cce7d6;
+  border-left: 4px solid #0b9953;
+  border-radius: 15px;
+  background: linear-gradient(120deg, #f4fcf7, #e7f8ee);
+}
+.faculty-student-list-page .faculty-roster-subject > span {
+  color: #087747;
+  font-size: 10px;
+}
+.faculty-student-list-page .faculty-roster-subject > strong {
+  color: #1b3122;
+  font-size: clamp(22px, 2vw, 28px);
+}
+.faculty-student-list-page .faculty-roster-subject p {
+  color: #587265;
+  font-size: 12px;
+}
+.faculty-student-list-page .faculty-roster-class-grid { gap: 11px; }
+.faculty-student-list-page .faculty-roster-class-grid > div {
+  padding: 13px;
+  border: 1px solid #e1ece4;
+  border-radius: 12px;
+  background: #f8fbf9;
+}
+.faculty-student-list-page .faculty-roster-class-grid span {
+  color: #638171;
+  font-size: 9px;
+}
+.faculty-student-list-page .faculty-roster-class-grid strong {
+  color: #233b2c;
+  font-size: 12px;
+}
+.faculty-student-list-page .faculty-roster-class-grid small {
+  color: #738579;
+  font-size: 10px;
+}
+
+/* Four EXISTING metric cards, in the approved order: green/gold/blue/violet. */
+.faculty-student-list-page .faculty-roster-summary {
+  gap: 12px;
+  padding: 11px;
+  border: 1px solid rgba(255,255,255,.82);
+  border-radius: 23px;
+  background: rgba(255,255,255,.54);
+  box-shadow: 0 10px 24px rgba(10, 66, 36, .08);
+}
+.faculty-student-list-page .faculty-roster-summary article {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  min-height: 108px;
+  gap: 13px;
+  padding: 16px;
+  border: 1px solid #deebdf;
+  border-left: 4px solid #0b9953;
+  border-radius: 17px;
+  background: linear-gradient(110deg,#f4fcf7,#e9f8ef);
+  box-shadow: 0 6px 16px rgba(13,69,37,.055);
+}
+.faculty-student-list-page .faculty-roster-summary article:nth-child(2) {
+  border-color: #f1e5c4;
+  border-left-color: #dc9b0c;
+  background: linear-gradient(110deg,#fffaf0,#fff4d9);
+}
+.faculty-student-list-page .faculty-roster-summary article:nth-child(3) {
+  border-color: #d5e5ff;
+  border-left-color: #2563eb;
+  background: linear-gradient(110deg,#f5f9ff,#e9f1ff);
+}
+.faculty-student-list-page .faculty-roster-summary article:nth-child(4) {
+  border-color: #e7ddff;
+  border-left-color: #873cec;
+  background: linear-gradient(110deg,#fbf7ff,#f1e9ff);
+}
+.faculty-student-list-page .faculty-roster-summary article::before,
+.faculty-student-list-page .faculty-roster-summary article::after {
+  content: none !important;
+}
+.faculty-student-list-page .faculty-roster-summary__icon {
+  width: 45px;
+  height: 45px;
+  border: 0;
+  border-radius: 12px;
+  color: #ffffff;
+  background: linear-gradient(145deg,#0b9955,#065c34);
+  box-shadow: 0 6px 12px rgba(4,100,57,.16);
+}
+.faculty-student-list-page .faculty-roster-summary article:nth-child(2) .faculty-roster-summary__icon {
+  color: #a36a00;
+  border: 1px solid #f3d994;
+  background: #fff4d3;
+  box-shadow: none;
+}
+.faculty-student-list-page .faculty-roster-summary article:nth-child(3) .faculty-roster-summary__icon {
+  color: #2563eb;
+  border: 1px solid #cfdeff;
+  background: #e9f1ff;
+  box-shadow: none;
+}
+.faculty-student-list-page .faculty-roster-summary article:nth-child(4) .faculty-roster-summary__icon {
+  color: #7b35e9;
+  border: 1px solid #e0d2ff;
+  background: #f2ebff;
+  box-shadow: none;
+}
+.faculty-student-list-page .faculty-roster-summary article span:not(.faculty-roster-summary__icon) {
+  color: #5f7165;
+  font-size: 10px;
+  font-weight: 760;
+  letter-spacing: .015em;
+  text-transform: uppercase;
+}
+.faculty-student-list-page .faculty-roster-summary article strong {
+  color: #18271d;
+  font-size: clamp(14px,1.65vw,21px);
+  font-weight: 820;
+}
+
+/* Searchable roster workspace */
+.faculty-student-list-page .faculty-roster-content {
+  padding: 0 0 18px;
+  overflow: hidden;
+  border: 1px solid #d9e9df;
+  border-radius: 21px;
+  background: #ffffff;
+  box-shadow: 0 10px 25px rgba(8,66,36,.07);
+}
+.faculty-student-list-page .faculty-roster-content-header {
+  align-items: center;
+  gap: 18px;
+  padding: 20px 22px;
+  margin: 0;
+  border-bottom: 1px solid #e6efe8;
+  background: linear-gradient(100deg, #ffffff 55%, #f5fbf7);
+}
+.faculty-student-list-page .faculty-roster-content-header h2 {
+  color: #1b2c20;
+  font-size: 19px;
+  font-weight: 810;
+}
+.faculty-student-list-page .faculty-roster-content-header p {
+  color: #687d6e;
+  font-size: 11px;
+}
+.faculty-student-list-page .faculty-roster-search { flex: 0 1 345px; }
+.faculty-student-list-page .faculty-roster-search input {
+  min-height: 43px;
+  border: 1px solid #cbded0;
+  border-radius: 11px;
+  color: #203528;
+  background: #fff;
+  font-size: 11.5px;
+}
+.faculty-student-list-page .faculty-roster-search input::placeholder { color: #829788; }
+.faculty-student-list-page .faculty-roster-search > svg { color: #688a76; }
+.faculty-student-list-page .faculty-roster-table-wrapper {
+  margin: 16px 19px 0;
+  border: 1px solid #dfe9e2;
+  border-radius: 12px;
+}
+.faculty-student-list-page .faculty-roster-table { background: #ffffff; }
+.faculty-student-list-page .faculty-roster-table th {
+  padding: 13px;
+  border-color: #dbe8df;
+  color: #496957;
+  background: #f3f8f5;
+  font-size: 9px;
+}
+.faculty-student-list-page .faculty-roster-table td {
+  padding: 14px 13px;
+  border-color: #edf2ee;
+  color: #536659;
+  font-size: 11px;
+}
+.faculty-student-list-page .faculty-roster-table tbody tr:hover { background: #f5fbf7; }
+.faculty-student-list-page .faculty-roster-table td > strong,
+.faculty-student-list-page .faculty-roster-student-name strong { color: #203a29; }
+.faculty-student-list-page .faculty-roster-student-name small { color: #778a7d; }
+.faculty-student-list-page .faculty-roster-badge.approved,
+.faculty-student-list-page .faculty-roster-badge.enrolled {
+  border-color: #c0e8ce;
+  color: #086b3c;
+  background: #e4f8eb;
+}
+.faculty-student-list-page .faculty-roster-id { color: #4e6757; background: #f3f8f5; }
+
+/* Error, loading, empty states, and scoped refresh spinner. */
+.faculty-student-list-page .faculty-roster-loading {
+  min-height: 225px;
+  border: 1px solid #d9e9df;
+  border-radius: 18px;
+  background: #ffffff;
+  box-shadow: 0 8px 24px rgba(8, 66, 36, .06);
+}
+.faculty-student-list-page .faculty-roster-loading strong { color: #203b2a; }
+.faculty-student-list-page .faculty-roster-loading span { color: #71867a; }
+.faculty-student-list-page .faculty-roster-error {
+  border-color: #f2c8c3;
+  background: #fff5f3;
+  border-radius: 15px;
+}
+.faculty-student-list-page .faculty-roster-empty {
+  margin: 16px 19px 0;
+  background: #f6fbf8;
+  border-color: #c7e2d0;
+  border-radius: 13px;
+}
+.faculty-student-list-page .faculty-roster-empty strong { color: #24432f; }
+.faculty-student-list-page .faculty-roster-empty p { color: #6a7f70; }
+.faculty-student-list-page :is(button,input):focus-visible {
+  outline: 3px solid rgba(13, 125, 71, .25);
+  outline-offset: 2px;
+}
+
+/* Responsive: never allow the 7-column table to enlarge the page viewport. */
+@media (max-width: 1080px) {
+  .faculty-student-list-page .faculty-roster-class-card { grid-template-columns: 1fr; }
+  .faculty-student-list-page .faculty-roster-summary { grid-template-columns: repeat(2,minmax(0,1fr)); }
+}
+@media (max-width: 860px) {
+  html body .dashboard-wrapper .dashboard-main .dashboard-content > .faculty-student-list-page { padding: 22px 18px 35px; }
+  .faculty-student-list-page .faculty-student-list-header { min-height: 0; }
+  .faculty-student-list-page .faculty-roster-content-header { align-items: stretch; }
+  .faculty-student-list-page .faculty-roster-search { flex: 1 1 auto; width: 100%; }
+}
+@media (max-width: 700px) {
+  html body .dashboard-wrapper .dashboard-main .dashboard-content > .faculty-student-list-page { padding: 16px 12px 30px; }
+  .faculty-student-list-page .faculty-student-list-header { padding: 25px 20px; border-radius: 18px; }
+  .faculty-student-list-page .faculty-student-list-header h1 { font-size: 28px; }
+  .faculty-student-list-page .faculty-roster-summary { border-radius: 18px; }
+  .faculty-student-list-page .faculty-roster-content { border-radius: 17px; }
+  .faculty-student-list-page .faculty-roster-content-header { padding: 18px; }
+  .faculty-student-list-page .faculty-roster-class-card { padding: 14px; border-radius: 17px; }
+  .faculty-student-list-page .faculty-roster-table-wrapper { margin: 12px 12px 0; }
+  .faculty-student-list-page .faculty-roster-empty { margin: 12px 12px 0; }
+}
+@media (max-width: 520px) {
+  .faculty-student-list-page .faculty-roster-summary { grid-template-columns: 1fr; }
+  .faculty-student-list-page .faculty-roster-class-grid { grid-template-columns: 1fr; }
+  .faculty-student-list-page .faculty-roster-header-actions { flex-direction: column; align-items: stretch; }
+  .faculty-student-list-page .faculty-roster-action-button,
+  .faculty-student-list-page .faculty-roster-refresh { width: 100%; }
+}
+
+/* Theme applies only to this Faculty roster, not the shared sidebar/footer. */
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, .dark)
+  .dashboard-wrapper .dashboard-main:has(> .dashboard-content > .faculty-student-list-page) > .dashboard-content {
+  background-color: #16221b !important;
+  background-image: linear-gradient(135deg, rgba(59,95,71,.12) 25%, transparent 25%),
+                    linear-gradient(225deg, rgba(54,83,63,.10) 25%, transparent 25%),
+                    linear-gradient(180deg,#19261e,#142019) !important;
+  background-size: 96px 96px,96px 96px,auto !important;
+  background-position: 0 0,48px 48px,center !important;
+  background-repeat: repeat,repeat,no-repeat !important;
+}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, .dark)
+  .dashboard-wrapper .dashboard-main .dashboard-content > .faculty-student-list-page {
+  --fsr-text-950: #e2efe5;
+  --fsr-text-900: #d9e6dc;
+  --fsr-text-700: #b9d0bf;
+  --fsr-text-600: #a7bdac;
+  --fsr-border: #365044;
+  --fsr-border-soft: #304738;
+  color: #e2efe5;
+  background-color: #16221b !important;
+  background-image: linear-gradient(135deg, rgba(59,95,71,.12) 25%, transparent 25%),
+                    linear-gradient(225deg, rgba(54,83,63,.10) 25%, transparent 25%),
+                    linear-gradient(180deg,#19261e,#142019) !important;
+  background-size: 96px 96px,96px 96px,auto !important;
+  background-position: 0 0,48px 48px,center !important;
+  background-repeat: repeat,repeat,no-repeat !important;
+}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, .dark)
+  .faculty-student-list-page :is(.faculty-roster-class-card,.faculty-roster-content,.faculty-roster-loading) {
+  background: #1d2b22;
+  border-color: #3c5344;
+  box-shadow: 0 8px 23px rgba(0,0,0,.14);
+}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, .dark)
+  .faculty-student-list-page .faculty-roster-subject { background: #203a2b; border-color: #42674e; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, .dark)
+  .faculty-student-list-page .faculty-roster-subject :is(strong,span) { color: #ddf8e5; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, .dark)
+  .faculty-student-list-page .faculty-roster-subject p { color: #b7d5c2; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, .dark)
+  .faculty-student-list-page .faculty-roster-class-grid > div { background: #25352a; border-color: #3a5241; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, .dark)
+  .faculty-student-list-page .faculty-roster-class-grid :is(span,small) { color: #b0c7b5; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, .dark)
+  .faculty-student-list-page .faculty-roster-class-grid strong { color: #e1efe3; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, .dark)
+  .faculty-student-list-page .faculty-roster-summary { background: rgba(29,47,35,.8); border-color: #365444; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, .dark)
+  .faculty-student-list-page .faculty-roster-summary article { background: #20382a; border-color: #385b45; border-left-color: #29a66a; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, .dark)
+  .faculty-student-list-page .faculty-roster-summary article:nth-child(2) { background: #3b3120; border-color: #6a542b; border-left-color: #e2ad35; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, .dark)
+  .faculty-student-list-page .faculty-roster-summary article:nth-child(3) { background: #1d3046; border-color: #36597c; border-left-color: #468af3; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, .dark)
+  .faculty-student-list-page .faculty-roster-summary article:nth-child(4) { background: #302544; border-color: #574276; border-left-color: #ac75f3; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, .dark)
+  .faculty-student-list-page .faculty-roster-summary article :is(strong,span:not(.faculty-roster-summary__icon)) { color: #e2efe5; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, .dark)
+  .faculty-student-list-page .faculty-roster-content-header { background: #223329; border-color: #3b5242; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, .dark)
+  .faculty-student-list-page .faculty-roster-content-header h2 { color: #e2f1e5; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, .dark)
+  .faculty-student-list-page .faculty-roster-content-header p { color: #adbfaf; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, .dark)
+  .faculty-student-list-page .faculty-roster-search input { color: #e1efe4; background: #1b2c21; border-color: #49634e; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, .dark)
+  .faculty-student-list-page .faculty-roster-search input::placeholder { color: #a8bdac; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, .dark)
+  .faculty-student-list-page .faculty-roster-table-wrapper { border-color: #3d5645; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, .dark)
+  .faculty-student-list-page .faculty-roster-table { background: #1d2b22; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, .dark)
+  .faculty-student-list-page .faculty-roster-table th { color: #cbe2d0; background: #263b2d; border-color: #3c5544; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, .dark)
+  .faculty-student-list-page .faculty-roster-table td { color: #cbdacb; border-color: #35483b; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, .dark)
+  .faculty-student-list-page .faculty-roster-table tbody tr:hover { background: #283e2f; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, .dark)
+  .faculty-student-list-page .faculty-roster-table td > strong,
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, .dark)
+  .faculty-student-list-page .faculty-roster-student-name strong { color: #e3f0e5; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, .dark)
+  .faculty-student-list-page .faculty-roster-student-name small { color: #aac2b0; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, .dark)
+  .faculty-student-list-page .faculty-roster-id { color: #b8ceb9; background: #2a3c30; border-color: #4a6250; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, .dark)
+  .faculty-student-list-page .faculty-roster-empty { color: #b8cbb8; background: #24372a; border-color: #44674d; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, .dark)
+  .faculty-student-list-page .faculty-roster-empty :is(strong,p) { color: #d2e5d5; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, .dark)
+  .faculty-student-list-page .faculty-roster-loading :is(strong,span) { color: #d5e7d8; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, .dark)
+  .faculty-student-list-page .faculty-roster-error { background: #3a2525; border-color: #815353; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, .dark)
+  .faculty-student-list-page .faculty-roster-error :is(strong,p) { color: #ffd7d3; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, .dark)
+  .faculty-student-list-page .faculty-roster-error-actions button { color: #ffe2db; background: #4a3131; border-color: #845a54; }
+
+@media (prefers-reduced-motion: reduce) {
+  .faculty-student-list-page .faculty-roster-summary article { transition: none !important; }
+}
