@@ -1,223 +1,630 @@
-.registrar-manual-payment {
-  width: min(1200px, calc(100% - 48px));
-  margin: 0 auto;
-  padding: 32px 0 48px;
-  color: #202124;
+/* ============================================================================
+   PTC PORTAL — REGISTRAR / DOCUMENTS / OTHER PAYMENT VERIFICATION
+   Visual refresh for the existing read-only Finance Payment History page.
+   CSS only: no artificial verification actions, invented statistics, or new markup.
+   Keep these selectors scoped to ManualPaymentVerifications.tsx.
+   ============================================================================ */
+
+/* Remove the generic white layout gutter on THIS Registrar page only. */
+.dashboard-main:has(> .dashboard-content .registrar-manual-payment)
+  > .dashboard-content {
+  padding: 0;
+  overflow-x: clip;
+  background: #e7f3eb;
 }
 
+/* The hidden shared header should not leave an empty white bar. */
+.dashboard-main:has(.registrar-manual-payment)
+  > .header-container:has(.app-header.hide) {
+  height: 0;
+  min-height: 0;
+  border: 0;
+}
+.dashboard-main:has(.registrar-manual-payment)
+  > .header-container:has(.app-header.show) {
+  height: 58px;
+  min-height: 58px;
+}
+
+/* Page canvas: patterned mint background from the Registrar Dashboard. */
+.registrar-manual-payment {
+  --rmp-green-dark: #075032;
+  --rmp-green: #0d7545;
+  --rmp-green-bright: #15965b;
+  --rmp-ink: #18251e;
+  --rmp-subtle: #64756a;
+  --rmp-line: #d9e7de;
+  --rmp-white: #fff;
+  box-sizing: border-box;
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  max-width: none;
+  min-height: 100%;
+  margin: 0;
+  padding: 25px 28px 45px;
+  overflow-x: clip;
+  color: var(--rmp-ink);
+  background-color: #e8f3eb;
+  background-image:
+    radial-gradient(ellipse at 9% 9%, rgba(19, 139, 77, .13), transparent 43%),
+    radial-gradient(ellipse at 88% 18%, rgba(219, 186, 84, .11), transparent 33%),
+    linear-gradient(135deg, rgba(20, 133, 80, .047) 25%, transparent 25%),
+    linear-gradient(225deg, rgba(20, 133, 80, .047) 25%, transparent 25%),
+    linear-gradient(315deg, rgba(20, 133, 80, .047) 25%, transparent 25%),
+    linear-gradient(45deg, rgba(20, 133, 80, .047) 25%, transparent 25%),
+    linear-gradient(180deg, #e9f4ed, #e0eee5);
+  background-size: auto, auto, 90px 90px, 90px 90px, 90px 90px, 90px 90px, auto;
+  background-position: center, center, 0 0, 0 45px, 45px -45px, -45px 0, center;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.registrar-manual-payment *,
+.registrar-manual-payment *::before,
+.registrar-manual-payment *::after {
+  box-sizing: border-box;
+}
+
+.registrar-manual-payment button,
+.registrar-manual-payment input {
+  font: inherit;
+}
+
+.registrar-manual-payment :is(button, input):focus-visible {
+  outline: 3px solid #73d99d;
+  outline-offset: 3px;
+}
+
+/* Main green feature header. */
 .registrar-manual-payment__header {
+  position: relative;
+  z-index: 0;
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: 24px;
-  margin-bottom: 24px;
+  min-height: 185px;
+  margin: 0 0 17px;
+  padding: 31px 32px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, .15);
+  border-radius: 24px;
+  color: #fff;
+  background:
+    radial-gradient(circle at 85% -5%, rgba(255, 255, 255, .13) 0 8%, transparent 8.2%),
+    radial-gradient(circle at 98% 115%, rgba(214, 255, 228, .105) 0 24%, transparent 24.3%),
+    linear-gradient(112deg, #075032 0%, #087343 62%, #198a54 100%);
+  box-shadow: 0 16px 29px rgba(7, 68, 37, .17);
 }
 
+.registrar-manual-payment__header::before,
+.registrar-manual-payment__header::after {
+  position: absolute;
+  z-index: -1;
+  content: "";
+  border: 1px solid rgba(226, 255, 234, .12);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.registrar-manual-payment__header::before {
+  top: -132px;
+  right: 78px;
+  width: 315px;
+  height: 315px;
+  border-width: 36px;
+  border-color: rgba(224, 255, 233, .08);
+}
+
+.registrar-manual-payment__header::after {
+  right: -104px;
+  bottom: -127px;
+  width: 320px;
+  height: 320px;
+}
+
+.registrar-manual-payment__header > div {
+  position: relative;
+  min-width: 0;
+  max-width: 870px;
+}
+
+/* Existing "Registrar" text is presented as a small section eyebrow. */
 .registrar-manual-payment__header span {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  color: #16834b;
-  font-size: 0.8rem;
+  gap: 9px;
+  margin: 0 0 11px;
+  color: #f1fff5;
+  font-size: 11px;
   font-weight: 800;
-  letter-spacing: 0.08em;
+  line-height: 1.2;
+  letter-spacing: .045em;
   text-transform: uppercase;
 }
 
+.registrar-manual-payment__header span svg {
+  display: block;
+  flex: 0 0 auto;
+  width: 29px;
+  height: 29px;
+  padding: 6px;
+  border: 1px solid rgba(255, 255, 255, .19);
+  border-radius: 9px;
+  color: #fff;
+  background: rgba(255, 255, 255, .17);
+  stroke-width: 2.3;
+}
+
 .registrar-manual-payment__header h1 {
-  margin: 8px 0;
-  color: #171717;
-  font-size: clamp(1.7rem, 3vw, 2.35rem);
+  margin: 0;
+  color: #fff;
+  font-size: clamp(27px, 3vw, 36px);
+  font-weight: 810;
   line-height: 1.15;
+  letter-spacing: -.03em;
+  overflow-wrap: anywhere;
 }
 
 .registrar-manual-payment__header p {
-  margin: 0;
-  color: #5b6068;
-  line-height: 1.6;
+  max-width: 720px;
+  margin: 11px 0 0;
+  color: #e1f5e8;
+  font-size: 13px;
+  line-height: 1.7;
 }
 
 .registrar-manual-payment__header button {
+  position: relative;
+  z-index: 1;
   display: inline-flex;
+  flex: 0 0 auto;
   align-items: center;
-  gap: 8px;
-  border: 1px solid #16834b;
-  border-radius: 9px;
-  padding: 10px 15px;
-  background: #16834b;
-  color: #fff;
+  justify-content: center;
+  gap: 9px;
+  min-height: 43px;
+  padding: 10px 18px;
+  border: 1px solid rgba(255, 255, 255, .95);
+  border-radius: 11px;
+  background: #fff;
+  color: #075c38;
+  box-shadow: 0 8px 19px rgba(7, 47, 26, .14);
   cursor: pointer;
-  font-weight: 700;
+  font-size: 12px;
+  font-weight: 740;
+  line-height: 1.2;
   white-space: nowrap;
+  transition: background-color 140ms ease, border-color 140ms ease;
+}
+
+.registrar-manual-payment__header button svg {
+  width: 16px;
+  height: 16px;
+  color: #087344;
 }
 
 .registrar-manual-payment__header button:hover:not(:disabled) {
-  background: #116b3d;
+  border-color: #dcf9e8;
+  background: #eafff0;
 }
 
 .registrar-manual-payment button:disabled {
+  opacity: .6;
   cursor: not-allowed;
-  opacity: 0.6;
 }
 
+/* Server errors are shown clearly without altering the fetch logic. */
 .registrar-manual-payment__error {
-  margin: 0 0 18px;
-  border: 1px solid #f0b8b8;
-  border-radius: 9px;
-  padding: 12px 14px;
-  background: #fff1f1;
-  color: #a12828;
+  margin: 0 0 17px;
+  padding: 14px 17px;
+  border: 1px solid #efc3bc;
+  border-left: 4px solid #d04436;
+  border-radius: 12px;
+  color: #922c26;
+  background: #fff5f3;
+  box-shadow: 0 6px 17px rgba(92, 32, 24, .045);
+  font-size: 13px;
+  line-height: 1.5;
 }
 
+/* Search tool panel. */
 .registrar-manual-payment__toolbar {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 18px;
-  border: 1px solid #d9dedb;
-  border-radius: 10px;
-  padding: 11px 14px;
-  background: #fff;
-  color: #69716c;
-  box-shadow: 0 3px 12px rgba(20, 40, 28, 0.04);
+  gap: 12px;
+  min-height: 66px;
+  margin: 0 0 17px;
+  padding: 12px 17px;
+  border: 1px solid rgba(255, 255, 255, .88);
+  border-radius: 17px;
+  background: rgba(255, 255, 255, .91);
+  box-shadow: 0 9px 22px rgba(17, 74, 41, .075);
+  color: #0c7846;
+}
+
+.registrar-manual-payment__toolbar > svg {
+  flex: 0 0 auto;
+  width: 36px;
+  height: 36px;
+  padding: 9px;
+  border: 1px solid #cae7d4;
+  border-radius: 11px;
+  background: #eaf8ef;
+  color: #0c7d49;
+  stroke-width: 2.15;
+}
+
+.registrar-manual-payment__toolbar:focus-within {
+  border-color: #91d5aa;
+  box-shadow: 0 0 0 3px rgba(39, 155, 92, .12), 0 9px 22px rgba(17, 74, 41, .07);
 }
 
 .registrar-manual-payment__toolbar input {
+  flex: 1;
   width: 100%;
+  min-width: 0;
+  min-height: 40px;
+  padding: 6px 2px;
   border: 0;
   outline: 0;
   background: transparent;
-  color: #202124;
-  font: inherit;
-  font-size: 0.95rem;
+  color: #21382a;
+  font-size: 13px;
+  font-weight: 520;
 }
 
 .registrar-manual-payment__toolbar input::placeholder {
-  color: #8a918c;
+  color: #84978a;
+  opacity: 1;
 }
 
+.registrar-manual-payment__toolbar input::-webkit-search-cancel-button {
+  cursor: pointer;
+}
+
+/* Transaction directory. */
 .registrar-manual-payment__panel {
   overflow: hidden;
-  border: 1px solid #e1e5e2;
-  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, .9);
+  border-radius: 23px;
   background: #fff;
-  box-shadow: 0 8px 24px rgba(20, 40, 28, 0.05);
+  box-shadow: 0 14px 30px rgba(21, 83, 48, .095);
 }
 
 .registrar-manual-payment__panel h2 {
+  position: relative;
   margin: 0;
-  padding: 20px 22px;
-  color: #202124;
-  font-size: 1.15rem;
+  padding: 45px 25px 22px;
+  border-bottom: 1px solid #e7efe9;
+  color: #1a2920;
+  background:
+    radial-gradient(circle at 98% 0, rgba(37, 145, 83, .05), transparent 32%),
+    linear-gradient(115deg, #fff, #f6fcf8);
+  font-size: clamp(17px, 1.8vw, 21px);
+  font-weight: 800;
+  line-height: 1.35;
+  letter-spacing: -.025em;
+}
+
+.registrar-manual-payment__panel h2::before {
+  position: absolute;
+  top: 12px;
+  left: 25px;
+  content: "PAYMENT RECORDS";
+  display: inline-block;
+  padding: 5px 10px;
+  border-radius: 999px;
+  color: #087446;
+  background: #e7f6ed;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .045em;
 }
 
 .registrar-manual-payment__panel > p {
-  margin: 0;
-  padding: 24px 22px;
-  color: #626862;
+  margin: 16px 18px 20px;
+  padding: 40px 20px;
+  border: 1px dashed #bedecb;
+  border-radius: 16px;
+  color: #567260;
+  background: linear-gradient(135deg, #f9fdfa, #eef9f2);
+  font-size: 13px;
+  font-weight: 550;
+  line-height: 1.65;
+  text-align: center;
 }
 
 .registrar-manual-payment__table {
   width: 100%;
   overflow-x: auto;
+  scrollbar-color: #b8d8c3 #f6fbf8;
+  scrollbar-width: thin;
 }
 
 .registrar-manual-payment table {
   width: 100%;
-  min-width: 760px;
+  min-width: 790px;
   border-collapse: collapse;
+  border-spacing: 0;
+  table-layout: auto;
 }
 
 .registrar-manual-payment th {
-  padding: 12px 18px;
-  border-top: 1px solid #edf0ee;
-  border-bottom: 1px solid #dfe5e1;
-  background: #f7faf8;
-  color: #4c554f;
-  font-size: 0.75rem;
+  padding: 14px 18px;
+  border-bottom: 1px solid #dfe9e2;
+  background: #f3f9f5;
+  color: #52695a;
+  font-size: 10px;
   font-weight: 800;
-  letter-spacing: 0.05em;
+  letter-spacing: .045em;
+  line-height: 1.4;
   text-align: left;
   text-transform: uppercase;
+  white-space: nowrap;
 }
 
 .registrar-manual-payment td {
-  padding: 15px 18px;
-  border-bottom: 1px solid #edf0ee;
-  color: #252825;
-  font-size: 0.92rem;
-  vertical-align: top;
+  padding: 19px 18px;
+  border-bottom: 1px solid #ebf1ed;
+  color: #25372b;
+  background: #fff;
+  font-size: 12px;
+  font-weight: 620;
+  line-height: 1.5;
+  vertical-align: middle;
+  overflow-wrap: anywhere;
+}
+
+.registrar-manual-payment td:first-child {
+  color: #07683f;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
 }
 
 .registrar-manual-payment tbody tr:last-child td {
   border-bottom: 0;
 }
 
-.registrar-manual-payment tbody tr:hover {
-  background: #fbfdfb;
+.registrar-manual-payment tbody tr:hover td {
+  background: #f7fcf9;
 }
 
-.registrar-manual-payment small {
+.registrar-manual-payment td small {
   display: block;
-  margin-top: 4px;
-  color: #737b75;
-  font-size: 0.78rem;
+  margin-top: 5px;
+  color: #708274;
+  font-size: 10.5px;
+  font-weight: 480;
+  line-height: 1.5;
 }
 
 .registrar-manual-payment td strong {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 12px;
+  border: 1px solid #bde8ce;
   border-radius: 999px;
-  padding: 5px 10px;
-  background: #e5f7ec;
-  color: #16733f;
-  font-size: 0.78rem;
+  background: #e7f8ee;
+  color: #0b7546;
+  font-size: 10px;
   font-weight: 800;
+  letter-spacing: .02em;
+  white-space: nowrap;
 }
 
+.registrar-manual-payment td strong::before {
+  content: "";
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: #13a363;
+  box-shadow: 0 0 0 3px rgba(19, 163, 99, .09);
+}
+
+/* Existing Previous / Next controls. */
 .registrar-manual-payment__pagination {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 14px;
-  padding: 16px 18px;
-  border-top: 1px solid #edf0ee;
-}
-
-.registrar-manual-payment__pagination button {
-  border: 1px solid #16834b;
-  border-radius: 7px;
-  padding: 8px 12px;
-  background: #16834b;
-  color: #fff;
-  cursor: pointer;
-  font-weight: 700;
-}
-
-.registrar-manual-payment__pagination button:disabled {
-  border-color: #cdd5cf;
-  background: #e8ece9;
-  color: #7b837d;
-  cursor: not-allowed;
+  gap: 12px;
+  min-height: 71px;
+  padding: 14px 21px;
+  border-top: 1px solid #e5ede7;
+  background: #fbfdfb;
 }
 
 .registrar-manual-payment__pagination span {
-  color: #555d57;
-  font-size: 0.88rem;
-  font-weight: 700;
+  color: #58715f;
+  font-size: 11px;
+  font-weight: 760;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.registrar-manual-payment__pagination button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 35px;
+  padding: 8px 15px;
+  border: 1px solid #16834b;
+  border-radius: 9px;
+  color: #fff;
+  background: #0c7544;
+  font-size: 11px;
+  font-weight: 720;
+  line-height: 1.2;
+  cursor: pointer;
+  transition: background-color 140ms ease, border-color 140ms ease;
+}
+
+.registrar-manual-payment__pagination button:hover:not(:disabled) {
+  border-color: #085c35;
+  background: #085c35;
+}
+
+.registrar-manual-payment__pagination button:disabled {
+  border-color: #d6e2d9;
+  color: #8b9a8d;
+  background: #eef3ef;
+  opacity: 1;
+  cursor: not-allowed;
+}
+
+/* Responsive page shell and scrolling table. */
+@media (max-width: 1000px) {
+  .registrar-manual-payment { padding: 20px 19px 36px; }
+  .registrar-manual-payment__header { min-height: 164px; padding: 27px 25px; }
 }
 
 @media (max-width: 700px) {
-  .registrar-manual-payment {
-    width: min(100% - 28px, 1200px);
-    padding-top: 22px;
-  }
-
+  .registrar-manual-payment { padding: 15px 12px 28px; }
   .registrar-manual-payment__header {
+    align-items: stretch;
     flex-direction: column;
+    gap: 21px;
+    min-height: 0;
+    padding: 25px 21px;
+    border-radius: 19px;
   }
+  .registrar-manual-payment__header h1 { font-size: clamp(25px, 6vw, 32px); }
+  .registrar-manual-payment__header p { font-size: 12px; }
+  .registrar-manual-payment__header button { align-self: flex-start; }
+  .registrar-manual-payment__toolbar { min-height: 59px; padding: 9px 12px; border-radius: 14px; }
+  .registrar-manual-payment__toolbar input { font-size: 12px; }
+  .registrar-manual-payment__panel { border-radius: 17px; }
+  .registrar-manual-payment__panel h2 { padding: 45px 17px 19px; }
+  .registrar-manual-payment__panel h2::before { left: 17px; }
+  .registrar-manual-payment__pagination { justify-content: space-between; gap: 7px; padding: 12px; }
+  .registrar-manual-payment__pagination button { padding: 8px 11px; }
+}
 
-  .registrar-manual-payment__header button {
-    align-self: stretch;
-    justify-content: center;
+@media (max-width: 380px) {
+  .registrar-manual-payment__header button { width: 100%; }
+  .registrar-manual-payment__pagination span { font-size: 10px; }
+}
+
+/* Dark mode: charcoal canvas and surfaces, no white entry overlay. */
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .dashboard-main:has(.registrar-manual-payment) > .dashboard-content {
+  background: #111d16;
+}
+
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-manual-payment {
+  --rmp-ink: #eef9f1;
+  --rmp-subtle: #b9cfc0;
+  --rmp-line: #385140;
+  --rmp-white: #1d3024;
+  color: #eef9f1;
+  background: #111d16;
+  background-image:
+    radial-gradient(ellipse at 13% 5%, rgba(42, 125, 73, .13), transparent 35%),
+    linear-gradient(180deg, #14241a, #111c15);
+}
+
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-manual-payment__toolbar,
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-manual-payment__panel {
+  border-color: #3b5c46;
+  background: #1d3024;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, .16);
+}
+
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-manual-payment__toolbar > svg {
+  border-color: #3d7251;
+  color: #8ee1ac;
+  background: #264e34;
+}
+
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-manual-payment__toolbar input {
+  color: #e7f6ea;
+  color-scheme: dark;
+}
+
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-manual-payment__toolbar input::placeholder { color: #9ab9a3; }
+
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-manual-payment__panel h2 {
+  border-bottom-color: #354f3d;
+  color: #f1faf3;
+  background: linear-gradient(110deg, #20382a, #1d3024);
+}
+
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-manual-payment__panel h2::before { color: #b2e9c4; background: #2d533a; }
+
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-manual-payment__panel > p {
+  border-color: #47694f;
+  color: #bdd9c5;
+  background: #223b2a;
+}
+
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-manual-payment th {
+  border-bottom-color: #3a5641;
+  color: #b7cfbb;
+  background: #263e2e;
+}
+
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-manual-payment td {
+  border-bottom-color: #34503e;
+  color: #e5f4e9;
+  background: #1d3024;
+}
+
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-manual-payment tbody tr:hover td { background: #284232; }
+
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-manual-payment td:first-child { color: #94e5b3; }
+
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-manual-payment td small { color: #a8bfad; }
+
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-manual-payment td strong {
+  border-color: #416d4f;
+  color: #a8efbf;
+  background: #285037;
+}
+
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-manual-payment__pagination {
+  border-top-color: #3a5541;
+  background: #22382a;
+}
+
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-manual-payment__pagination span { color: #c7ddcb; }
+
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-manual-payment__pagination button:disabled {
+  border-color: #3e5344;
+  color: #8da694;
+  background: #26382b;
+}
+
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-manual-payment__error {
+  border-color: #8c5149;
+  border-left-color: #f18c7a;
+  color: #ffe3dc;
+  background: #492923;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .registrar-manual-payment__header button,
+  .registrar-manual-payment__pagination button {
+    transition: none;
   }
 }

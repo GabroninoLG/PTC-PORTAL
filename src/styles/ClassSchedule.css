@@ -1443,3 +1443,660 @@
     font-size: 12px;
   }
 }
+
+/* =====================================================================
+   PTC PORTAL — PROGRAM HEAD / CLASS MANAGEMENT / MY TEACHING SCHEDULE
+   Dashboard-aligned visual update. The stylesheet is shared with Faculty.
+   Every override below is scoped to the Program Head-only read-only notice,
+   so the Faculty class schedule/editor and its dialogs stay unchanged.
+   No new JSX, metrics, actions or dialogs are introduced.
+   ===================================================================== */
+
+/* Remove the default 20px shared-layout gutter only on this screen. */
+.dashboard-main:has(> .dashboard-content > .faculty-schedule-page > .faculty-schedule-page__read-only-note) > .dashboard-content {
+  padding: 0;
+  min-width: 0;
+  background: #e6f2e9;
+  overflow-x: clip;
+}
+.dashboard-main:has(.faculty-schedule-page > .faculty-schedule-page__read-only-note) > .header-container:has(.app-header.hide) {
+  height: 0;
+  min-height: 0;
+  border: 0;
+}
+.dashboard-main:has(.faculty-schedule-page > .faculty-schedule-page__read-only-note) > .header-container:has(.app-header.show) {
+  min-height: 58px;
+}
+.dashboard-main:has(.faculty-schedule-page > .faculty-schedule-page__read-only-note) .app-header {
+  background: linear-gradient(90deg, #e1f0e6, #ecf6ed);
+  border-bottom-color: rgba(13, 101, 59, 0.14);
+}
+
+/* The direct-child notice distinguishes this page from Faculty's schedule. */
+.faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) {
+  --fs-green-950: #073b24;
+  --fs-green-900: #09502f;
+  --fs-green-800: #0b653b;
+  --fs-green-700: #0e8048;
+  --fs-green-600: #169553;
+  --fs-border: #d7e8dc;
+  --fs-border-strong: #bfd8c7;
+  --fs-text-950: #19251e;
+  --fs-text-800: #29392f;
+  --fs-text-600: #586c60;
+  --fs-text-500: #738277;
+  --fs-bg: #e6f2e9;
+  --fs-surface: #fff;
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  min-height: 100%;
+  margin: 0;
+  padding: 27px 28px 48px;
+  overflow-x: clip;
+  background-color: #e6f2e9;
+  background-image:
+    radial-gradient(ellipse at 7% 10%, rgba(12, 136, 71, .16), transparent 36%),
+    radial-gradient(ellipse at 88% 6%, rgba(220, 180, 63, .13), transparent 29%),
+    linear-gradient(135deg, rgba(21, 126, 75, .065) 25%, transparent 25%),
+    linear-gradient(225deg, rgba(21, 126, 75, .055) 25%, transparent 25%),
+    linear-gradient(315deg, rgba(21, 126, 75, .05) 25%, transparent 25%),
+    linear-gradient(45deg, rgba(21, 126, 75, .05) 25%, transparent 25%),
+    linear-gradient(180deg, #edf7ef, #e3f0e7 53%, #dcebe1);
+  background-size: auto, auto, 90px 90px, 90px 90px, 90px 90px, 90px 90px, auto;
+  background-position: center, center, 0 0, 0 45px, 45px -45px, -45px 0, center;
+}
+.faculty-schedule-page:has(> .faculty-schedule-page__read-only-note)::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 13px 13px auto;
+  height: 385px;
+  border: 1px solid rgba(255,255,255,.72);
+  border-radius: 30px;
+  background: linear-gradient(135deg, rgba(255,255,255,.40), rgba(224,244,232,.32));
+  box-shadow: 0 17px 40px rgba(7,59,36,.08);
+  pointer-events: none;
+}
+.faculty-schedule-page:has(> .faculty-schedule-page__read-only-note)::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  top: 420px;
+  right: -105px;
+  width: 380px;
+  height: 380px;
+  border: 1px solid rgba(11,101,59,.09);
+  border-radius: 50%;
+  box-shadow: 0 0 0 45px rgba(21,148,82,.025), 0 0 0 90px rgba(21,148,82,.02);
+  pointer-events: none;
+}
+
+/* Green branded hero. */
+.faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-page__hero {
+  position: relative;
+  min-height: 186px;
+  gap: 22px;
+  margin-bottom: 15px;
+  padding: 29px 31px;
+  border: 1px solid rgba(218,255,229,.28);
+  border-radius: 22px;
+  color: white;
+  background:
+    radial-gradient(circle at 90% 6%, rgba(180,255,202,.16) 0 12%, transparent 13%),
+    radial-gradient(circle at 103% 70%, rgba(147,248,179,.10) 0 18%, transparent 19%),
+    linear-gradient(113deg, #064b2d 0%, #08643c 48%, #13814a 77%, #2b9a61 100%);
+  box-shadow: 0 16px 30px rgba(8,72,42,.18);
+}
+.faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-page__hero::after {
+  top: -90px;
+  right: -46px;
+  width: 230px;
+  height: 230px;
+  border: 1px solid rgba(229,255,235,.21);
+  box-shadow: 0 0 0 48px rgba(232,255,238,.035);
+}
+.faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-page__eyebrow {
+  gap: 9px;
+  margin-bottom: 10px;
+  color: #e1f7e9;
+  font-size: 11px;
+  letter-spacing: .065em;
+}
+.faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-page__eyebrow > svg {
+  flex: 0 0 auto;
+  width: 27px;
+  height: 27px;
+  padding: 6px;
+  border: 1px solid rgba(255,255,255,.22);
+  border-radius: 8px;
+  color: white;
+  background: rgba(255,255,255,.17);
+}
+.faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-page__hero h1 {
+  color: #fff;
+  font-size: clamp(27px, 3vw, 37px);
+  font-weight: 800;
+  letter-spacing: -.035em;
+}
+.faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-page__hero p {
+  margin-top: 10px;
+  color: #e6f5ec;
+  font-size: 13.5px;
+  line-height: 1.6;
+}
+.faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-page__owner {
+  display: inline-block;
+  margin-top: 11px;
+  color: #effbf3;
+  font-size: 11.5px;
+  font-weight: 650;
+}
+.faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-page__refresh {
+  min-height: 42px;
+  padding: 10px 14px;
+  border: 1px solid #e0f4e7;
+  border-radius: 11px;
+  color: #075936;
+  background: #fff;
+  box-shadow: 0 6px 16px rgba(2,57,30,.09);
+  font-size: 12px;
+  font-weight: 740;
+}
+.faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-page__refresh:hover:not(:disabled) {
+  background: #effaf3;
+  border-color: #bfe5cf;
+}
+
+/* Filter panel: clean, roomy and consistent with the registrar directory. */
+.faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-page__filters {
+  overflow: hidden;
+  margin-bottom: 14px;
+  border: 1px solid #d5e6db;
+  border-radius: 19px;
+  background: #fff;
+  box-shadow: 0 9px 22px rgba(17,75,44,.07);
+}
+.faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-page__filters > header {
+  padding: 18px 21px;
+  border-bottom-color: #e4eee6;
+  background: linear-gradient(105deg, #fff, #f6fbf7);
+}
+.faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-page__filters-icon {
+  width: 39px;
+  height: 39px;
+  border-radius: 12px;
+  color: #fff;
+  background: #0c7845;
+  box-shadow: 0 6px 15px rgba(7,102,58,.17);
+}
+.faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-page__filters header strong {
+  color: #1b2a21;
+  font-size: 16px;
+  font-weight: 790;
+}
+.faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-page__filters header p {
+  color: #718177;
+  font-size: 11px;
+}
+.faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-page__filter-grid {
+  grid-template-columns: minmax(220px, 1.6fr) repeat(3, minmax(140px, 1fr));
+  gap: 12px;
+  padding: 18px 20px 21px;
+}
+.faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-page__filter-grid > label > span {
+  color: #43584b;
+  font-size: 10px;
+  font-weight: 750;
+}
+.faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-page__filter-grid input,
+.faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-page__filter-grid select {
+  min-height: 43px;
+  border: 1px solid #ccddd2;
+  border-radius: 10px;
+  color: #293c30;
+  background: #fff;
+  font-size: 11.5px;
+}
+.faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-page__search > div > svg {
+  color: #668174;
+}
+.faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-page__filter-grid input:focus,
+.faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-page__filter-grid select:focus {
+  border-color: #0f8b4e;
+  box-shadow: 0 0 0 3px rgba(13,145,77,.12);
+}
+.faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-page__filters header button {
+  min-height: 35px;
+  border-color: #b8dac6;
+  color: #0b6940;
+  background: #edfaf1;
+  font-size: 11px;
+}
+
+/* A visible, non-blocking read-only workflow notice. */
+.faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-page__read-only-note {
+  margin-bottom: 15px;
+  padding: 13px 17px;
+  border: 1px solid #c6dfcd;
+  border-left: 4px solid #13884c;
+  border-radius: 11px;
+  color: #285a3d;
+  background: #f1faf3;
+  box-shadow: 0 4px 13px rgba(17,75,44,.045);
+  font-size: 12px;
+}
+
+/* Weekly timetable and unscheduled subjects. */
+.faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-page__week,
+.faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-page__unscheduled {
+  margin-bottom: 17px;
+  border: 1px solid #d5e6db;
+  border-radius: 19px;
+  background: #fff;
+  box-shadow: 0 10px 26px rgba(17,75,44,.07);
+}
+.faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-page__section-header {
+  padding: 20px 22px;
+  border-bottom: 1px solid #e1ece4;
+  background: linear-gradient(100deg, #fff, #f1faf4);
+}
+.faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-page__section-header > div > span {
+  display: inline-flex;
+  padding: 5px 9px;
+  border-radius: 99px;
+  color: #0c7545;
+  background: #e5f6eb;
+  font-size: 9px;
+  letter-spacing: .06em;
+}
+.faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-page__section-header h2 {
+  margin-top: 8px;
+  color: #1d2921;
+  font-size: clamp(19px, 2vw, 22px);
+  font-weight: 790;
+}
+.faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-page__section-header p {
+  margin-top: 5px;
+  color: #66796c;
+  font-size: 11px;
+}
+.faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-page__count {
+  padding: 7px 12px;
+  border: 1px solid #c8e6d2;
+  color: #0a6e41;
+  background: #eaf8ed;
+  font-size: 10px;
+}
+.faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-page__days {
+  grid-template-columns: repeat(7, minmax(220px, 1fr));
+  gap: 12px;
+  max-width: 100%;
+  min-width: 0;
+  padding: 17px;
+  scrollbar-color: #b5d0bd #eef6f0;
+}
+.faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-day {
+  border: 1px solid #dbe9df;
+  border-radius: 13px;
+  background: #fff;
+  box-shadow: 0 3px 11px rgba(13,61,32,.035);
+}
+.faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-day__header {
+  padding: 12px 13px;
+  border-bottom-color: #dcebe0;
+  background: #f2f9f4;
+}
+.faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-day__header > div > span {
+  color: #14834a;
+  font-size: 9px;
+}
+.faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-day__header strong {
+  color: #1c3929;
+  font-size: 12px;
+}
+.faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-day__header small {
+  color: #586f60;
+  font-size: 9.5px;
+}
+.faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-day--empty {
+  background: #fafcfb;
+}
+.faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-day__no-class {
+  color: #8ba497;
+  font-size: 10px;
+}
+.faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-entry {
+  padding: 12px;
+  border: 1px solid #d9e9de;
+  border-radius: 11px;
+  background: #f9fdf9;
+}
+.faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-entry__time {
+  color: #0c7242;
+}
+.faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-entry__time strong {
+  font-size: 10.5px;
+}
+.faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-entry__subject > span {
+  color: #0b7844;
+  font-size: 9px;
+}
+.faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-entry__subject strong {
+  color: #1b3424;
+  font-size: 11.5px;
+}
+.faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-entry__meta > span {
+  color: #5e7566;
+  font-size: 9.5px;
+}
+.faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-entry__status {
+  font-size: 9px;
+}
+.faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-entry__side {
+  border-top-color: #dfeee3;
+}
+.faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-entry__side button {
+  border-color: #b9dbc5;
+  color: #075f38;
+  background: #fff;
+  font-size: 9.5px;
+}
+.faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-entry__side button:hover {
+  background: #e5f7eb;
+}
+.faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-page__unscheduled-grid {
+  gap: 12px;
+  padding: 18px;
+}
+.faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-page__unscheduled-grid article {
+  border: 1px solid #d9e8dd;
+  border-radius: 12px;
+  background: #fbfdfb;
+}
+.faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-page__unscheduled-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 11px;
+  color: #fff;
+  background: #0b7441;
+}
+.faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-page__unscheduled-grid article > div:nth-child(2) > span {
+  color: #0b7844;
+  font-size: 9px;
+}
+.faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-page__unscheduled-grid article > div:nth-child(2) > strong {
+  color: #213629;
+  font-size: 11.5px;
+}
+.faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-page__unscheduled-grid article > div:nth-child(2) > small {
+  color: #647c6b;
+  font-size: 9.5px;
+}
+/* The old stylesheet used !important on the unscheduled action buttons. */
+.faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-page__unscheduled-actions button {
+  height: auto !important;
+  min-height: 34px !important;
+  padding: 7px 10px !important;
+  border-color: #b5dbc3 !important;
+  border-radius: 9px !important;
+  color: #09633b !important;
+  background: #eef9f1 !important;
+  font-size: 10px !important;
+}
+.faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-page__unscheduled-actions button:hover {
+  background: #dff3e5 !important;
+}
+
+/* Empty, loading and error states. Never show a white loading overlay. */
+.faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-page__loading,
+.faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-page__empty {
+  min-height: 205px;
+  padding: 24px;
+  border: 1px solid #d8e7db;
+  border-radius: 17px;
+  background: #f8fdf9;
+  box-shadow: 0 9px 23px rgba(17,75,44,.055);
+}
+.faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-page__loading strong,
+.faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-page__empty strong {
+  color: #1f3929;
+  font-size: 13px;
+}
+.faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-page__loading span,
+.faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-page__empty p {
+  color: #60796b;
+  font-size: 11px;
+}
+.faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-page__empty > span {
+  width: 53px;
+  height: 53px;
+  color: #0f8048;
+  background: #dcf5e6;
+}
+.faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-page__error {
+  border-color: #efcbc5;
+  border-radius: 13px;
+  background: #fff8f6;
+}
+
+/* Tablet and mobile: the calendar scrolls within its own panel, not the page. */
+@media (max-width: 1150px) {
+  .faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-page__filter-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-page__search {
+    grid-column: 1 / -1;
+  }
+}
+@media (max-width: 850px) {
+  .faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) { padding: 19px 17px 35px; }
+  .faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-page__hero { padding: 24px 21px; }
+  .faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-page__filter-grid { padding: 15px; }
+}
+@media (max-width: 620px) {
+  .faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) { padding: 14px 12px 29px; }
+  .faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-page__hero { min-height: 0; padding: 23px 19px; border-radius: 17px; }
+  .faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-page__hero h1 { font-size: 27px; }
+  .faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-page__refresh { width: 100%; }
+  .faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-page__filter-grid { grid-template-columns: minmax(0,1fr); }
+  .faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-page__search { grid-column: auto; }
+  .faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-page__section-header { padding: 16px; }
+  .faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-page__days { padding: 12px; }
+  .faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-page__unscheduled-grid { padding: 12px; }
+}
+
+/* Dark Mode: all page surfaces and loading states stay charcoal/dark green. */
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .dashboard-main:has(> .dashboard-content > .faculty-schedule-page > .faculty-schedule-page__read-only-note) > .dashboard-content {
+  background: #101a14;
+}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .dashboard-main:has(.faculty-schedule-page > .faculty-schedule-page__read-only-note) .app-header {
+  background: #192a1f;
+  border-bottom-color: #34513c;
+}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) {
+  --fs-text-950: #eef8f0;
+  --fs-text-800: #d9eadc;
+  --fs-text-600: #b9d0be;
+  --fs-text-500: #a9c2b0;
+  --fs-border: #35513e;
+  --fs-border-strong: #45674f;
+  --fs-surface: #1c2d22;
+  color: #eaf6ed;
+  background: #111c16;
+  background-image: radial-gradient(ellipse at 85% 5%, rgba(16,122,68,.15), transparent 33%);
+}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .faculty-schedule-page:has(> .faculty-schedule-page__read-only-note)::before {
+  border-color: #304d38;
+  background: rgba(34,58,41,.32);
+  box-shadow: none;
+}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .faculty-schedule-page:has(> .faculty-schedule-page__read-only-note)::after { border-color: #2c5138; box-shadow: none; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-page__filters,
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-page__week,
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-page__unscheduled,
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-page__loading,
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-page__empty {
+  border-color: #345540;
+  background: #1d3023;
+  box-shadow: 0 10px 22px rgba(0,0,0,.18);
+}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-page__filters > header,
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-page__section-header {
+  border-bottom-color: #355441;
+  background: #243a2b;
+}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-page__filters header strong,
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-page__section-header h2,
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-page__loading strong,
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-page__empty strong { color: #eef9f1; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-page__filters header p,
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-page__section-header p,
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-page__loading span,
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-page__empty p { color: #b7cdbd; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-page__filter-grid > label > span { color: #c5ddcb; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-page__filter-grid input,
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-page__filter-grid select {
+  border-color: #3e6049;
+  color: #ebf5ed;
+  background: #243a2b;
+  color-scheme: dark;
+}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-page__filter-grid input::placeholder { color: #b0c8b8; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-page__read-only-note {
+  border-color: #3d684c;
+  color: #c4ead1;
+  background: #213c2b;
+}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-page__section-header > div > span,
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-page__count {
+  border-color: #3b694a;
+  color: #afe7c1;
+  background: #294a34;
+}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-day {
+  border-color: #385b45;
+  background: #20362a;
+}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-day__header {
+  border-bottom-color: #3a5d47;
+  background: #284431;
+}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-day__header strong,
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-entry__subject strong,
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-page__unscheduled-grid article > div:nth-child(2) > strong {
+  color: #ebf7ee;
+}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-day__header small,
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-entry__meta > span,
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-page__unscheduled-grid article > div:nth-child(2) > small {
+  color: #b9cfbf;
+}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-day--empty,
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-entry,
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-page__unscheduled-grid article {
+  border-color: #3a5c44;
+  background: #263c2c;
+}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-entry__side { border-top-color: #395c45; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-day__no-class { color: #b3caba; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-entry__status.closed {
+  border-color: #5d665b;
+  color: #e4dccb;
+  background: #353c30;
+}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-entry__status.open {
+  border-color: #387654;
+  color: #baf2ca;
+  background: #1b5033;
+}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-entry__side button {
+  border-color: #497b58;
+  color: #c9f2d4;
+  background: #294e35;
+}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-page__unscheduled-actions button {
+  border-color: #497b58 !important;
+  color: #c9f2d4 !important;
+  background: #294e35 !important;
+}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-page__empty > span {
+  color: #b3eac4;
+  background: #294d36;
+}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-page__spinner {
+  border-color: #385944;
+  border-top-color: #9ce1b1;
+}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-page__error {
+  border-color: #81534d;
+  background: #392824;
+}
+@media (prefers-reduced-motion: reduce) {
+  .faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-entry,
+  .faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-page__refresh { transition: none; }
+}
+/* Contrast correction for small timetable labels in dark mode. */
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-day__header > div > span,
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-entry__time,
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-entry__subject > span,
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-page__unscheduled-grid article > div:nth-child(2) > span,
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-entry__meta svg {
+  color: #9ae2b3;
+}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-entry__time strong {
+  color: #9ae2b3;
+}

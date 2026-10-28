@@ -4,7 +4,11 @@ import type { CSSProperties } from "react";
 
 import {
   ArrowLeft,
+  BadgeCheck,
+  BookOpen,
+  CalendarDays,
   FileText,
+  GraduationCap,
   Loader2,
   Printer,
   RefreshCcw,
@@ -15,6 +19,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import DashboardLayout from "../../../components/Layout/DashboardLayout";
 import { authService } from "../../../services/auth.service";
 import { apiUrl } from "../../../services/api";
+
+import "../../../styles/RegistrarStudentCOR.css";
 
 const API_BASE_URL = apiUrl("/api/registrar/students");
 
@@ -445,11 +451,12 @@ export default function StudentCORR() {
   if (loading && !data) {
     return (
       <DashboardLayout>
-        <div style={centerStyle}>
-          <Loader2 size={28} />
-
-          <span>Loading Certificate of Registration...</span>
-        </div>
+        <main className="registrar-cor registrar-cor--state">
+          <div className="registrar-cor__state-card" style={centerStyle}>
+            <Loader2 size={28} />
+            <span>Loading Certificate of Registration...</span>
+          </div>
+        </main>
       </DashboardLayout>
     );
   }
@@ -461,22 +468,20 @@ export default function StudentCORR() {
   if (error && !data) {
     return (
       <DashboardLayout>
-        <div
-          style={{
-            padding: "24px",
-          }}
-        >
-          <div style={errorStyle}>{error}</div>
-
-          <button
-            type="button"
-            onClick={() => navigate(-1)}
-            style={secondaryButton}
-          >
-            <ArrowLeft size={17} />
-            Back
-          </button>
-        </div>
+        <main className="registrar-cor registrar-cor--state">
+          <section className="registrar-cor__state-card">
+            <div style={errorStyle}>{error}</div>
+            <button
+              className="registrar-cor__button registrar-cor__button--secondary"
+              type="button"
+              onClick={() => navigate(-1)}
+              style={secondaryButton}
+            >
+              <ArrowLeft size={17} />
+              Back
+            </button>
+          </section>
+        </main>
       </DashboardLayout>
     );
   }
@@ -494,12 +499,8 @@ export default function StudentCORR() {
   if (student && !cor) {
     return (
       <DashboardLayout>
-        <main
-          style={{
-            padding: "4px",
-          }}
-        >
-          <section style={panelStyle}>
+        <main className="registrar-cor registrar-cor--state">
+          <section className="registrar-cor__state-card" style={panelStyle}>
             <FileText size={36} color="#15803d" />
 
             <h1>Certificate of Registration</h1>
@@ -582,61 +583,30 @@ export default function StudentCORR() {
         `}
       </style>
 
-      <main
-        style={{
-          display: "grid",
-          gap: "18px",
-          padding: "4px",
-        }}
-      >
+      <main className="registrar-cor">
         {/* ===================================================
             TOOLBAR
         =================================================== */}
 
-        <section
-          className="cor-no-print"
-          style={{
-            ...panelStyle,
-
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            gap: "14px",
-            flexWrap: "wrap",
-          }}
-        >
-          <div>
-            <div
-              style={{
-                color: "#15803d",
-                fontSize: "12px",
-                fontWeight: 800,
-                textTransform: "uppercase",
-              }}
-            >
-              Registrar Office
+        <section className="cor-no-print registrar-cor__hero">
+          <div className="registrar-cor__hero-copy">
+            <div className="registrar-cor__eyebrow">
+              <BookOpen size={16} aria-hidden="true" />
+              REGISTRAR · OFFICIAL RECORDS
             </div>
-
-            <h1
-              style={{
-                margin: "5px 0 0",
-              }}
-            >
-              Certificate of Registration
-            </h1>
+            <h1>Certificate of Registration</h1>
+            <p>View an approved enrollment and print its official registration certificate.</p>
+            <div className="registrar-cor__status">
+              <BadgeCheck size={15} aria-hidden="true" />
+              {cor.enrollment_status}
+            </div>
           </div>
 
-          <div
-            style={{
-              display: "flex",
-              gap: "8px",
-              flexWrap: "wrap",
-            }}
-          >
+          <div className="registrar-cor__hero-actions">
             <button
               type="button"
               onClick={() => navigate(-1)}
-              style={secondaryButton}
+              className="registrar-cor__button registrar-cor__button--secondary"
             >
               <ArrowLeft size={17} />
               Back
@@ -646,40 +616,64 @@ export default function StudentCORR() {
               type="button"
               onClick={() => void loadCOR(selectedEnrollmentId ?? undefined)}
               disabled={loading}
-              style={secondaryButton}
+              className="registrar-cor__button registrar-cor__button--secondary"
             >
               {loading ? <Loader2 size={17} /> : <RefreshCcw size={17} />}
               Refresh
             </button>
 
-            <button type="button" onClick={printCOR} style={primaryButton}>
+            <button type="button" onClick={printCOR} className="registrar-cor__button registrar-cor__button--primary">
               <Printer size={17} />
               Print COR
             </button>
           </div>
         </section>
 
+        {/* On-screen overview; the official COR print layout below is unchanged. */}
+        <section className="cor-no-print registrar-cor__summary" aria-label="Registration overview">
+          <article className="registrar-cor__metric registrar-cor__metric--green">
+            <span className="registrar-cor__metric-icon"><BookOpen size={20} aria-hidden="true" /></span>
+            <div><span className="registrar-cor__metric-label">ENROLLED SUBJECTS</span>
+              <strong>{cor.subject_summary.total_subjects}</strong>
+              <small>Subjects on this registration</small></div>
+          </article>
+          <article className="registrar-cor__metric registrar-cor__metric--gold">
+            <span className="registrar-cor__metric-icon"><GraduationCap size={20} aria-hidden="true" /></span>
+            <div><span className="registrar-cor__metric-label">TOTAL UNITS</span>
+              <strong>{cor.subject_summary.total_units}</strong>
+              <small>Units in approved enrollment</small></div>
+          </article>
+          <article className="registrar-cor__metric registrar-cor__metric--blue">
+            <span className="registrar-cor__metric-icon"><CalendarDays size={20} aria-hidden="true" /></span>
+            <div><span className="registrar-cor__metric-label">ACADEMIC YEAR</span>
+              <strong>{cor.academic_period.academic_year}</strong>
+              <small>Selected enrollment year</small></div>
+          </article>
+          <article className="registrar-cor__metric registrar-cor__metric--violet">
+            <span className="registrar-cor__metric-icon"><FileText size={20} aria-hidden="true" /></span>
+            <div><span className="registrar-cor__metric-label">SEMESTER</span>
+              <strong>{cor.academic_period.semester_name}</strong>
+              <small>Official academic period</small></div>
+          </article>
+        </section>
+
         {/* ===================================================
             PERIOD SELECTOR
         =================================================== */}
 
-        <section className="cor-no-print" style={panelStyle}>
-          <label
-            style={{
-              display: "grid",
-              gap: "7px",
-              maxWidth: "420px",
-              color: "#334155",
-              fontWeight: 700,
-              fontSize: "13px",
-            }}
-          >
-            Academic Period
+        <section className="cor-no-print registrar-cor__period-panel">
+          <div className="registrar-cor__section-heading">
+            <div className="registrar-cor__section-label">ENROLLMENT LOOKUP</div>
+            <h2>Academic Period</h2>
+            <p>Choose an approved enrollment to update the certificate preview.</p>
+          </div>
+          <label className="registrar-cor__period-label">
+            Select academic year and semester
             <select
               value={selectedEnrollmentId ?? ""}
               onChange={(event) => handleEnrollmentChange(event.target.value)}
               disabled={loading}
-              style={inputStyle}
+              className="registrar-cor__select"
             >
               {availableEnrollments.map((enrollment) => (
                 <option
@@ -693,14 +687,7 @@ export default function StudentCORR() {
           </label>
 
           {error && (
-            <div
-              style={{
-                ...errorStyle,
-                marginTop: "14px",
-              }}
-            >
-              {error}
-            </div>
+            <div className="registrar-cor__error" role="alert">{error}</div>
           )}
         </section>
 
@@ -709,7 +696,7 @@ export default function StudentCORR() {
         =================================================== */}
 
         <section
-          className="cor-print-area"
+          className="cor-print-area registrar-cor__paper"
           style={{
             width: "min(100%, 1100px)",
             margin: "0 auto",
@@ -1378,31 +1365,6 @@ const panelStyle: CSSProperties = {
   border: "1px solid #e2e8f0",
   borderRadius: "16px",
   background: "#ffffff",
-};
-
-const inputStyle: CSSProperties = {
-  width: "100%",
-  boxSizing: "border-box",
-  padding: "11px 12px",
-  border: "1px solid #cbd5e1",
-  borderRadius: "9px",
-  background: "#ffffff",
-  color: "#0f172a",
-  outline: "none",
-};
-
-const primaryButton: CSSProperties = {
-  display: "inline-flex",
-  alignItems: "center",
-  justifyContent: "center",
-  gap: "7px",
-  padding: "10px 14px",
-  border: 0,
-  borderRadius: "9px",
-  background: "#15803d",
-  color: "#ffffff",
-  fontWeight: 750,
-  cursor: "pointer",
 };
 
 const secondaryButton: CSSProperties = {

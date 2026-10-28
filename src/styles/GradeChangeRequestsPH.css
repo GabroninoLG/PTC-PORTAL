@@ -1377,3 +1377,531 @@
     transition-duration: 0.01ms !important;
   }
 }
+
+/* ============================================================================
+   PTC Portal  |  Program Head — Grade Change Requests
+   Design alignment: Registrar Dashboard / Program Head Grade Approval
+   These scoped enhancements retain every existing queue, comparison, review,
+   and modal selector in the original stylesheet. No page behavior is changed.
+   ============================================================================ */
+
+/* Remove DashboardLayout's 20px white gutter for THIS page only. */
+.dashboard-main:has(> .dashboard-content > .ph-grade-change-page) > .dashboard-content {
+  min-width: 0;
+  padding: 0;
+  overflow-x: clip;
+  background: #e5f2e9;
+}
+.dashboard-main:has(.ph-grade-change-page) > .header-container:has(.app-header.hide) {
+  height: 0;
+  min-height: 0;
+  border: 0;
+}
+
+.ph-grade-change-page {
+  --phgc-green-950: #063b27;
+  --phgc-green-900: #075331;
+  --phgc-green-800: #0b663e;
+  --phgc-green-700: #0e8650;
+  --phgc-green-600: #119958;
+  --phgc-green-100: #dff5e8;
+  --phgc-green-50: #eefaf2;
+  --phgc-border: #d6e7dc;
+  --phgc-border-soft: #e5efe9;
+  --phgc-border-strong: #bbd7c5;
+  --phgc-bg: #e6f1e9;
+  --phgc-text-950: #182920;
+  --phgc-text-800: #283f30;
+  --phgc-text-700: #435e4c;
+  --phgc-text-600: #5c7463;
+  --phgc-text-500: #6f8475;
+  --phgc-surface: #fff;
+  position: relative;
+  isolation: isolate;
+  min-width: 0;
+  min-height: 100dvh;
+  margin: 0;
+  padding: 27px 28px 54px;
+  background-color: #e6f1e9;
+  background-image:
+    radial-gradient(ellipse at 7% 10%, rgba(24, 144, 77, .17), transparent 35%),
+    radial-gradient(ellipse at 96% 3%, rgba(239, 196, 82, .11), transparent 31%),
+    linear-gradient(135deg, rgba(6, 97, 54, .06) 25%, transparent 25%),
+    linear-gradient(225deg, rgba(6, 97, 54, .045) 25%, transparent 25%),
+    linear-gradient(315deg, rgba(6, 97, 54, .035) 25%, transparent 25%),
+    linear-gradient(45deg, rgba(6, 97, 54, .035) 25%, transparent 25%),
+    linear-gradient(180deg, #f1f9f3, #e5f1e9 64%, #dcebe0);
+  background-position: center, center, 0 0, 0 45px, 45px -45px, -45px 0, center;
+  background-size: auto, auto, 90px 90px, 90px 90px, 90px 90px, 90px 90px, auto;
+}
+.ph-grade-change-page::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 12px 12px auto;
+  height: 258px;
+  border: 1px solid rgba(255, 255, 255, .75);
+  border-radius: 29px;
+  background: linear-gradient(145deg, rgba(255,255,255,.41), rgba(215,239,225,.13));
+  box-shadow: 0 12px 34px rgba(6, 72, 37, .07);
+  pointer-events: none;
+}
+.ph-grade-change-page > * { position: relative; }
+
+/* Hero banner and decorative circles. */
+.ph-grade-change-page .ph-grade-change-header {
+  isolation: isolate;
+  min-height: 188px;
+  align-items: center;
+  margin-bottom: 17px;
+  padding: 29px 31px;
+  border: 1px solid rgba(1,66,34,.2);
+  border-radius: 22px;
+  background: linear-gradient(108deg, #06492f 0%, #076e40 56%, #169452 100%);
+  box-shadow: 0 15px 32px rgba(5,68,37,.19);
+}
+.ph-grade-change-header::before,
+.ph-grade-change-header::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  border-radius: 50%;
+  pointer-events: none;
+}
+.ph-grade-change-header::before {
+  top: -137px;
+  right: -66px;
+  width: 378px;
+  height: 378px;
+  border: 54px solid rgba(213,255,229,.12);
+  background: radial-gradient(circle at 40% 44%, rgba(255,255,255,.12), transparent 69%);
+}
+.ph-grade-change-page .ph-grade-change-header::after {
+  top: -130px;
+  right: 140px;
+  width: 240px;
+  height: 240px;
+  border: 34px solid rgba(211,255,224,.075);
+  background: transparent;
+}
+.ph-grade-change-page .ph-grade-change-back {
+  margin-bottom: 11px;
+  padding: 7px 10px;
+  border-color: rgba(224,255,236,.25);
+  border-radius: 9px;
+  color: #edfdf2;
+  background: rgba(255,255,255,.11);
+  font-size: 11px;
+}
+.ph-grade-change-page .ph-grade-change-back:hover {
+  border-color: rgba(255,255,255,.49);
+  color: #fff;
+  background: rgba(255,255,255,.21);
+}
+.ph-grade-change-page .ph-grade-change-eyebrow {
+  margin-bottom: 9px;
+  color: #f0fff5;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .055em;
+}
+.ph-grade-change-page .ph-grade-change-eyebrow > span {
+  width: 30px;
+  height: 30px;
+  color: #edfff3;
+  border: 1px solid rgba(255,255,255,.25);
+  border-radius: 9px;
+  background: rgba(255,255,255,.16);
+}
+.ph-grade-change-page .ph-grade-change-header h1 {
+  color: #fff;
+  font-size: clamp(29px, 3vw, 37px);
+  font-weight: 800;
+  line-height: 1.15;
+  text-shadow: 0 1px 3px rgba(0,0,0,.08);
+}
+.ph-grade-change-page .ph-grade-change-header p {
+  max-width: 810px;
+  margin-top: 10px;
+  color: rgba(255,255,255,.90);
+  font-size: 13px;
+  line-height: 1.65;
+}
+.ph-grade-change-page .ph-grade-change-refresh {
+  min-height: 43px;
+  padding: 9px 16px;
+  border: 1px solid rgba(255,255,255,.55);
+  border-radius: 11px;
+  color: #0d6c41;
+  background: #fff;
+  box-shadow: 0 8px 19px rgba(2,43,24,.15);
+  font-size: 11px;
+  font-weight: 760;
+}
+.ph-grade-change-page .ph-grade-change-refresh:hover:not(:disabled) {
+  color: #064b2f;
+  background: #ebf9ef;
+  box-shadow: 0 11px 22px rgba(2,43,24,.18);
+}
+
+/* Five distinct data-backed KPI cards; never invent a sixth metric. */
+.ph-grade-change-page .ph-grade-change-summary {
+  grid-template-columns: repeat(5,minmax(0,1fr));
+  gap: 12px;
+  margin-bottom: 17px;
+}
+.ph-grade-change-page .ph-grade-change-summary article {
+  --metric-accent: #0f9a56;
+  --metric-orb: rgba(16,153,85,.08);
+  position: relative;
+  overflow: hidden;
+  grid-template-columns: 44px minmax(0,1fr);
+  gap: 10px;
+  min-height: 109px;
+  padding: 17px 12px 16px 18px;
+  border: 1px solid rgba(28,129,65,.11);
+  border-radius: 16px;
+  background: #effaf3;
+  box-shadow: 0 9px 23px rgba(5,69,36,.075);
+}
+.ph-grade-change-page .ph-grade-change-summary article::before {
+  content: "";
+  position: absolute;
+  top: 13px;
+  bottom: 13px;
+  left: 0;
+  width: 4px;
+  border-radius: 0 7px 7px 0;
+  background: var(--metric-accent);
+}
+.ph-grade-change-page .ph-grade-change-summary article::after {
+  content: "";
+  position: absolute;
+  top: -47px;
+  right: -25px;
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  background: var(--metric-orb);
+  pointer-events: none;
+}
+.ph-grade-change-page .ph-grade-change-summary article:nth-child(2) {
+  --metric-accent: #d99b11; --metric-orb: rgba(218,158,18,.11);
+  background: #fff8e8;
+}
+.ph-grade-change-page .ph-grade-change-summary article:nth-child(3) {
+  --metric-accent: #2d69eb; --metric-orb: rgba(45,105,235,.10);
+  background: #f0f6ff;
+}
+.ph-grade-change-page .ph-grade-change-summary article:nth-child(4) {
+  --metric-accent: #d35752; --metric-orb: rgba(211,87,82,.09);
+  background: #fff3f2;
+}
+.ph-grade-change-page .ph-grade-change-summary article:nth-child(5) {
+  --metric-accent: #8650da; --metric-orb: rgba(134,80,218,.10);
+  background: #f8f2ff;
+}
+.ph-grade-change-page .ph-grade-change-summary article > span,
+.ph-grade-change-page .ph-grade-change-summary article.primary > span {
+  z-index: 1;
+  flex: 0 0 43px;
+  width: 43px;
+  height: 43px;
+  border: 0;
+  border-radius: 12px;
+  color: #fff;
+  background: linear-gradient(135deg,#118e54,#064e30);
+  box-shadow: 0 7px 15px rgba(5,80,42,.15);
+}
+.ph-grade-change-page .ph-grade-change-summary article:nth-child(2) > span { color: #9d6d05; background:#fff0c5; border:1px solid #efda9a; box-shadow:none; }
+.ph-grade-change-page .ph-grade-change-summary article:nth-child(3) > span { color: #2861df; background:#e6efff; border:1px solid #c6dafa; box-shadow:none; }
+.ph-grade-change-page .ph-grade-change-summary article:nth-child(4) > span { color: #b3453c; background:#ffe5e1; border:1px solid #f1c6c1; box-shadow:none; }
+.ph-grade-change-page .ph-grade-change-summary article:nth-child(5) > span { color: #7640ca; background:#eee5ff; border:1px solid #ddcbfb; box-shadow:none; }
+.ph-grade-change-page .ph-grade-change-summary small { font-size: 9.5px; font-weight: 800; }
+.ph-grade-change-page .ph-grade-change-summary strong { font-size: 27px; font-weight: 820; }
+.ph-grade-change-page .ph-grade-change-summary p { font-size: 9px; line-height: 1.4; }
+
+/* Filters and queue containers. */
+.ph-grade-change-page :is(.ph-grade-change-filters,.ph-grade-change-list,.ph-grade-change-loading,.ph-grade-change-empty) {
+  border: 1px solid #d3e6d9;
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 11px 28px rgba(7,75,38,.07);
+}
+.ph-grade-change-page .ph-grade-change-filters { gap: 12px; padding: 18px 20px; margin-bottom: 17px; }
+.ph-grade-change-page :is(.ph-grade-change-search input,.ph-grade-change-filters select) {
+  min-height: 43px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  border: 1px solid #c9ddcf;
+  border-radius: 11px;
+  color: #2a4031;
+  background: #fff;
+  font-size: 11px;
+}
+.ph-grade-change-page .ph-grade-change-search input { padding-left: 40px; }
+.ph-grade-change-page .ph-grade-change-search svg { left: 14px; color: #648c73; }
+.ph-grade-change-page .ph-grade-change-filters > button {
+  min-height: 43px;
+  padding: 10px 15px;
+  border: 1px solid #cadfce;
+  border-radius: 10px;
+  color: #226743;
+  background: #f2faf5;
+  font-size: 11px;
+}
+.ph-grade-change-page .ph-grade-change-list { overflow: hidden; }
+.ph-grade-change-page .ph-grade-change-list > header {
+  padding: 21px 23px;
+  border-bottom: 1px solid #e1ede4;
+  background: linear-gradient(110deg,#fff,#f1f9f4);
+}
+.ph-grade-change-page .ph-grade-change-list > header > div > span {
+  display: inline-flex;
+  width: max-content;
+  margin-bottom: 8px;
+  padding: 6px 9px;
+  border-radius: 999px;
+  color: #097344;
+  background: #e7f7ec;
+  font-size: 9px;
+  font-weight: 800;
+}
+.ph-grade-change-page .ph-grade-change-list > header h2 { color:#192a20; font-size:19px; font-weight:800; }
+.ph-grade-change-page .ph-grade-change-list > header p { font-size:11px; line-height:1.55; }
+.ph-grade-change-page .ph-grade-change-list > header > strong { padding:7px 12px; font-size:10px; }
+.ph-grade-change-page .ph-grade-change-cards { gap:15px; padding:17px; }
+.ph-grade-change-page .ph-grade-change-card {
+  border:1px solid #dbe9df;
+  border-radius:15px;
+  box-shadow:0 5px 17px rgba(8,75,41,.045);
+}
+.ph-grade-change-page .ph-grade-change-card-top { padding:17px 18px; background: #f7fbf8; }
+.ph-grade-change-page .ph-grade-change-student > span {
+  width:42px; height:42px; border-radius:11px;
+  color:#fff; background:linear-gradient(135deg,#0c8e52,#075335);
+  border-color:transparent;
+}
+.ph-grade-change-page .ph-grade-change-student strong { font-size:13px; }
+.ph-grade-change-page :is(.ph-grade-change-student p,.ph-grade-change-student small) { font-size:10px; }
+.ph-grade-change-page .ph-grade-change-status { min-height:29px; padding:6px 10px; font-size:9.5px; }
+.ph-grade-change-page .ph-grade-change-context > div { padding:15px 16px; }
+.ph-grade-change-page .ph-grade-change-context svg { color:#0c8e52; }
+.ph-grade-change-page .ph-grade-change-context strong { font-size:11px; }
+.ph-grade-change-page .ph-grade-change-context p { font-size:9.5px; }
+.ph-grade-change-page .ph-grade-change-context small { font-size:9px; }
+
+/* Original and proposed grades use intentionally distinct visual treatments. */
+.ph-grade-change-page .ph-grade-change-comparison { gap:14px; padding:16px; background:#f7fbf8; }
+.ph-grade-change-page .ph-grade-change-comparison > section { border-radius:12px; border:1px solid #dfe8e1; }
+.ph-grade-change-page .ph-grade-change-comparison > section.old { background:#fff; }
+.ph-grade-change-page .ph-grade-change-comparison > section.new { border-color:#b9dfc8; background:#fff; }
+.ph-grade-change-page .ph-grade-change-comparison > section > header { min-height:58px; padding:13px 14px; }
+.ph-grade-change-page .ph-grade-change-comparison > section.new > header { background:#eaf8ef; }
+.ph-grade-change-page .ph-grade-change-comparison header > span { width:35px; height:35px; border-radius:10px; }
+.ph-grade-change-page .ph-grade-change-comparison header strong { font-size:11.5px; }
+.ph-grade-change-page .ph-grade-change-grade-grid > div { min-height:65px; padding:11px 9px; }
+.ph-grade-change-page .ph-grade-change-grade-grid strong { font-size:11.5px; }
+.ph-grade-change-page .ph-grade-change-grade-grid small { font-size:8.8px; }
+.ph-grade-change-page .ph-grade-change-reason { min-height:70px; padding:12px 14px; }
+.ph-grade-change-page .ph-grade-change-reason p { font-size:10px; }
+.ph-grade-change-page .ph-grade-change-reviewed { margin:0 16px 16px; padding:12px 14px; }
+.ph-grade-change-page .ph-grade-change-reviewed strong { font-size:10.5px; }
+.ph-grade-change-page .ph-grade-change-reviewed p { font-size:10px; }
+.ph-grade-change-page .ph-grade-change-actions { padding:13px 16px; gap:9px; }
+.ph-grade-change-page .ph-grade-change-actions button {
+  min-height:37px; padding:8px 12px; border-radius:9px; font-size:10px;
+}
+.ph-grade-change-page .ph-grade-change-readonly { font-size:10px; }
+
+/* Action dialogs: three distinct states with keyboard focus and safe scrolling. */
+.ph-grade-change-page .ph-grade-change-modal-backdrop {
+  position:fixed;
+  inset:0;
+  z-index: 9999;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow-y:auto;
+  padding: max(16px, env(safe-area-inset-top)) 16px max(16px, env(safe-area-inset-bottom));
+  background: rgba(6,25,15,.67);
+}
+.ph-grade-change-page .ph-grade-change-modal {
+  flex:0 1 670px;
+  width:min(670px,100%);
+  max-height: min(780px,calc(100dvh - 32px));
+  overflow-y:auto;
+  overscroll-behavior:contain;
+  border:1px solid #d2e4d8;
+  border-radius:19px;
+  background:#fff;
+  box-shadow:0 29px 80px rgba(3,30,16,.32);
+}
+.ph-grade-change-page .ph-grade-change-modal > header {
+  padding:21px 23px 18px;
+  background:linear-gradient(110deg,#f7fff9,#ebf8ef);
+  border-bottom:1px solid #dfece3;
+}
+.ph-grade-change-page .ph-grade-change-modal.return > header { background:linear-gradient(110deg,#fffdf7,#fff2d8); }
+.ph-grade-change-page .ph-grade-change-modal.reject > header { background:linear-gradient(110deg,#fffafa,#ffecea); }
+.ph-grade-change-page .ph-grade-change-modal-icon { width:41px; height:41px; border-radius:12px; }
+.ph-grade-change-page .ph-grade-change-modal header small { font-size:9px; }
+.ph-grade-change-page .ph-grade-change-modal header h2 { font-size:19px; font-weight:800; }
+.ph-grade-change-page .ph-grade-change-modal header p { font-size:11px; line-height:1.55; }
+.ph-grade-change-page .ph-grade-change-modal-close { width:36px; height:36px; border-radius:10px; }
+.ph-grade-change-page .ph-grade-change-modal-summary { gap:10px; padding:18px 20px 0; }
+.ph-grade-change-page .ph-grade-change-modal-summary > div { gap:4px; padding:14px; border-radius:11px; background:#f5faf7; }
+.ph-grade-change-page .ph-grade-change-modal-summary small { font-size:9px; }
+.ph-grade-change-page .ph-grade-change-modal-summary strong { font-size:11px; }
+.ph-grade-change-page .ph-grade-change-modal-summary span { font-size:9.5px; }
+.ph-grade-change-page .ph-grade-change-modal-field { padding:17px 20px 20px; }
+.ph-grade-change-page .ph-grade-change-modal-field label { font-size:11px; }
+.ph-grade-change-page .ph-grade-change-modal-field textarea {
+  min-height:125px; padding:13px 14px; border-radius:11px;
+  color:#233d2c; background:#fff; font-size:11px; line-height:1.6;
+}
+.ph-grade-change-page .ph-grade-change-modal-error { font-size:10px; }
+.ph-grade-change-page .ph-grade-change-modal > footer { padding:16px 20px; background:#f4f9f6; }
+.ph-grade-change-page .ph-grade-change-modal > footer button { min-height:39px; padding:9px 14px; border-radius:10px; font-size:10.5px; }
+.ph-grade-change-page .ph-grade-change-modal > footer button:disabled { opacity:.57; cursor:not-allowed; }
+.ph-grade-change-page .ph-grade-change-modal > footer .confirm.approve { background:linear-gradient(135deg,#109452,#075a36); }
+.ph-grade-change-page .ph-grade-change-modal > footer .confirm.return { background:linear-gradient(135deg,#bd802e,#8b551b); }
+.ph-grade-change-page .ph-grade-change-modal > footer .confirm.reject { background:linear-gradient(135deg,#c6534a,#97372f); }
+
+@media (max-width: 1260px) {
+  .ph-grade-change-page .ph-grade-change-summary { grid-template-columns: repeat(3,minmax(0,1fr)); }
+}
+@media (max-width: 850px) {
+  .ph-grade-change-page { padding:23px 19px 42px; }
+  .ph-grade-change-page .ph-grade-change-header { padding:26px 23px; }
+  .ph-grade-change-page .ph-grade-change-summary { grid-template-columns: repeat(2,minmax(0,1fr)); }
+}
+@media (max-width: 620px) {
+  .ph-grade-change-page { padding:16px 11px 32px; }
+  .ph-grade-change-page::before { inset:7px 5px auto; height:260px; border-radius:21px; }
+  .ph-grade-change-page .ph-grade-change-header { min-height:0; padding:24px 20px; border-radius:18px; }
+  .ph-grade-change-page .ph-grade-change-header h1 { font-size:28px; }
+  .ph-grade-change-page .ph-grade-change-summary { grid-template-columns:1fr; gap:10px; }
+  .ph-grade-change-page .ph-grade-change-summary article { min-height:91px; }
+  .ph-grade-change-page .ph-grade-change-list > header { padding:18px 15px; }
+  .ph-grade-change-page .ph-grade-change-cards { padding:11px; }
+  .ph-grade-change-page .ph-grade-change-context > div { padding:13px; }
+  .ph-grade-change-page .ph-grade-change-comparison { padding:11px; }
+  .ph-grade-change-page .ph-grade-change-modal-backdrop { padding:9px; align-items:flex-start; }
+  .ph-grade-change-page .ph-grade-change-modal { max-height:calc(100dvh - 18px); border-radius:15px; }
+  .ph-grade-change-page .ph-grade-change-modal > header { padding:17px 14px; }
+  .ph-grade-change-page .ph-grade-change-modal-summary { padding:13px 14px 0; }
+  .ph-grade-change-page .ph-grade-change-modal-field { padding:15px 14px; }
+  .ph-grade-change-page .ph-grade-change-modal > footer { padding:14px; }
+}
+
+/* Charcoal dark mode. All surfaces and the modal avoid bright white flashes. */
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .dashboard-main:has(.ph-grade-change-page) > .dashboard-content { background:#101c16; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .ph-grade-change-page {
+  --phgc-text-950:#eff9f1;
+  --phgc-text-800:#deefe3;
+  --phgc-text-700:#bfd7c7;
+  --phgc-text-600:#aec8b6;
+  --phgc-text-500:#9eb8a7;
+  --phgc-border:#334d3c;
+  --phgc-border-soft:#304838;
+  --phgc-border-strong:#476950;
+  --phgc-surface:#1b2c22;
+  --phgc-bg:#101c16;
+  color:#edf8f0;
+  background-color:#101c16;
+  background-image:
+    radial-gradient(ellipse at 8% 8%, rgba(28,118,64,.20), transparent 36%),
+    linear-gradient(135deg, rgba(71,116,81,.08) 25%, transparent 25%),
+    linear-gradient(225deg, rgba(71,116,81,.06) 25%, transparent 25%),
+    linear-gradient(180deg,#15261b,#101c16);
+  background-size:auto,95px 95px,95px 95px,auto;
+}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .ph-grade-change-page::before { border-color:rgba(112,158,120,.2); background:rgba(30,68,44,.25); }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .ph-grade-change-page :is(.ph-grade-change-filters,.ph-grade-change-list,.ph-grade-change-card,.ph-grade-change-loading,.ph-grade-change-empty,.ph-grade-change-modal) {
+  background:#1b2c22;
+  border-color:#35513e;
+  color:#eaf7ed;
+  box-shadow:0 10px 26px rgba(0,0,0,.15);
+}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .ph-grade-change-page .ph-grade-change-summary article { border-color:#32503c; background:#1d3b2b; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .ph-grade-change-page .ph-grade-change-summary article:nth-child(2) { background:#39311e; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .ph-grade-change-page .ph-grade-change-summary article:nth-child(3) { background:#213249; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .ph-grade-change-page .ph-grade-change-summary article:nth-child(4) { background:#3b2727; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .ph-grade-change-page .ph-grade-change-summary article:nth-child(5) { background:#302640; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .ph-grade-change-page :is(.ph-grade-change-summary strong,.ph-grade-change-list h2,.ph-grade-change-student strong,.ph-grade-change-context strong,.ph-grade-change-comparison header strong,.ph-grade-change-grade-grid strong,.ph-grade-change-empty strong,.ph-grade-change-loading strong,.ph-grade-change-modal-summary strong,.ph-grade-change-modal header h2) { color:#eff9f1; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .ph-grade-change-page :is(.ph-grade-change-list > header,.ph-grade-change-card-top,.ph-grade-change-comparison,.ph-grade-change-actions,.ph-grade-change-modal > header,.ph-grade-change-modal > footer) {
+  background:#203428;
+  border-color:#365040;
+}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .ph-grade-change-page :is(.ph-grade-change-comparison > section,.ph-grade-change-modal-summary > div) { background:#23382b; border-color:#42624b; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .ph-grade-change-page .ph-grade-change-comparison > section.new { background:#214331; border-color:#54745c; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .ph-grade-change-page .ph-grade-change-comparison > section > header { background:#263d2f; border-color:#395542; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .ph-grade-change-page .ph-grade-change-comparison > section.new > header { background:#285038; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .ph-grade-change-page :is(.ph-grade-change-reviewed,.ph-grade-change-notice.success) { background:#183c2b; border-color:#3a7450; color:#b5ecc9; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .ph-grade-change-page :is(.ph-grade-change-notice.error,.ph-grade-change-error,.ph-grade-change-modal-error) { background:#472b2b; border-color:#7b4644; color:#ffd4cc; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .ph-grade-change-page :is(.ph-grade-change-search input,.ph-grade-change-filters select,.ph-grade-change-modal-field textarea) {
+  color:#ecf8f0;
+  background:#17271d;
+  border-color:#4a6951;
+  color-scheme:dark;
+}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .ph-grade-change-page :is(.ph-grade-change-search input::placeholder,.ph-grade-change-modal-field textarea::placeholder) { color:#a0bbaa; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .ph-grade-change-page :is(.ph-grade-change-filters > button,.ph-grade-change-modal-close,.ph-grade-change-modal > footer .cancel,.ph-grade-change-error button) {
+  background:#263d2e;
+  color:#d8f0df;
+  border-color:#54735d;
+}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .ph-grade-change-page .ph-grade-change-status.pending-program-head { color:#f6d989; background:#4a3a1b; border-color:#796535; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .ph-grade-change-page .ph-grade-change-status.for-registrar-processing { color:#b8d6ff; background:#263e60; border-color:#486b9a; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .ph-grade-change-page .ph-grade-change-status.returned { color:#f4d89c; background:#4b3a20; border-color:#786039; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .ph-grade-change-page .ph-grade-change-status.rejected { color:#ffc8c2; background:#50302b; border-color:#95554c; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .ph-grade-change-page .ph-grade-change-status.completed { color:#b7efca; background:#1d4630; border-color:#477b58; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .ph-grade-change-page .ph-grade-change-actions .return { background:#4b3a20; color:#f2d38a; border-color:#8b713f; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .ph-grade-change-page .ph-grade-change-actions .reject { background:#482b29; color:#ffd1c9; border-color:#92524d; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .ph-grade-change-page .ph-grade-change-modal-backdrop { background:rgba(2,11,7,.79); }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .ph-grade-change-page .ph-grade-change-modal.return > header { background:#3b3223; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .ph-grade-change-page .ph-grade-change-modal.reject > header { background:#412b2b; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .ph-grade-change-page .ph-grade-change-modal .ph-grade-change-modal-icon { border:1px solid rgba(255,255,255,.1); }
+
+/* Reduced-motion keeps status spinners but removes gratuitous entrance motion. */
+@media (prefers-reduced-motion: reduce) {
+  .ph-grade-change-page .ph-grade-change-modal { animation: none; }
+}
+
+/* Avoid bright intermediate surfaces while the user switches to dark mode. */
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .ph-grade-change-page :is(input,select,textarea,button,.ph-grade-change-modal) {
+  transition: none;
+}

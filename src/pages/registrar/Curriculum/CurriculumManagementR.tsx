@@ -523,7 +523,7 @@ export default function CurriculumManagementR() {
               <span className="registrar-curriculum-management__section-kicker">
                 Curriculum Directory
               </span>
-              <h2>Program Curricula</h2>
+              <h2>Program Curriculum</h2>
               <p>
                 Search and filter curricula, then open a record to manage its
                 detailed subject structure.

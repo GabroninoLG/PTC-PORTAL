@@ -1135,3 +1135,577 @@
 .registrar-enrollment-period__rules {
   border-radius: 18px;
 }
+
+/* ========================================================================
+   PTC PORTAL — REGISTRAR / ENROLLMENT PERIOD
+   Dashboard-aligned visual layer, scoped to the existing EnrollmentPeriodMR.
+   Keeps all original selectors and interaction flows intact.
+   ======================================================================== */
+
+/* Remove the DashboardLayout's unused light gutter and hidden-header space. */
+.dashboard-main:has(.registrar-enrollment-period) > .dashboard-content {
+  padding: 0;
+  overflow-x: clip;
+  background-color: #dcece2;
+}
+.dashboard-main:has(.registrar-enrollment-period)
+  > .header-container:has(.app-header.hide) {
+  height: 0;
+  min-height: 0;
+  border: 0;
+}
+.dashboard-main:has(.registrar-enrollment-period)
+  > .header-container:has(.app-header.show) {
+  height: 58px;
+  min-height: 58px;
+}
+
+.registrar-enrollment-period {
+  --ep-green-950: #073b24;
+  --ep-green-900: #064d2f;
+  --ep-green-800: #0b673e;
+  --ep-green-700: #0c7b47;
+  --ep-green-600: #16965b;
+  --ep-green-100: #dff4e7;
+  --ep-green-50: #f0faf4;
+  --ep-line: #d9e8df;
+  --ep-muted: #697b70;
+
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  min-height: 100%;
+  overflow-x: clip;
+  padding: 27px 28px 45px;
+  color: #1a271e;
+  background-color: #dcece2;
+  background-image:
+    radial-gradient(circle at 95% 3%, rgba(235, 210, 103, .13), transparent 26%),
+    radial-gradient(circle at 14% 43%, rgba(61, 147, 106, .12), transparent 35%),
+    repeating-linear-gradient(135deg, rgba(255, 255, 255, .14) 0 17px, rgba(32, 110, 66, .045) 17px 45px, transparent 45px 83px),
+    repeating-linear-gradient(45deg, transparent 0 66px, rgba(64, 154, 110, .07) 66px 87px, transparent 87px 142px),
+    linear-gradient(115deg, #d5eadc, #e5f2e9 63%, #eaf1db);
+  background-size: auto, auto, 180px 180px, 260px 260px, auto;
+}
+
+/* Dashboard's rounded, dark-green identity banner. */
+.registrar-enrollment-period__hero {
+  isolation: isolate;
+  min-height: 187px;
+  padding: 30px;
+  margin-bottom: 16px;
+  border: 0;
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at 83% 10%, rgba(255, 255, 255, .13) 0 9%, transparent 9.5%),
+    radial-gradient(circle at 91% 58%, rgba(255, 255, 255, .085) 0 13%, transparent 13.5%),
+    linear-gradient(112deg, #064d2f, #086a3d 47%, #158447 78%, #2c9a60);
+  box-shadow: 0 18px 40px rgba(6, 78, 47, .22);
+}
+.registrar-enrollment-period__hero::before {
+  content: "";
+  position: absolute;
+  right: -60px;
+  bottom: -115px;
+  width: 295px;
+  height: 295px;
+  border: 1px solid rgba(255, 255, 255, .14);
+  border-radius: 50%;
+  pointer-events: none;
+}
+.registrar-enrollment-period__hero::after {
+  top: -115px;
+  right: 99px;
+  width: 270px;
+  height: 270px;
+  border: 45px solid rgba(255, 255, 255, .058);
+}
+.registrar-enrollment-period__eyebrow {
+  color: #e5ffef;
+  font-size: 11px;
+  letter-spacing: .012em;
+  text-transform: uppercase;
+}
+.registrar-enrollment-period__eyebrow-icon {
+  color: #edfff3;
+  border: 1px solid rgba(255, 255, 255, .17);
+  background: rgba(255, 255, 255, .16);
+}
+.registrar-enrollment-period__hero h1 {
+  color: #fff;
+  font-size: clamp(29px, 2.7vw, 39px);
+  font-weight: 800;
+  line-height: 1.14;
+  letter-spacing: -.035em;
+}
+.registrar-enrollment-period__hero p {
+  color: #ddf8e7;
+  font-size: 13.5px;
+  line-height: 1.7;
+}
+.registrar-enrollment-period__hero .registrar-enrollment-period__button--secondary {
+  min-height: 42px;
+  padding: 10px 14px;
+  border: 1px solid rgba(255, 255, 255, .7);
+  border-radius: 11px;
+  color: #0b6741;
+  background: #fff;
+  box-shadow: 0 6px 16px rgba(4, 39, 22, .10);
+  backdrop-filter: none;
+}
+.registrar-enrollment-period__hero
+  .registrar-enrollment-period__button--secondary:not(:disabled):hover {
+  color: #064d2f;
+  border-color: #e2f3e8;
+  background: #eaf9f0;
+}
+.registrar-enrollment-period__hero .registrar-enrollment-period__button--secondary svg {
+  color: currentColor;
+  stroke: currentColor;
+  opacity: 1;
+}
+
+/* Four-card dashboard summary (green / gold / blue / violet). */
+.registrar-enrollment-period__summary-grid {
+  position: relative;
+  z-index: 1;
+  gap: 13px;
+  margin-bottom: 18px;
+  padding: 10px;
+  border: 1px solid rgba(255, 255, 255, .78);
+  border-radius: 22px;
+  background: rgba(255, 255, 255, .54);
+  box-shadow: 0 11px 24px rgba(6, 78, 47, .09);
+  backdrop-filter: blur(8px);
+}
+.registrar-enrollment-period__summary-card {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  min-height: 112px;
+  gap: 13px;
+  padding: 18px 17px;
+  border: 1px solid rgba(255, 255, 255, .80);
+  border-radius: 17px;
+  background: #edf9f1;
+  box-shadow: 0 5px 14px rgba(22, 66, 40, .045);
+}
+.registrar-enrollment-period__summary-card::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0 auto 0 0;
+  width: 4px;
+  background: #0aa358;
+}
+.registrar-enrollment-period__summary-card::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  top: -66px;
+  right: -58px;
+  width: 138px;
+  height: 138px;
+  border-radius: 50%;
+  background: rgba(11, 144, 77, .07);
+  pointer-events: none;
+}
+.registrar-enrollment-period__summary-card:nth-child(2) { background: #fff9e9; }
+.registrar-enrollment-period__summary-card:nth-child(3) { background: #eef5ff; }
+.registrar-enrollment-period__summary-card:nth-child(4) { background: #f8f1ff; }
+.registrar-enrollment-period__summary-card:nth-child(2)::before { background: #d9a20d; }
+.registrar-enrollment-period__summary-card:nth-child(3)::before { background: #2563eb; }
+.registrar-enrollment-period__summary-card:nth-child(4)::before { background: #803aea; }
+.registrar-enrollment-period__summary-card:nth-child(2)::after { background: rgba(217, 162, 13, .09); }
+.registrar-enrollment-period__summary-card:nth-child(3)::after { background: rgba(37, 99, 235, .075); }
+.registrar-enrollment-period__summary-card:nth-child(4)::after { background: rgba(128, 58, 234, .075); }
+.registrar-enrollment-period__summary-card--open,
+.registrar-enrollment-period__summary-card--closed {
+  border-color: rgba(255, 255, 255, .8);
+}
+.registrar-enrollment-period__summary-icon,
+.registrar-enrollment-period__summary-card:first-child .registrar-enrollment-period__summary-icon {
+  display: grid;
+  place-items: center;
+  flex: 0 0 48px;
+  width: 48px;
+  height: 48px;
+  border: 1px solid #0b693e;
+  border-radius: 14px;
+  color: #fff;
+  background: linear-gradient(145deg, #0c7b47, #065331);
+  box-shadow: 0 8px 17px rgba(31, 56, 40, .10);
+}
+.registrar-enrollment-period__summary-icon svg {
+  display: block;
+  width: 21px;
+  height: 21px;
+  color: inherit;
+  stroke: currentColor;
+  opacity: 1;
+}
+.registrar-enrollment-period__summary-card:nth-child(2) .registrar-enrollment-period__summary-icon {
+  color: #a97000;
+  background: #fff5d9;
+  border-color: #efd68c;
+}
+.registrar-enrollment-period__summary-card:nth-child(3) .registrar-enrollment-period__summary-icon {
+  color: #2563eb;
+  background: #eaf2ff;
+  border-color: #cbdcff;
+}
+.registrar-enrollment-period__summary-card:nth-child(4) .registrar-enrollment-period__summary-icon {
+  color: #7b2ee6;
+  background: #f3ecff;
+  border-color: #dec9fa;
+}
+.registrar-enrollment-period__summary-card span {
+  color: #606f65;
+  font-size: 10.5px;
+  font-weight: 760;
+  letter-spacing: .022em;
+  text-transform: uppercase;
+}
+.registrar-enrollment-period__summary-card strong {
+  color: #19251d;
+  font-size: clamp(18px, 1.7vw, 27px);
+  font-weight: 820;
+}
+.registrar-enrollment-period__summary-card small {
+  overflow: hidden;
+  color: #77867b;
+  font-size: 10.5px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Operational workspace and audit data. */
+.registrar-enrollment-period__workspace-grid { gap: 17px; margin-bottom: 18px; }
+.registrar-enrollment-period__panel,
+.registrar-enrollment-period__rules {
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, .92);
+  border-radius: 22px;
+  background: #fff;
+  box-shadow: 0 16px 39px rgba(7, 59, 36, .11);
+}
+.registrar-enrollment-period__panel { padding: 24px; }
+/* Distinguish the current-period audit from the configuration workspace. */
+.registrar-enrollment-period__panel--status { border-top: 4px solid #0d8d51; }
+.registrar-enrollment-period__panel--configuration { border-top: 4px solid #2672d9; }
+.registrar-enrollment-period__panel-header {
+  gap: 14px;
+  margin-bottom: 18px;
+  padding-bottom: 18px;
+  border-bottom-color: #e7efe9;
+}
+.registrar-enrollment-period__section-label {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  margin-bottom: 10px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  color: #0b7444;
+  background: #e5f6eb;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .025em;
+}
+.registrar-enrollment-period__panel-header h2,
+.registrar-enrollment-period__rules h2 {
+  color: #19251d;
+  font-size: clamp(18px, 1.65vw, 22px);
+  font-weight: 790;
+}
+.registrar-enrollment-period__panel-header p,
+.registrar-enrollment-period__rules-header p { color: #75867a; }
+.registrar-enrollment-period__status-pill { padding: 8px 11px; font-size: 10px; text-transform: uppercase; }
+.registrar-enrollment-period__status-pill--open {
+  color: #0a7241;
+  background: #e7f7ed;
+  border-color: #bfe5cf;
+}
+.registrar-enrollment-period__status-pill--closed {
+  color: #6c6153;
+  background: #f9f5eb;
+  border-color: #e7d9bd;
+}
+.registrar-enrollment-period__audit-item {
+  padding: 15px;
+  border-color: #e1eae3;
+  border-radius: 12px;
+  background: #f9fcfa;
+}
+.registrar-enrollment-period__audit-item:hover {
+  border-color: #c3dfcc;
+  background: #f2faf5;
+}
+.registrar-enrollment-period__audit-item > svg { color: #10844b; }
+.registrar-enrollment-period__audit-item span,
+.registrar-enrollment-period__remarks span { color: #63796a; }
+.registrar-enrollment-period__audit-item strong { color: #1d2e23; }
+.registrar-enrollment-period__remarks {
+  border: 1px solid #dfeae2;
+  border-radius: 12px;
+  background: #f3f9f5;
+}
+.registrar-enrollment-period__empty-state > div {
+  color: #fff;
+  border-radius: 17px;
+  background: linear-gradient(145deg, #15965a, #076239);
+  box-shadow: 0 8px 20px rgba(9, 103, 56, .17);
+}
+.registrar-enrollment-period__empty-state > div svg { color: #fff; stroke: #fff; }
+
+/* Term selectors and action states. */
+.registrar-enrollment-period__panel-icon,
+.registrar-enrollment-period__rules-icon {
+  color: #0c7b47;
+  background: #e9f7ee;
+  border-color: #c7e6d2;
+}
+.registrar-enrollment-period__field > span { color: #2d4635; }
+.registrar-enrollment-period__field select {
+  min-height: 44px;
+  padding-right: 34px;
+  border: 1px solid #d3e4d9;
+  border-radius: 12px;
+  color: #26362c;
+  background-color: #fff;
+}
+.registrar-enrollment-period__field select:focus-visible {
+  outline: 2px solid #36a26a;
+  outline-offset: 1px;
+}
+.registrar-enrollment-period__selection-preview {
+  border-color: #cce7d5;
+  border-radius: 13px;
+  background: #eff9f2;
+}
+.registrar-enrollment-period__action-area { border-top-color: #e4eee7; }
+.registrar-enrollment-period__button--primary {
+  border-color: #0b7042;
+  background: linear-gradient(135deg, #087748, #0d653b);
+  box-shadow: 0 8px 18px rgba(13, 101, 59, .16);
+}
+.registrar-enrollment-period__button--secondary { border-radius: 11px; }
+.registrar-enrollment-period__button--danger {
+  background: #b02c23;
+  border-color: #b02c23;
+}
+.registrar-enrollment-period__button svg { flex-shrink: 0; }
+
+/* Rules panel and individual guidance cards. */
+.registrar-enrollment-period__rules { padding: 23px 24px; }
+.registrar-enrollment-period__rules-header { align-items: center; }
+.registrar-enrollment-period__rules-grid { gap: 12px; }
+.registrar-enrollment-period__rule-item {
+  padding: 15px 13px;
+  border: 1px solid #dfebe2;
+  border-radius: 13px;
+  background: linear-gradient(145deg, #f8fdfa, #f1f9f4);
+}
+.registrar-enrollment-period__rule-item > svg { color: #0c824a; }
+.registrar-enrollment-period__rule-item strong { color: #23382b; }
+.registrar-enrollment-period__rule-item p { color: #718377; }
+
+/* Confirmation dialog: no changes to onClick, disabling, or API behavior. */
+.registrar-enrollment-period__modal-overlay {
+  background: rgba(3, 31, 16, .67);
+  backdrop-filter: blur(5px);
+}
+.registrar-enrollment-period__modal {
+  max-height: min(88dvh, 760px);
+  overflow-y: auto;
+  border: 1px solid #e1eee6;
+  border-radius: 23px;
+  padding: 29px;
+  background: #fff;
+  box-shadow: 0 30px 80px rgba(3, 28, 16, .32);
+}
+.registrar-enrollment-period__modal-icon {
+  color: #fff;
+  background: linear-gradient(145deg, #0d8950, #065a35);
+}
+.registrar-enrollment-period__modal-icon--danger { color: #a5211c; background: #ffebe7; }
+.registrar-enrollment-period__modal-eyebrow {
+  width: fit-content;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: #e9f8ee;
+}
+.registrar-enrollment-period__modal-period { border-color: #d0e6d9; background: #f1f9f4; }
+.registrar-enrollment-period__modal-note { border: 1px solid #d8ecdd; }
+.registrar-enrollment-period__modal-note--warning { border-color: #f3e2bc; }
+.registrar-enrollment-period__modal-close:hover { color: #0b653e; background: #e7f5eb; }
+
+/* Useful focus states; no page-entry animations or flashing overlays. */
+.registrar-enrollment-period__button:focus-visible,
+.registrar-enrollment-period__notice > button:focus-visible,
+.registrar-enrollment-period__modal-close:focus-visible {
+  outline: 2px solid #43ac70;
+  outline-offset: 2px;
+}
+.registrar-enrollment-period__skeleton-hero,
+.registrar-enrollment-period__skeleton-card,
+.registrar-enrollment-period__skeleton-panel {
+  background: linear-gradient(90deg, #dbe9df 25%, #ebf4ee 45%, #dbe9df 65%);
+  background-size: 220% 100%;
+}
+.registrar-enrollment-period__skeleton-line { background: rgba(255, 255, 255, .62); }
+
+@media (max-width: 1320px) {
+  .registrar-enrollment-period__summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .registrar-enrollment-period__workspace-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 900px) {
+  .registrar-enrollment-period { padding: 22px 20px 35px; }
+  .registrar-enrollment-period__hero { min-height: 0; padding: 27px 24px; }
+}
+@media (max-width: 660px) {
+  .registrar-enrollment-period { padding: 16px 12px 28px; }
+  .registrar-enrollment-period__hero { padding: 23px 18px; border-radius: 18px; }
+  .registrar-enrollment-period__summary-grid { gap: 10px; padding: 7px; border-radius: 18px; }
+  .registrar-enrollment-period__summary-card { min-height: 104px; padding: 14px 12px; }
+  .registrar-enrollment-period__summary-icon,
+  .registrar-enrollment-period__summary-card:first-child .registrar-enrollment-period__summary-icon {
+    flex-basis: 42px;
+    width: 42px;
+    height: 42px;
+  }
+  .registrar-enrollment-period__panel,
+  .registrar-enrollment-period__rules { border-radius: 18px; padding: 19px 16px; }
+  .registrar-enrollment-period__modal { padding: 24px 18px; }
+}
+@media (max-width: 500px) {
+  .registrar-enrollment-period__summary-grid { grid-template-columns: 1fr; }
+  .registrar-enrollment-period__summary-card strong { white-space: normal; }
+}
+
+/* Charcoal dark mode: dark initial surface, skeletons, modals, and forms. */
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .dashboard-main:has(.registrar-enrollment-period) > .dashboard-content {
+  background: #111c15;
+}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-enrollment-period {
+  --ep-text: #eff8f1;
+  --ep-muted: #bed0c2;
+  --ep-line: #344e3b;
+  --ep-surface: #1b2b20;
+  --ep-green-50: #213c2a;
+  background: #111c15;
+  color: #eff8f1;
+}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-enrollment-period__summary-grid { background: #182b20; border-color: #344c3b; backdrop-filter: none; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-enrollment-period__summary-card {
+  background: #233729;
+  border-color: #375340;
+  box-shadow: none;
+}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-enrollment-period__summary-card::after { background: rgba(142, 191, 156, .05); }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-enrollment-period__summary-card strong { color: #f1f9f3; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-enrollment-period__summary-card span,
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-enrollment-period__summary-card small { color: #bfd3c5; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-enrollment-period__panel,
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-enrollment-period__rules,
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-enrollment-period__modal { background: #1b2b20; border-color: #334c3a; box-shadow: 0 16px 44px rgba(0,0,0,.27); }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-enrollment-period__panel-header { border-bottom-color: #35503d; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-enrollment-period__panel-header h2,
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-enrollment-period__rules h2,
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-enrollment-period__modal h2 { color: #eff9f1; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-enrollment-period__panel-header p,
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-enrollment-period__rules-header p,
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-enrollment-period__modal > p,
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-enrollment-period__empty-state p,
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-enrollment-period__field small,
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-enrollment-period__action-copy p { color: #b5cbb9; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-enrollment-period__section-label,
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-enrollment-period__modal-eyebrow { color: #c7f1d5; background: #254b33; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-enrollment-period__status-pill--open { color: #b5f0c9; background: #1d4930; border-color: #407b54; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-enrollment-period__status-pill--closed { color: #f5d7a0; background: #3a3021; border-color: #786043; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-enrollment-period__audit-item,
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-enrollment-period__rule-item,
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-enrollment-period__remarks,
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-enrollment-period__selection-preview,
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-enrollment-period__modal-period { background: #213627; border-color: #3b5943; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-enrollment-period__audit-item strong,
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-enrollment-period__rule-item strong,
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-enrollment-period__field > span,
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-enrollment-period__modal-period strong { color: #eef9f1; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-enrollment-period__audit-item span,
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-enrollment-period__rule-item p,
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-enrollment-period__modal-period span,
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-enrollment-period__remarks span { color: #b6cbb9; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-enrollment-period__field select { color: #eaf8ee; background: #15281c; border-color: #42624a; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-enrollment-period__field select:disabled { color: #a9bdb0; background: #1b3022; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-enrollment-period__modal-close { color: #d5e8d9; background: #2b4131; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-enrollment-period__reopen-badge { color: #caf1d6 !important; background: #315440; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-enrollment-period__action-copy { color: #c7e7d1; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-enrollment-period__action-copy--warning { color: #ffbdb6; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-enrollment-period__modal-note { color: #c7e7d0; background: #244531; border-color: #385e45; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-enrollment-period__modal-note--warning { color: #f7d49d; background: #493a25; border-color: #6a5436; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-enrollment-period__notice--error { color: #fbc4be; background: #45251f; border-color: #81493e; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-enrollment-period__notice--success { color: #c6eed4; background: #21442e; border-color: #43694c; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-enrollment-period__skeleton-hero,
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-enrollment-period__skeleton-card,
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-enrollment-period__skeleton-panel {
+  background: linear-gradient(90deg, #1a2a20 25%, #294030 45%, #1a2a20 65%);
+  background-size: 220% 100%;
+}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-enrollment-period__skeleton-line { background: rgba(108, 153, 116, .20); }
+
+@media (prefers-reduced-motion: reduce) {
+  .registrar-enrollment-period__summary-card:hover { transform: none; }
+}

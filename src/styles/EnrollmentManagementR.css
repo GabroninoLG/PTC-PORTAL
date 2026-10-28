@@ -1343,3 +1343,425 @@
     animation-iteration-count: 1 !important;
   }
 }
+
+
+/* ======================================================================
+   PTC PORTAL — REGISTRAR / ENROLLMENT / STUDENT ENROLLMENT
+   Visual alignment with the approved Registrar Dashboard / Academic pages.
+   Scoped to this page's existing classes. No TSX, route, sidebar or footer edits.
+   ====================================================================== */
+
+/* Draw the designed canvas to the edge of DashboardLayout's content area. */
+.dashboard-main:has(.registrar-enrollment-management) > .dashboard-content {
+  padding: 0;
+  overflow-x: clip;
+  background: #dcece2;
+}
+.dashboard-main:has(.registrar-enrollment-management)
+  > .header-container:has(.app-header.hide) {
+  height: 0;
+  min-height: 0;
+  border: 0;
+}
+.dashboard-main:has(.registrar-enrollment-management)
+  > .header-container:has(.app-header.show) {
+  height: 58px;
+  min-height: 58px;
+}
+
+.registrar-enrollment-management {
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  min-height: 100%;
+  padding: 27px 28px 44px;
+  overflow-x: clip;
+  background-color: #deeee4;
+  background-image:
+    radial-gradient(circle at 92% 0%, rgba(235, 210, 103, 0.13), transparent 25%),
+    radial-gradient(circle at 18% 43%, rgba(61, 147, 106, 0.12), transparent 34%),
+    repeating-linear-gradient(135deg, rgba(255,255,255,0.15) 0 17px, rgba(32,110,66,0.045) 17px 45px, transparent 45px 83px),
+    repeating-linear-gradient(45deg, transparent 0 66px, rgba(64,154,110,0.07) 66px 87px, transparent 87px 142px),
+    linear-gradient(115deg, #d5eadc, #e5f2e9 63%, #eaf1db);
+  background-size: auto, auto, 180px 180px, 260px 260px, auto;
+}
+
+/* Green dashboard-style hero — all existing controls remain in place. */
+.registrar-enrollment-management__hero {
+  isolation: isolate;
+  min-height: 186px;
+  padding: 29px 30px;
+  margin-bottom: 0;
+  border: 0;
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at 83% 10%, rgba(255,255,255,0.13) 0 9%, transparent 9.5%),
+    radial-gradient(circle at 91% 58%, rgba(255,255,255,0.085) 0 13%, transparent 13.5%),
+    linear-gradient(112deg, #064d2f, #086a3d 47%, #158447 78%, #2c9a60);
+  box-shadow: 0 18px 40px rgba(6,78,47,0.22);
+}
+.registrar-enrollment-management__hero::before {
+  content: "";
+  position: absolute;
+  right: -60px;
+  bottom: -110px;
+  width: 295px;
+  height: 295px;
+  border: 1px solid rgba(255,255,255,0.13);
+  border-radius: 50%;
+  pointer-events: none;
+}
+.registrar-enrollment-management__hero::after {
+  top: -115px;
+  right: 99px;
+  width: 270px;
+  height: 270px;
+  border: 45px solid rgba(255,255,255,0.058);
+}
+.registrar-enrollment-management__eyebrow {
+  color: #e4ffed;
+  font-size: 11px;
+  letter-spacing: 0.012em;
+}
+.registrar-enrollment-management__eyebrow-icon {
+  color: #fff;
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.23);
+}
+.registrar-enrollment-management__hero h1 {
+  color: #fff;
+  font-size: clamp(30px, 3vw, 40px);
+  font-weight: 800;
+  letter-spacing: -0.035em;
+}
+.registrar-enrollment-management__hero p {
+  color: rgba(242,255,248,0.91);
+  font-size: 14px;
+  line-height: 1.65;
+}
+.registrar-enrollment-management__hero-actions { align-self: center; }
+.registrar-enrollment-management__hero-actions .registrar-enrollment-management__button {
+  min-height: 43px;
+  padding: 11px 16px;
+  border-radius: 11px;
+}
+.registrar-enrollment-management__hero-actions .registrar-enrollment-management__button--primary,
+.registrar-enrollment-management__hero-actions .registrar-enrollment-management__button--secondary {
+  color: #075d37;
+  background: #fff;
+  border-color: rgba(255,255,255,0.7);
+  box-shadow: 0 7px 17px rgba(4,44,22,0.12);
+}
+.registrar-enrollment-management__hero-actions .registrar-enrollment-management__button:hover:not(:disabled) {
+  color: #064528;
+  background: #e4f7eb;
+  border-color: #c8efd7;
+}
+
+/* The four existing metrics, with intentional colour and icon contrast. */
+.registrar-enrollment-management__stats {
+  position: relative;
+  z-index: 1;
+  gap: 16px;
+  margin: 16px 0 20px;
+  padding: 10px;
+  border: 1px solid rgba(255,255,255,0.78);
+  border-radius: 22px;
+  background: rgba(255,255,255,0.47);
+  box-shadow: 0 13px 30px rgba(7,59,36,0.09);
+  backdrop-filter: blur(7px);
+  -webkit-backdrop-filter: blur(7px);
+}
+.registrar-enrollment-management__stat-card {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  min-height: 117px;
+  padding: 21px 17px;
+  align-items: center;
+  border: 0;
+  border-radius: 19px;
+  box-shadow: 0 10px 24px rgba(24,53,35,0.07);
+}
+.registrar-enrollment-management__stat-card::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 5px;
+  background: #139457;
+}
+.registrar-enrollment-management__stat-card::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  top: -54px;
+  right: -53px;
+  width: 132px;
+  height: 132px;
+  border-radius: 50%;
+  background: rgba(11,119,69,0.065);
+  pointer-events: none;
+}
+.registrar-enrollment-management__stat-card:nth-child(1) { background: #eefaf3; }
+.registrar-enrollment-management__stat-card:nth-child(2) { background: #fff9e9; }
+.registrar-enrollment-management__stat-card:nth-child(3) { background: #eef5ff; }
+.registrar-enrollment-management__stat-card:nth-child(4) { background: #f8f1ff; }
+.registrar-enrollment-management__stat-card:nth-child(2)::before { background: #d9a20d; }
+.registrar-enrollment-management__stat-card:nth-child(3)::before { background: #2563eb; }
+.registrar-enrollment-management__stat-card:nth-child(4)::before { background: #803aea; }
+.registrar-enrollment-management__stat-card:nth-child(2)::after { background: rgba(217,162,13,0.08); }
+.registrar-enrollment-management__stat-card:nth-child(3)::after { background: rgba(37,99,235,0.08); }
+.registrar-enrollment-management__stat-card:nth-child(4)::after { background: rgba(128,58,234,0.075); }
+.registrar-enrollment-management__stat-icon {
+  flex-shrink: 0;
+  width: 47px;
+  height: 47px;
+  border-radius: 14px;
+  color: #fff;
+  background: linear-gradient(145deg, #0c7b47, #065331);
+  border: 1px solid #0b683e;
+  box-shadow: 0 8px 17px rgba(31,56,40,0.1);
+}
+.registrar-enrollment-management__stat-icon svg {
+  color: inherit;
+  stroke: currentColor;
+  opacity: 1;
+}
+.registrar-enrollment-management__stat-card:nth-child(2) .registrar-enrollment-management__stat-icon {
+  color: #af7900;
+  background: #fff5d9;
+  border-color: #efd68c;
+}
+.registrar-enrollment-management__stat-card:nth-child(3) .registrar-enrollment-management__stat-icon {
+  color: #2563eb;
+  background: #eaf2ff;
+  border-color: #cbdcff;
+}
+.registrar-enrollment-management__stat-card:nth-child(4) .registrar-enrollment-management__stat-icon {
+  color: #7b2ee6;
+  background: #f3ecff;
+  border-color: #dec9fa;
+}
+.registrar-enrollment-management__stat-card p {
+  color: #606f65;
+  font-size: 10.5px;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+}
+.registrar-enrollment-management__stat-card strong {
+  color: #18221b;
+  font-size: 27px;
+  font-weight: 820;
+}
+.registrar-enrollment-management__stat-card small {
+  color: #79877e;
+  font-size: 10.5px;
+}
+
+/* Review queue and existing search, filters and table. */
+.registrar-enrollment-management__workspace {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  border: 1px solid rgba(255,255,255,0.87);
+  border-radius: 23px;
+  background: #fff;
+  box-shadow: 0 17px 40px rgba(7,59,36,0.12);
+}
+.registrar-enrollment-management__workspace-header {
+  padding: 23px 26px 20px;
+  border-bottom-color: #e6eee8;
+  background: linear-gradient(107deg, #fff 0%, #fafdfa 65%, #edf8f0 100%);
+}
+.registrar-enrollment-management__section-kicker {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  margin-bottom: 10px;
+  padding: 7px 10px;
+  border-radius: 999px;
+  color: #0b7444;
+  background: #e5f6eb;
+  font-size: 10px;
+}
+.registrar-enrollment-management__workspace-header h2 {
+  color: #18251c;
+  font-size: clamp(20px, 2vw, 24px);
+  font-weight: 800;
+}
+.registrar-enrollment-management__workspace-header p { color: #73847a; }
+.registrar-enrollment-management__result-meta {
+  align-items: center;
+  padding: 10px 13px;
+  border: 1px solid #cae6d5;
+  border-radius: 12px;
+  color: #296a43;
+  background: #edf9f1;
+}
+.registrar-enrollment-management__toolbar { padding: 18px 24px 13px; }
+.registrar-enrollment-management__filters { padding: 0 24px 16px; }
+.registrar-enrollment-management__search input,
+.registrar-enrollment-management__filters select {
+  border-color: #d5e3d9;
+  border-radius: 12px;
+  background: #fff;
+}
+.registrar-enrollment-management__search input { min-height: 44px; }
+.registrar-enrollment-management__filters select { min-height: 42px; }
+.registrar-enrollment-management__search input:focus,
+.registrar-enrollment-management__filters select:focus {
+  border-color: #70ba91;
+  box-shadow: 0 0 0 3px rgba(21,148,82,0.12);
+}
+.registrar-enrollment-management__filter-summary {
+  padding: 12px 24px 16px;
+  border-bottom-color: #e8f0eb;
+}
+.registrar-enrollment-management__filter-chip {
+  padding: 7px 10px;
+  border-color: #cae6d5;
+  background: #edf9f1;
+}
+.registrar-enrollment-management__table thead th {
+  color: #476452;
+  background: #f2f8f4;
+  border-color: #d9e8de;
+}
+.registrar-enrollment-management__table tbody tr:nth-child(even) { background: #fbfdfb; }
+.registrar-enrollment-management__table tbody tr:not(.registrar-enrollment-management__skeleton-row):hover {
+  background: #eff9f2;
+}
+.registrar-enrollment-management__avatar {
+  background: #e4f4eb;
+  color: #0d7042;
+  border-color: #c4e2cf;
+}
+.registrar-enrollment-management__review-button {
+  border-color: #b8dbc7;
+  border-radius: 10px;
+  color: #0b6840;
+  background: #eff9f3;
+}
+.registrar-enrollment-management__review-button:hover { background: #0c7444; color: #fff; }
+.registrar-enrollment-management__pagination {
+  border-top-color: #e3eee7;
+  background: #f7fbf8;
+}
+.registrar-enrollment-management__page-button--active { background: #0c7043; color: #fff; border-color: #0c7043; }
+
+/* Keep existing responsive layouts; adjust only the new card containers. */
+@media (max-width: 1280px) {
+  .registrar-enrollment-management__stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 900px) {
+  .registrar-enrollment-management { padding: 22px 20px 34px; }
+  .registrar-enrollment-management__hero { min-height: 0; padding: 27px 24px; }
+}
+@media (max-width: 720px) {
+  .registrar-enrollment-management { padding: 16px 12px 28px; }
+  .registrar-enrollment-management__hero { padding: 23px 18px; border-radius: 18px; }
+  .registrar-enrollment-management__stats { gap: 10px; padding: 7px; border-radius: 18px; }
+  .registrar-enrollment-management__stat-card { min-height: 106px; padding: 15px 12px; }
+  .registrar-enrollment-management__stat-icon { width: 39px; height: 39px; }
+  .registrar-enrollment-management__workspace { border-radius: 18px; }
+  .registrar-enrollment-management__workspace-header,
+  .registrar-enrollment-management__toolbar,
+  .registrar-enrollment-management__filters,
+  .registrar-enrollment-management__filter-summary,
+  .registrar-enrollment-management__pagination { padding-left: 16px; padding-right: 16px; }
+}
+@media (max-width: 500px) {
+  .registrar-enrollment-management__stats { grid-template-columns: 1fr; }
+}
+
+/* Dark theme — charcoal first paint, no white overlay or page-entry effect. */
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .dashboard-main:has(.registrar-enrollment-management) > .dashboard-content { background: #111c15; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-enrollment-management {
+  --rem-surface: #1b2a20;
+  --rem-bg: #111c15;
+  --rem-border: #344b3b;
+  --rem-border-strong: #385542;
+  --rem-text-950: #eaf5ed;
+  --rem-text-800: #d7e8db;
+  --rem-text-700: #bbd0c1;
+  --rem-text-600: #aec5b4;
+  --rem-text-500: #97ad9d;
+  background: #111c15;
+  color: #eaf5ed;
+}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-enrollment-management__stats {
+  background: #1b2d20;
+  border-color: #385442;
+  backdrop-filter: none;
+}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-enrollment-management__stat-card {
+  background: #203126;
+  border: 1px solid #385442;
+  box-shadow: none;
+}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-enrollment-management__stat-card::after { background: rgba(141,193,153,0.04); }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-enrollment-management__stat-card p,
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-enrollment-management__stat-card small { color: #bbd0c1; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-enrollment-management__stat-card strong { color: #eff9f1; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-enrollment-management__workspace,
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-enrollment-management__workspace-header,
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-enrollment-management__pagination { background: #1b2a20; border-color: #344b3b; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-enrollment-management__workspace-header h2 { color: #f0f7f1; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-enrollment-management__workspace-header p { color: #bad0bf; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-enrollment-management__section-kicker,
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-enrollment-management__result-meta,
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-enrollment-management__filter-chip { color: #c8eed6; background: #234531; border-color: #3e654b; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-enrollment-management__search input,
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-enrollment-management__filters select {
+  color: #e7f3ea;
+  background: #13221a;
+  border-color: #385542;
+}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-enrollment-management__search input::placeholder { color: #91aa98; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-enrollment-management__filter-summary,
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-enrollment-management__table th,
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-enrollment-management__table td { border-color: #344b3b; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-enrollment-management__table thead th { color: #c8ddce; background: #263a2c; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-enrollment-management__table tbody tr:nth-child(even) { background: #202f24; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-enrollment-management__table tbody tr:not(.registrar-enrollment-management__skeleton-row):hover { background: #284333; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-enrollment-management__avatar { background: #244d35; color: #d2f1dd; border-color: #416d50; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-enrollment-management__review-button { color: #c6edd4; background: #244431; border-color: #3b694a; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-enrollment-management__page-button { color: #e3f1e7; background: #233629; border-color: #42604a; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-enrollment-management__page-button--active { color: #fff; background: #0e7546; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-enrollment-management__skeleton {
+  background: linear-gradient(90deg, #25362a 25%, #344b39 50%, #25362a 75%);
+  background-size: 200% 100%;
+}

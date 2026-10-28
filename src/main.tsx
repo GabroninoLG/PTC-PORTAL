@@ -5,7 +5,7 @@ import "bootstrap/dist/css/bootstrap.css";
 import App from "./App";
 
 import "./styles/admin-theme.css";
-
+import "./styles/ptc-unified-canvas.css";
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <App />

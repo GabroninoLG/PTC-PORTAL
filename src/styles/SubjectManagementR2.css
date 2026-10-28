@@ -606,6 +606,7 @@
   font-size: 11.5px;
   line-height: 1.5;
   -webkit-box-orient: vertical;
+  line-clamp: 2;
   -webkit-line-clamp: 2;
 }
 
@@ -941,3 +942,435 @@
     transition-duration: 0.01ms !important;
   }
 }
+
+/* ============================================================
+   PTC PORTAL 2026 — REGISTRAR ACADEMIC / SUBJECTS
+   Visual reference: Registrar Dashboard, Courses & Curriculum.
+   Scoped to Subjects page and its existing TSX class names.
+   No changes to navigation, footer, API or form behavior.
+============================================================ */
+
+.registrar-subject-management {
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  min-height: 100%;
+  padding: 27px 28px 44px;
+  overflow-x: clip;
+  background-color: #deeee4;
+  background-image:
+    radial-gradient(circle at 92% 0%, rgba(235, 210, 103, .13), transparent 25%),
+    radial-gradient(circle at 18% 43%, rgba(61, 147, 106, .12), transparent 34%),
+    repeating-linear-gradient(135deg, rgba(255,255,255,.15) 0 17px, rgba(32,110,66,.045) 17px 45px, transparent 45px 83px),
+    repeating-linear-gradient(45deg, transparent 0 66px, rgba(64,154,110,.07) 66px 87px, transparent 87px 142px),
+    linear-gradient(115deg, #d5eadc, #e5f2e9 63%, #eaf1db);
+  background-size: auto, auto, 180px 180px, 260px 260px, auto;
+}
+
+/* Use full content width. Shell-only override fixes the white gutter without
+   changing sidebar width, navigation, global header or footer styling. */
+.dashboard-main:has(.registrar-subject-management) > .dashboard-content {
+  padding: 0;
+  overflow-x: clip;
+  background-color: #deeee4;
+}
+.dashboard-main:has(.registrar-subject-management) > .header-container:has(.app-header.hide) {
+  height: 0;
+  min-height: 0;
+  border: 0;
+}
+.dashboard-main:has(.registrar-subject-management) > .header-container:has(.app-header.show) {
+  height: 58px;
+  min-height: 58px;
+}
+
+/* Header */
+.registrar-subject-management__hero {
+  isolation: isolate;
+  min-height: 186px;
+  padding: 29px 30px;
+  margin-bottom: 0;
+  border: 0;
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at 83% 10%, rgba(255,255,255,.13) 0 9%, transparent 9.5%),
+    radial-gradient(circle at 91% 58%, rgba(255,255,255,.085) 0 13%, transparent 13.5%),
+    linear-gradient(112deg, #064d2f, #086a3d 47%, #158447 78%, #2c9a60);
+  box-shadow: 0 18px 40px rgba(6,78,47,.22);
+}
+.registrar-subject-management__hero::before {
+  content: "";
+  position: absolute;
+  right: -60px;
+  bottom: -110px;
+  width: 295px;
+  height: 295px;
+  border: 1px solid rgba(255,255,255,.13);
+  border-radius: 50%;
+  pointer-events: none;
+}
+.registrar-subject-management__hero::after {
+  top: -115px;
+  right: 99px;
+  width: 270px;
+  height: 270px;
+  border: 45px solid rgba(255,255,255,.058);
+}
+.registrar-subject-management__eyebrow {
+  color: #e4ffed;
+  font-size: 11px;
+  letter-spacing: .012em;
+}
+.registrar-subject-management__eyebrow-icon {
+  color: #fff;
+  background: rgba(255,255,255,.15);
+  border: 1px solid rgba(255,255,255,.23);
+}
+.registrar-subject-management__hero h1 {
+  color: #fff;
+  font-size: clamp(30px, 3vw, 40px);
+  font-weight: 800;
+  letter-spacing: -.035em;
+}
+.registrar-subject-management__hero p {
+  color: rgba(242,255,248,.91);
+  font-size: 14px;
+  line-height: 1.65;
+}
+.registrar-subject-management__hero-actions {
+  align-self: center;
+}
+.registrar-subject-management__hero-actions .registrar-subject-management__button {
+  min-height: 43px;
+  padding: 11px 16px;
+  border-radius: 11px;
+}
+.registrar-subject-management__hero-actions .registrar-subject-management__button--secondary {
+  color: #09643c;
+  background: #fff;
+  border-color: rgba(255,255,255,.65);
+  box-shadow: 0 7px 17px rgba(4,44,22,.12);
+}
+.registrar-subject-management__hero-actions .registrar-subject-management__button--primary {
+  color: #074427;
+  background: #eaf9ee;
+  border-color: #d9f3e1;
+  box-shadow: 0 7px 17px rgba(4,44,22,.13);
+}
+.registrar-subject-management__hero-actions .registrar-subject-management__button:hover:not(:disabled) {
+  background: #dbf3e4;
+  color: #064528;
+}
+
+/* Four metrics, same order and real data as TSX. */
+.registrar-subject-management__stats {
+  position: relative;
+  z-index: 1;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  margin: 16px 0 20px;
+  padding: 10px;
+  border: 1px solid rgba(255,255,255,.78);
+  border-radius: 22px;
+  background: rgba(255,255,255,.47);
+  box-shadow: 0 13px 30px rgba(7,59,36,.09);
+  backdrop-filter: blur(7px);
+  -webkit-backdrop-filter: blur(7px);
+}
+.registrar-subject-management__stat-card {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  min-height: 117px;
+  padding: 21px 17px;
+  border: 0;
+  border-radius: 19px;
+  box-shadow: 0 10px 24px rgba(24,53,35,.07);
+  align-items: center;
+}
+.registrar-subject-management__stat-card::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 5px;
+  background: #139457;
+}
+.registrar-subject-management__stat-card::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  top: -54px;
+  right: -53px;
+  width: 132px;
+  height: 132px;
+  border-radius: 50%;
+  background: rgba(11,119,69,.065);
+  pointer-events: none;
+}
+.registrar-subject-management__stat-card:nth-child(1) { background: #eefaf3; }
+.registrar-subject-management__stat-card:nth-child(2) { background: #fff9e9; }
+.registrar-subject-management__stat-card:nth-child(3) { background: #eef5ff; }
+.registrar-subject-management__stat-card:nth-child(4) { background: #f8f1ff; }
+.registrar-subject-management__stat-card:nth-child(2)::before { background: #d9a20d; }
+.registrar-subject-management__stat-card:nth-child(3)::before { background: #2563eb; }
+.registrar-subject-management__stat-card:nth-child(4)::before { background: #803aea; }
+.registrar-subject-management__stat-card:nth-child(2)::after { background: rgba(217,162,13,.08); }
+.registrar-subject-management__stat-card:nth-child(3)::after { background: rgba(37,99,235,.08); }
+.registrar-subject-management__stat-card:nth-child(4)::after { background: rgba(128,58,234,.075); }
+.registrar-subject-management__stat-icon {
+  flex-shrink: 0;
+  width: 47px;
+  height: 47px;
+  border-radius: 14px;
+  color: #fff;
+  background: linear-gradient(145deg, #0c7b47, #065331);
+  border: 1px solid #0b683e;
+  box-shadow: 0 8px 17px rgba(31,56,40,.1);
+}
+.registrar-subject-management__stat-icon svg {
+  color: inherit;
+  stroke: currentColor;
+  opacity: 1;
+}
+.registrar-subject-management__stat-card:nth-child(2) .registrar-subject-management__stat-icon {
+  color: #af7900;
+  background: #fff5d9;
+  border-color: #efd68c;
+}
+.registrar-subject-management__stat-card:nth-child(3) .registrar-subject-management__stat-icon {
+  color: #2563eb;
+  background: #eaf2ff;
+  border-color: #cbdcff;
+}
+.registrar-subject-management__stat-card:nth-child(4) .registrar-subject-management__stat-icon {
+  color: #7b2ee6;
+  background: #f3ecff;
+  border-color: #dec9fa;
+}
+.registrar-subject-management__stat-label {
+  color: #606f65;
+  font-size: 10.5px;
+  letter-spacing: .01em;
+}
+.registrar-subject-management__stat-card strong {
+  color: #18221b;
+  font-size: 27px;
+  font-weight: 820;
+}
+.registrar-subject-management__stat-card small {
+  color: #79877e;
+  font-size: 10.5px;
+}
+
+/* Directory card */
+.registrar-subject-management__workspace {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  border: 1px solid rgba(255,255,255,.87);
+  border-radius: 23px;
+  background: #fff;
+  box-shadow: 0 17px 40px rgba(7,59,36,.12);
+}
+.registrar-subject-management__workspace-header {
+  padding: 23px 26px 20px;
+  border-bottom-color: #e6eee8;
+  background: linear-gradient(107deg, #fff 0%, #fafdfa 65%, #edf8f0 100%);
+}
+.registrar-subject-management__section-kicker {
+  display: inline-flex;
+  align-items: center;
+  margin-bottom: 10px;
+  padding: 7px 10px;
+  border-radius: 999px;
+  color: #0b7444;
+  background: #e5f6eb;
+  font-size: 10px;
+  letter-spacing: .03em;
+}
+.registrar-subject-management__workspace-header h2 {
+  color: #17231b;
+  font-size: 23px;
+  font-weight: 790;
+}
+.registrar-subject-management__workspace-header p {
+  color: #708077;
+}
+.registrar-subject-management__result-count {
+  padding: 10px 12px;
+  border-color: #cae8d6;
+  border-radius: 12px;
+  background: #ecf9f0;
+}
+.registrar-subject-management__result-count strong { color: #087340; }
+.registrar-subject-management__toolbar {
+  padding: 18px 26px;
+  background: #fafcfb;
+  border-bottom-color: #e5eee7;
+}
+.registrar-subject-management__search-wrap { width: min(100%, 760px); }
+.registrar-subject-management__search-wrap input {
+  min-height: 45px;
+  border-color: #ccdfd2;
+  border-radius: 12px;
+  background: #fff;
+}
+.registrar-subject-management__active-filter {
+  border-color: #c3e6d0;
+  background: #e9f8ed;
+}
+.registrar-subject-management__table th {
+  background: #f4f9f5;
+  color: #4b6253;
+  font-size: 10px;
+  border-bottom-color: #deeadf;
+}
+.registrar-subject-management__table td {
+  padding-top: 17px;
+  padding-bottom: 17px;
+  border-bottom-color: #eaf1ed;
+}
+.registrar-subject-management__table tbody tr:hover { background: #f5fbf7; }
+.registrar-subject-management__code-badge {
+  color: #05683b;
+  background: #e8f7ee;
+  border-color: #c5e5d1;
+}
+.registrar-subject-management__units-badge {
+  background: #f1f7f3;
+  border-color: #d7e8db;
+}
+.registrar-subject-management__action {
+  min-height: 34px;
+  border-radius: 9px;
+}
+.registrar-subject-management__description {
+  line-clamp: 2;
+  -webkit-line-clamp: 2;
+}
+.registrar-subject-management__state--empty {
+  border-color: #c7e4d1;
+  background: linear-gradient(125deg, #fbfefc, #eff8f3);
+}
+.registrar-subject-management__state--empty .registrar-subject-management__state-icon {
+  color: #fff;
+  background: linear-gradient(145deg,#179c5e,#08733c);
+}
+.registrar-subject-management__pagination {
+  background: #f9fcf9;
+  border-top-color: #e6eee8;
+}
+.registrar-subject-management__pagination-pages button.is-active {
+  border-color: #0b7141;
+  background: #0b7141;
+}
+
+/* Responsive: visual panels can wrap, but table stays horizontally scrollable. */
+@media (max-width: 1250px) {
+  .registrar-subject-management__stats { gap: 10px; }
+  .registrar-subject-management__stat-card { padding: 17px 14px; gap: 10px; }
+  .registrar-subject-management__stat-icon { width: 42px; height: 42px; }
+}
+@media (max-width: 1180px) {
+  .registrar-subject-management__stats { grid-template-columns: repeat(2,minmax(0,1fr)); }
+}
+@media (max-width: 860px) {
+  .registrar-subject-management { padding: 22px 18px 34px; }
+  .registrar-subject-management__hero { min-height: 0; padding: 24px 22px; }
+  .registrar-subject-management__workspace-header { padding: 20px; }
+  .registrar-subject-management__toolbar { padding: 15px 20px; }
+}
+@media (max-width: 580px) {
+  .registrar-subject-management { padding: 16px 12px 28px; }
+  .registrar-subject-management__hero { padding: 23px 18px; border-radius: 17px; }
+  .registrar-subject-management__stats { grid-template-columns: 1fr; padding: 7px; border-radius: 17px; }
+  .registrar-subject-management__stat-card { min-height: 98px; }
+  .registrar-subject-management__workspace { border-radius: 17px; }
+  .registrar-subject-management__workspace-header,
+  .registrar-subject-management__toolbar { padding: 16px; }
+}
+
+/* Night theme: dark panels from the first paint, no page-entry flash. */
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .dashboard-main:has(.registrar-subject-management) > .dashboard-content { background: #111c15; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-subject-management {
+  --rsm-text-950: #eef7f0;
+  --rsm-text-800: #dcece0;
+  --rsm-text-600: #bccdc0;
+  --rsm-text-500: #a0b6a6;
+  --rsm-border: #344d3b;
+  --rsm-border-strong: #47634e;
+  --rsm-surface: #1b2a20;
+  --rsm-bg: #111d15;
+  color: #e9f3eb;
+  background-color: #111d15;
+  background-image: radial-gradient(circle at 100% 0,rgba(20,112,66,.1),transparent 40%),linear-gradient(135deg,#101a13,#16271b);
+}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-subject-management__stats {
+  background: #192c1f;
+  border-color: #344d3b;
+}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-subject-management__stat-card {
+  background: #23362a;
+  border: 1px solid #35513e;
+  box-shadow: none;
+}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-subject-management__stat-card strong,
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-subject-management__workspace-header h2,
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-subject-management__subject-cell strong { color: #f1f8f1; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-subject-management__stat-label,
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-subject-management__stat-card small,
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-subject-management__workspace-header p { color: #b4cbbb; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-subject-management__workspace,
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-subject-management__workspace-header,
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-subject-management__toolbar,
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-subject-management__pagination {
+  color: #e5f1e9;
+  background: #1b2a20;
+  border-color: #385341;
+}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-subject-management__table th { background: #263d2d; color: #c7decf; border-color: #385341; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-subject-management__table td { color: #dcebe1; border-color: #34503d; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-subject-management__table tbody tr:hover { background: #263b2c; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-subject-management__search-wrap input {
+  background: #14241a; color: #e5f4e9; border-color: #47634e; color-scheme: dark;
+}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-subject-management__result-count,
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-subject-management__units-badge,
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-subject-management__pagination-controls button:not(.is-active) {
+  background: #243a2b; color: #e9f4ec; border-color: #45634d;
+}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-subject-management__skeleton {
+  background: linear-gradient(90deg,#2a4030 25%,#3a5741 50%,#2a4030 75%);
+  background-size: 200% 100%;
+}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-subject-management__state--empty { background: #203329; border-color: #456c4f; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-subject-management__state h3 { color: #eef7f0; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-subject-management__state p { color: #c2d2c5; }

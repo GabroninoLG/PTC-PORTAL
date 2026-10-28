@@ -1911,3 +1911,775 @@
     grid-template-columns: 1fr;
   }
 }
+
+
+/* ============================================================================
+   PTC PORTAL — REGISTRAR / STUDENT RECORDS / TRANSFER EVALUATION
+   Page-only visual refresh based on the Registrar Dashboard design.
+   Existing TSX and academic approval logic are not changed.
+   Keeps all 5 original status cards, all 4 dialogs and all form/table controls.
+   ============================================================================ */
+
+/* Prevent the shared DashboardLayout content padding from leaving a white strip
+   between the sidebar and this page.  Do not style the sidebar or footer. */
+.dashboard-main:has(> .dashboard-content > .registrar-transfer-page)
+  > .dashboard-content {
+  min-width: 0;
+  padding: 0;
+  overflow-x: clip;
+  background: #e5f0e9;
+}
+.dashboard-main:has(.registrar-transfer-page)
+  > .header-container:has(.app-header.hide) {
+  min-height: 0;
+  height: 0;
+  border: 0;
+}
+
+.registrar-transfer-page {
+  --transfer-green-900: #06452c;
+  --transfer-green-800: #075c38;
+  --transfer-green-700: #0e7949;
+  --transfer-green-600: #15965c;
+  --transfer-green-100: #e0f6e8;
+  --transfer-green-50: #f0faf3;
+  --transfer-text: #1b2a20;
+  --transfer-text-soft: #465b4b;
+  --transfer-muted: #607568;
+  --transfer-muted-light: #788b7e;
+  --transfer-border: #d5e7db;
+  --transfer-border-soft: #e6efe8;
+  position: relative;
+  isolation: isolate;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: none;
+  min-width: 0;
+  min-height: 100%;
+  margin: 0;
+  padding: 26px 27px 44px;
+  overflow-x: clip;
+  background-color: #e2efe6;
+  background-image:
+    radial-gradient(circle at 89% 3%, rgba(240, 199, 93, .14), transparent 29%),
+    radial-gradient(circle at 7% 49%, rgba(32, 144, 81, .12), transparent 39%),
+    repeating-linear-gradient(135deg, rgba(255,255,255,.17) 0 18px, rgba(30,122,72,.055) 18px 43px, transparent 43px 86px),
+    repeating-linear-gradient(45deg, transparent 0 67px, rgba(48,145,89,.075) 67px 88px, transparent 88px 146px),
+    linear-gradient(115deg, #d5eadc 0%, #e7f3eb 64%, #edf2e1 100%);
+  background-size: auto, auto, 190px 190px, 260px 260px, auto;
+  color: var(--transfer-text);
+}
+.registrar-transfer-page::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 13px 13px auto;
+  height: 345px;
+  pointer-events: none;
+  border: 1px solid rgba(6, 76, 43, .12);
+  border-radius: 26px;
+  background: linear-gradient(120deg, rgba(255,255,255,.68), rgba(235,248,238,.52));
+  box-shadow: 0 15px 42px rgba(3, 67, 34, .08);
+}
+
+/* Back/refresh controls live above the hero in the existing TSX. */
+.registrar-transfer-topbar { gap: 10px; margin-bottom: 13px; min-height: 38px; }
+.registrar-transfer-back,
+.registrar-transfer-refresh {
+  min-height: 38px;
+  border-radius: 11px;
+  padding: 8px 14px;
+  font-size: 12px;
+  font-weight: 750;
+  box-shadow: 0 5px 13px rgba(9,72,38,.045);
+}
+.registrar-transfer-back { background: rgba(255,255,255,.92); border: 1px solid #cde4d4; color: #0d7141; }
+.registrar-transfer-refresh { background: #fff; border: 1px solid #cde4d4; color: #086a3d; }
+.registrar-transfer-back:hover,
+.registrar-transfer-refresh:hover:not(:disabled) {
+  background: #e6f8ec;
+  border-color: #90c6a5;
+  color: #075b34;
+}
+
+/* PTC-green hero, with a deliberately visible document icon. */
+.registrar-transfer-heading {
+  position: relative;
+  min-height: 164px;
+  margin-bottom: 14px;
+  padding: 29px 31px;
+  overflow: hidden;
+  border: 1px solid rgba(10,111,62,.34);
+  border-radius: 22px;
+  background:
+    radial-gradient(circle at 86% 19%, rgba(255,255,255,.17) 0 9%, transparent 9.3% 14%, rgba(255,255,255,.075) 14.3% 21%, transparent 21.3%),
+    linear-gradient(107deg, #06472d 0%, #076b40 57%, #15854e 100%);
+  box-shadow: 0 14px 30px rgba(6,69,44,.20);
+}
+.registrar-transfer-heading::after {
+  content: "";
+  position: absolute;
+  width: 235px;
+  height: 235px;
+  right: -91px;
+  bottom: -137px;
+  border: 1px solid rgba(240,255,244,.19);
+  border-radius: 50%;
+  pointer-events: none;
+}
+.registrar-transfer-heading > div:first-child { position: relative; z-index: 1; }
+.registrar-transfer-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  min-height: 27px;
+  margin-bottom: 12px;
+  padding: 5px 10px;
+  border: 1px solid rgba(216,255,231,.27);
+  border-radius: 999px;
+  background: rgba(218,255,234,.12);
+  color: #e6ffed;
+  font-size: 10px;
+  letter-spacing: .045em;
+}
+.registrar-transfer-heading h1 {
+  color: #fff;
+  font-size: clamp(28px, 2.9vw, 38px);
+  font-weight: 800;
+  letter-spacing: -.025em;
+  line-height: 1.15;
+  text-shadow: 0 2px 6px rgba(0,30,16,.1);
+}
+.registrar-transfer-heading p {
+  max-width: 760px;
+  margin-top: 9px;
+  color: #e2f6e9;
+  font-size: 13px;
+  line-height: 1.65;
+}
+.registrar-transfer-heading-mark {
+  position: relative;
+  z-index: 1;
+  width: 55px;
+  height: 55px;
+  border: 1px solid rgba(223,255,235,.45);
+  border-radius: 16px;
+  background: rgba(230,255,239,.19);
+  color: #fff;
+  box-shadow: 0 9px 19px rgba(0,42,19,.13);
+}
+.registrar-transfer-heading-mark svg { color: inherit; stroke: currentColor; }
+
+.registrar-transfer-rule,
+.registrar-transfer-success,
+.registrar-transfer-error,
+.registrar-transfer-warning {
+  border-radius: 14px;
+  box-shadow: 0 6px 14px rgba(16,83,46,.04);
+}
+.registrar-transfer-rule {
+  padding: 13px 16px;
+  border-color: #bfe1ca;
+  background: #f0fbf3;
+}
+.registrar-transfer-rule-mark {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  background: #0b7647;
+  box-shadow: 0 7px 13px rgba(10,114,66,.15);
+}
+.registrar-transfer-rule strong { color: #08673c; font-size: 12px; }
+.registrar-transfer-rule p { font-size: 11px; color: #496b54; }
+.registrar-transfer-loading {
+  min-height: 160px;
+  border-radius: 17px;
+  background: #fff;
+  box-shadow: 0 9px 22px rgba(10,71,37,.06);
+}
+
+/* Student identity is an independent card. The four existing data fields
+   remain intact; only their presentation changes. */
+.registrar-transfer-identity {
+  gap: 19px;
+  padding: 22px;
+  margin-bottom: 14px;
+  border: 1px solid #d7e8dd;
+  border-radius: 19px;
+  background: #fff;
+  box-shadow: 0 10px 23px rgba(7,66,37,.075);
+}
+.registrar-transfer-avatar {
+  width: 62px;
+  height: 62px;
+  border-radius: 17px;
+  border: 1px solid #bfe1cb;
+  background: linear-gradient(135deg,#08633d,#109353);
+  color: #fff;
+  box-shadow: 0 9px 18px rgba(9,105,56,.14);
+}
+.registrar-transfer-student-copy > span { color: #087344; font-size: 10px; }
+.registrar-transfer-name-row h2 { color: #1b2b21; font-size: clamp(19px,1.8vw,25px); }
+.registrar-transfer-student-copy > p { font-size: 12px; }
+.registrar-transfer-identity-grid { gap: 10px; }
+.registrar-transfer-identity-grid > div {
+  padding: 13px;
+  border-radius: 12px;
+  border-color: #daebe0;
+  background: linear-gradient(155deg, #f2faf5, #fff);
+  min-height: 72px;
+}
+.registrar-transfer-identity-grid span { color: #617667; font-size: 10px; }
+.registrar-transfer-identity-grid strong { color: #1c3225; font-size: 12px; }
+.registrar-transfer-identity-grid small { color: #6a806f; font-size: 10px; }
+
+/* The source defines FIVE counters. Do not turn these into four or invent data. */
+.registrar-transfer-summary {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 11px;
+  margin-bottom: 16px;
+}
+.registrar-transfer-summary article {
+  position: relative;
+  min-height: 117px;
+  padding: 18px 14px 16px 19px;
+  overflow: hidden;
+  border: 1px solid #d4e9db;
+  border-left: 4px solid #119258;
+  border-radius: 16px;
+  background: #effaf3;
+  box-shadow: 0 8px 20px rgba(6,68,39,.075);
+}
+.registrar-transfer-summary article::after {
+  content: "";
+  position: absolute;
+  top: -48px;
+  right: -43px;
+  width: 132px;
+  height: 132px;
+  border-radius: 50%;
+  background: rgba(24,149,85,.075);
+  pointer-events: none;
+}
+.registrar-transfer-summary article:nth-child(2),
+.registrar-transfer-summary .is-review {
+  background: #f1f6ff; border-color: #dbe8ff; border-left-color: #326fea;
+}
+.registrar-transfer-summary article:nth-child(2)::after { background: rgba(50,111,234,.09); }
+.registrar-transfer-summary article:nth-child(3),
+.registrar-transfer-summary .is-returned {
+  background: #fff9e9; border-color: #f7e7bb; border-left-color: #d39a0a;
+}
+.registrar-transfer-summary article:nth-child(3)::after { background: rgba(211,154,10,.09); }
+.registrar-transfer-summary article:nth-child(4),
+.registrar-transfer-summary .is-completed {
+  background: #eaf8f0; border-color: #d0eadb; border-left-color: #0d9153;
+}
+.registrar-transfer-summary article:nth-child(5),
+.registrar-transfer-summary .is-credited {
+  background: #f8f0ff; border-color: #e9dafe; border-left-color: #8544d7;
+}
+.registrar-transfer-summary article:nth-child(5)::after { background: rgba(133,68,215,.075); }
+.registrar-transfer-summary article > span,
+.registrar-transfer-summary article > strong,
+.registrar-transfer-summary article > small { position: relative; z-index: 1; }
+.registrar-transfer-summary span {
+  color: #5e7566;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .02em;
+  text-transform: uppercase;
+}
+.registrar-transfer-summary strong,
+.registrar-transfer-summary .is-review strong,
+.registrar-transfer-summary .is-returned strong,
+.registrar-transfer-summary .is-completed strong,
+.registrar-transfer-summary .is-credited strong {
+  margin-top: 9px;
+  color: #1d2f23;
+  font-size: clamp(24px,2vw,29px);
+  font-weight: 850;
+  line-height: 1.1;
+}
+.registrar-transfer-summary small { margin-top: 5px; color: #687b6d; font-size: 10px; line-height: 1.3; }
+
+/* Evaluation history + detail workspace. Preserve narrow history, wider details. */
+.registrar-transfer-workspace { gap: 16px; grid-template-columns: minmax(285px, .8fr) minmax(0, 2fr); }
+.registrar-transfer-history,
+.registrar-transfer-detail {
+  min-width: 0;
+  border: 1px solid #d6e7db;
+  border-radius: 19px;
+  background: #fff;
+  box-shadow: 0 12px 25px rgba(6,70,38,.075);
+}
+.registrar-transfer-history { top: 14px; }
+.registrar-transfer-section-heading,
+.registrar-transfer-detail-header {
+  padding: 19px 18px;
+  border-bottom: 1px solid #e0ece3;
+  background: linear-gradient(112deg, #fff, #f2faf4);
+}
+.registrar-transfer-section-heading span,
+.registrar-transfer-detail-header > div:first-child > span,
+.registrar-transfer-subjects-heading > div:first-child > span {
+  color: #0a7946;
+  font-size: 10px;
+  letter-spacing: .025em;
+}
+.registrar-transfer-section-heading h3,
+.registrar-transfer-detail-title h3 { color: #1b2d22; font-size: 17px; font-weight: 800; }
+.registrar-transfer-section-heading > strong {
+  width: 34px; height: 34px;
+  border: 1px solid #c4e6d0;
+  border-radius: 11px;
+  background: #e4f7ec;
+  color: #087443;
+}
+.registrar-transfer-readiness { border-color: #d8eadd; background: #f3fbf6; border-radius: 11px; }
+.registrar-transfer-create-area { padding-top: 11px; }
+.registrar-transfer-create-btn,
+.registrar-transfer-add-subject-btn,
+.registrar-transfer-map-btn,
+.registrar-transfer-submit-btn,
+.registrar-transfer-modal-submit {
+  min-height: 38px;
+  border: 1px solid #0b7945;
+  border-radius: 10px;
+  background: linear-gradient(120deg, #0c7043, #12985a);
+  color: #fff;
+  box-shadow: 0 6px 13px rgba(9,103,55,.12);
+}
+.registrar-transfer-map-btn { min-height: 33px; font-size: 11px; }
+.registrar-transfer-create-btn:hover:not(:disabled),
+.registrar-transfer-add-subject-btn:hover:not(:disabled),
+.registrar-transfer-map-btn:hover:not(:disabled),
+.registrar-transfer-submit-btn:hover:not(:disabled),
+.registrar-transfer-modal-submit:hover:not(:disabled) {
+  border-color: #08663b; background: #08683e;
+}
+.registrar-transfer-history-list { gap: 9px; padding: 13px; max-height: 620px; }
+.registrar-transfer-history-item {
+  border: 1px solid #dfece2;
+  border-radius: 12px;
+  background: #fafffb;
+  padding: 13px;
+  transition: border-color 140ms ease, box-shadow 140ms ease, background 140ms ease;
+}
+.registrar-transfer-history-item:hover { border-color: #a5d7b8; background: #f3fbf6; }
+.registrar-transfer-history-item.selected {
+  border-color: #0e8b51;
+  background: #effaf2;
+  box-shadow: inset 3px 0 0 #10884e, 0 5px 14px rgba(8,89,50,.07);
+}
+.registrar-transfer-history-top > div > span { color: #0a7c47; font-size: 10px; }
+.registrar-transfer-history-top > div > strong { color: #1d3224; font-size: 13px; }
+.registrar-transfer-history-meta span { color: #62776a; font-size: 10px; }
+.registrar-transfer-history-footer { border-top: 1px solid #e1ece4; background: #f2faf4; }
+.registrar-transfer-empty,
+.registrar-transfer-detail-empty,
+.registrar-transfer-detail-loading,
+.registrar-transfer-detail-error { color: #647b69; background: #fbfefc; }
+.registrar-transfer-detail-id { border-color: #d6e7db; background: #f1faf4; border-radius: 11px; }
+.registrar-transfer-source-grid { gap: 10px; }
+.registrar-transfer-source-grid > div {
+  border: 1px solid #e0ece4;
+  border-radius: 12px;
+  background: #f8fcf9;
+  padding: 13px;
+}
+.registrar-transfer-workflow { border-color: #e1ece4; background: #f8fcf9; border-radius: 12px; }
+.registrar-transfer-detail-summary { border-color: #d7e7dc; border-radius: 13px; background: #f4fbf6; }
+.registrar-transfer-review-note,
+.registrar-transfer-registrar-note,
+.registrar-transfer-source-warning { border-radius: 11px; }
+.registrar-transfer-submit-bar {
+  border: 1px solid #c6e6d1;
+  border-radius: 13px;
+  background: linear-gradient(120deg, #eefaf2, #f7fdf9);
+}
+.registrar-transfer-submit-summary > div,
+.registrar-transfer-map-preview-grid > div { border-radius: 11px; }
+
+/* Keep evaluation subject rows and mapping decisions easy to scan. */
+.registrar-transfer-subjects-heading { border-color: #e2ede5; }
+.registrar-transfer-subjects-heading h4 { color: #1a2d22; font-size: 15px; }
+.registrar-transfer-table-wrapper {
+  overflow-x: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #b9d9c4 transparent;
+  border: 1px solid #e2eee5;
+  border-radius: 12px;
+}
+.registrar-transfer-table { min-width: 740px; }
+.registrar-transfer-table th {
+  background: #eff7f1;
+  color: #456450;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .015em;
+}
+.registrar-transfer-table td { border-bottom-color: #e5efe7; }
+.registrar-transfer-table tbody tr:nth-child(even) { background: #fafffb; }
+.registrar-transfer-table tbody tr:hover { background: #f0f9f3; }
+.registrar-transfer-status,
+.registrar-transfer-credit-status,
+.registrar-transfer-student-status { border-radius: 999px; }
+
+/* All four existing modals are rendered in the Transfer Evaluation TSX.
+   Give them a common visual language while preserving field layout/scrolling. */
+.registrar-transfer-modal-backdrop {
+  padding: 18px;
+  background: rgba(7,29,17,.68);
+  backdrop-filter: blur(5px);
+}
+.registrar-transfer-modal {
+  border: 1px solid #cee4d5;
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 27px 70px rgba(2,30,16,.32);
+  overscroll-behavior: contain;
+}
+.registrar-transfer-modal-header {
+  position: relative;
+  padding: 23px 23px 20px;
+  border-bottom: 1px solid rgba(221,255,234,.23);
+  border-radius: 19px 19px 0 0;
+  background:
+    radial-gradient(circle at 90% 12%, rgba(255,255,255,.15) 0 9%, transparent 9.3% 17%, rgba(255,255,255,.07) 17.3% 22%, transparent 22.3%),
+    linear-gradient(112deg,#06472d,#0b7445 80%,#168751);
+}
+.registrar-transfer-modal-header > div > span { color: #c7f7d8; font-size: 10px; }
+.registrar-transfer-modal-header h2 { color: #fff; font-size: 20px; font-weight: 800; }
+.registrar-transfer-modal-header p { color: #def6e6; font-size: 12px; }
+.registrar-transfer-modal-close {
+  width: 36px;
+  height: 36px;
+  border: 1px solid rgba(234,255,242,.4);
+  border-radius: 10px;
+  background: rgba(236,255,242,.17);
+  color: #fff;
+}
+.registrar-transfer-modal-close:hover { background: rgba(236,255,242,.27); }
+.registrar-transfer-modal-context,
+.registrar-transfer-map-source {
+  margin: 16px 19px 0;
+  border-color: #cbe8d5;
+  border-radius: 13px;
+  background: #effaf3;
+}
+.registrar-transfer-create-form { padding: 17px 20px 20px; }
+.registrar-transfer-form-grid { gap: 13px; }
+.registrar-transfer-form-field label { color: #314c38; font-size: 11px; }
+.registrar-transfer-form-field input,
+.registrar-transfer-form-field select,
+.registrar-transfer-form-field textarea {
+  border: 1px solid #d4e5d9;
+  border-radius: 10px;
+  background: #fff;
+  color: #21392a;
+  font-size: 12px;
+}
+.registrar-transfer-form-field input:focus,
+.registrar-transfer-form-field select:focus,
+.registrar-transfer-form-field textarea:focus {
+  border-color: #2c995d;
+  box-shadow: 0 0 0 3px rgba(15,142,78,.14);
+}
+.registrar-transfer-map-preview,
+.registrar-transfer-create-note,
+.registrar-transfer-map-rule,
+.registrar-transfer-submit-rule {
+  border-color: #cae5d3;
+  border-radius: 12px;
+  background: #f1faf4;
+}
+.registrar-transfer-map-preview-grid { gap: 10px; }
+.registrar-transfer-modal-actions { border-top-color: #e0ece4; }
+.registrar-transfer-modal-cancel {
+  min-height: 38px;
+  border-color: #d2e3d7;
+  border-radius: 10px;
+  color: #396347;
+}
+.registrar-transfer-modal-cancel:hover:not(:disabled) { background: #f1faf4; border-color: #a4d0b2; }
+.registrar-transfer-submit-modal { width: min(660px,100%); }
+.registrar-transfer-submit-summary { gap: 10px; }
+.registrar-transfer-submit-summary > div { border-color: #dfece3; background: #f5fbf7; }
+.registrar-transfer-submit-content { padding: 17px 20px 20px; }
+
+/* Visible keyboard focus (no decorative white flashing). */
+.registrar-transfer-page :is(button,input,select,textarea,a):focus-visible {
+  outline: 2px solid #27b777;
+  outline-offset: 2px;
+}
+.registrar-transfer-modal :is(button,input,select,textarea):focus-visible {
+  outline: 2px solid #24a96c;
+  outline-offset: 2px;
+}
+
+/* Keep the five metrics readable and the two-column workspace usable on tablets. */
+@media (max-width: 1320px) {
+  .registrar-transfer-summary { grid-template-columns: repeat(3,minmax(0,1fr)); }
+}
+@media (max-width: 1050px) {
+  .registrar-transfer-identity { grid-template-columns: 1fr; }
+  .registrar-transfer-workspace { grid-template-columns: 1fr; }
+  .registrar-transfer-history { position: static; }
+  .registrar-transfer-history-list { max-height: 320px; }
+}
+@media (max-width: 760px) {
+  .registrar-transfer-page { padding: 17px 15px 30px; }
+  .registrar-transfer-page::before { inset: 7px 7px auto; height: 260px; border-radius: 22px; }
+  .registrar-transfer-heading { padding: 23px 19px; min-height: 143px; border-radius: 19px; }
+  .registrar-transfer-heading h1 { font-size: 28px; }
+  .registrar-transfer-heading-mark { width: 45px; height: 45px; }
+  .registrar-transfer-identity { padding: 17px; }
+  .registrar-transfer-summary { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .registrar-transfer-source-grid,
+  .registrar-transfer-workflow { grid-template-columns: 1fr; }
+  .registrar-transfer-modal-backdrop { padding: 10px; }
+  .registrar-transfer-modal { max-height: calc(100dvh - 20px); }
+  .registrar-transfer-modal-header { padding: 19px 16px; }
+}
+@media (max-width: 480px) {
+  .registrar-transfer-topbar { flex-direction: column; align-items: stretch; }
+  .registrar-transfer-topbar button { width: 100%; }
+  .registrar-transfer-heading-mark { display: none; }
+  .registrar-transfer-summary { grid-template-columns: 1fr; }
+  .registrar-transfer-identity-grid { grid-template-columns: 1fr; }
+  .registrar-transfer-name-row { align-items: flex-start; flex-wrap: wrap; }
+  .registrar-transfer-name-row h2 { white-space: normal; }
+  .registrar-transfer-modal-context,
+  .registrar-transfer-map-source { grid-template-columns: 1fr; }
+  .registrar-transfer-create-form { padding: 15px; }
+  .registrar-transfer-modal-actions { flex-direction: column-reverse; }
+  .registrar-transfer-modal-actions button { width: 100%; }
+}
+
+/* Dark theme: charcoal panels, readable controls, no white loading surface.
+   These overrides are strictly scoped to the Transfer Evaluation page. */
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .dashboard-main:has(.registrar-transfer-page) > .dashboard-content { background: #101b15; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-transfer-page {
+  --transfer-text: #eff8f1;
+  --transfer-text-soft: #d1e4d6;
+  --transfer-muted: #b6c9ba;
+  --transfer-muted-light: #a1baaa;
+  --transfer-border: #365a42;
+  --transfer-border-soft: #2f4d38;
+  --transfer-green-50: #213c2a;
+  --transfer-green-100: #2c5038;
+  color: #eef6f0;
+  background-color: #101b15;
+  background-image:
+    repeating-linear-gradient(135deg,rgba(60,136,84,.09) 0 22px,transparent 22px 80px),
+    repeating-linear-gradient(45deg,rgba(60,136,84,.055) 0 22px,transparent 22px 94px),
+    linear-gradient(120deg,#14241a,#101b15 72%,#152419);
+  background-size: 120px 120px, 130px 130px, auto;
+}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-transfer-page::before { background: rgba(24,46,31,.58); border-color: #31523c; box-shadow: none; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-transfer-heading { background: linear-gradient(110deg,#063b27,#08613b 64%,#0d7647); }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-transfer-back,
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-transfer-refresh { background: #243b2b; border-color: #426549; color: #d5f4df; box-shadow: none; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-transfer-rule,
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-transfer-success,
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-transfer-loading,
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-transfer-identity,
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-transfer-history,
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-transfer-detail,
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-transfer-modal { background: #1b2d21; border-color: #365841; color: #eaf5ed; box-shadow: 0 18px 45px rgba(0,0,0,.3); }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-transfer-rule p,
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-transfer-rule strong { color: #d6f0dd; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-transfer-section-heading,
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-transfer-detail-header { background: linear-gradient(115deg,#223b2b,#1b2d21); border-color: #365841; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-transfer-identity-grid > div,
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-transfer-history-item,
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-transfer-source-grid > div,
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-transfer-workflow,
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-transfer-detail-summary,
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-transfer-detail-id,
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-transfer-readiness,
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-transfer-history-footer,
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-transfer-detail-empty,
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-transfer-detail-loading,
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-transfer-detail-error,
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-transfer-submit-bar,
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-transfer-submit-summary > div,
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-transfer-modal-context,
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-transfer-map-source,
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-transfer-map-preview,
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-transfer-create-note,
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-transfer-map-rule,
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-transfer-submit-rule,
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-transfer-map-preview-grid > div { background: #22382a; border-color: #395b43; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-transfer-history-item.selected { background: #285239; border-color: #64bf82; box-shadow: inset 3px 0 0 #59d389; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-transfer-summary article { background: #1e3b29; border-color: #356647; border-left-color: #3aca80; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-transfer-summary article:nth-child(2) { background: #21334c; border-color: #365781; border-left-color: #79a9ff; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-transfer-summary article:nth-child(3) { background: #3b3221; border-color: #6b592e; border-left-color: #edb945; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-transfer-summary article:nth-child(4) { background: #1c4330; border-color: #376b50; border-left-color: #48d38e; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-transfer-summary article:nth-child(5) { background: #362a47; border-color: #695482; border-left-color: #bb90ef; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-transfer-summary :is(span,strong,small) { color: #e5f4e9; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-transfer-page :is(h2,h3,h4) { color: #eef7f0; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-transfer-page :is(.registrar-transfer-identity-grid strong,.registrar-transfer-source-grid strong,.registrar-transfer-history-top strong,.registrar-transfer-detail-id strong,.registrar-transfer-map-preview-grid strong,.registrar-transfer-workflow strong) { color: #e4f6e9; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-transfer-page :is(.registrar-transfer-identity-grid span,.registrar-transfer-identity-grid small,.registrar-transfer-history-meta,.registrar-transfer-source-grid span,.registrar-transfer-workflow span,.registrar-transfer-source-info small) { color: #bfd3c4; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-transfer-table th { background: #294331; border-color: #395d43; color: #cde8d5; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-transfer-table tbody tr,
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-transfer-table tbody tr:nth-child(even) { background: #1d2f23; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-transfer-table td { border-color: #35553e; color: #deefe3; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-transfer-table tbody tr:hover { background: #274332; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-transfer-form-field :is(input,textarea,select) { background: #182a20; border-color: #47654e; color: #eef7f0; color-scheme: dark; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-transfer-form-field label { color: #d6eadb; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-transfer-page :is(.registrar-transfer-modal-cancel,.registrar-transfer-modal-close) { color: #f0f8f2; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-transfer-modal-cancel { background: #2a4030; border-color: #45664d; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-transfer-source-grade,
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-transfer-unmapped { background: #433622; color: #ffd686; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-transfer-source-grade strong { color: #f5d7ff; }
+
+@media (prefers-reduced-motion: reduce) {
+  .registrar-transfer-page :is(button,a,input,select,textarea) { transition: none; }
+  .registrar-transfer-spinner,
+  .registrar-transfer-refresh .is-spinning { animation-duration: 1.5s; }
+}
+
+/* Additional dark-mode coverage for inner panes whose original styles
+   use explicitly white backgrounds. Keep selected records readable. */
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-transfer-source-grid {
+  background: #1c3023;
+  border-color: #3a5c43;
+}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-transfer-history-item.selected {
+  background: #285239 !important;
+  color: #e9f6ed !important;
+  border-color: #63bf82 !important;
+}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-transfer-history-item.selected :is(strong,span,p,small) {
+  color: #e3f5e8;
+}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-transfer-history-item:not(.selected) {
+  background: #243c2b;
+  border-color: #3b6048;
+  color: #e0f0e4;
+}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-transfer-history-item:hover:not(.selected) { background: #2a4834; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-transfer-history-item:not(.selected) :is(strong,span,p,small) { color: #d4e6d9; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-transfer-page :is(.registrar-transfer-source-grade,.registrar-transfer-source-warning,.registrar-transfer-review-note,.registrar-transfer-registrar-note) {
+  background: #2e3a2d;
+  border-color: #51634b;
+  color: #dce9de;
+}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-transfer-page :is(.registrar-transfer-source-grade span,.registrar-transfer-source-warning p,.registrar-transfer-review-note p,.registrar-transfer-registrar-note p) { color: #cfdfd0; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-transfer-page .registrar-transfer-source-grade strong { color: #e9d7ff; }
+
+/* Eliminate transitional light surfaces during entry into Dark Mode. */
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-transfer-page *,
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-transfer-page *::before,
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-transfer-page *::after {
+  transition: none !important;
+}
+
+/* Semantic badges and small labels stay readable on dark record cards. */
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-transfer-page :is(.registrar-transfer-student-copy > span,.registrar-transfer-section-heading span,.registrar-transfer-detail-header > div:first-child > span,.registrar-transfer-subjects-heading > div:first-child > span,.registrar-transfer-history-top > div > span) {
+  color: #93e6b2;
+}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-transfer-history-meta span {
+  color: #d3e7d9;
+  background: #31513a;
+  border-color: #426d4e;
+}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-transfer-history-item.selected .registrar-transfer-history-meta span {
+  color: #e4f6e8;
+  background: #346044;
+}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-transfer-status.submitted,
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-transfer-history-item.selected .registrar-transfer-status.submitted {
+  background: #273d6b;
+  color: #c7dbff;
+}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-transfer-status.completed,
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-transfer-history-item.selected .registrar-transfer-status.completed {
+  background: #215b3c;
+  color: #b5f7cd;
+}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-transfer-status.returned {
+  background: #5c441f;
+  color: #ffe3aa;
+}

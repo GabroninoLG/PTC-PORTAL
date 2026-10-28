@@ -767,3 +767,573 @@
     transition-duration: 0.01ms !important;
   }
 }
+
+/* ======================================================================
+   PTC PORTAL 2026 | ADMIN · CREATE ANNOUNCEMENT
+   Registrar Dashboard visual system, scoped to this page only.
+   Keeps all existing form/input/role/upload behavior intact.
+   No global theme, sidebar, footer or animation changes.
+   ====================================================================== */
+
+/* Eliminate the shared layout's 20px white gutters on this route only. */
+.dashboard-main:has(> .dashboard-content > .admin-create-announcement) > .dashboard-content {
+  padding: 0 !important;
+  min-width: 0;
+  background-color: #d9ecdf;
+}
+/* The shared header's hidden state should not leave a blank strip. */
+.dashboard-main:has(.admin-create-announcement) > .header-container:has(.app-header.hide) {
+  display: none;
+}
+
+.dashboard-content > .admin-create-announcement {
+  --aca-text-950: #17291e;
+  --aca-text-800: #304339;
+  --aca-text-700: #425e4b;
+  --aca-text-600: #627768;
+  --aca-text-500: #748779;
+  --aca-border: #d7e7dc;
+  --aca-border-strong: #c8dccd;
+  --aca-surface: #ffffff;
+  --aca-bg: #dfefe4;
+  position: relative;
+  isolation: isolate;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: none;
+  min-width: 0;
+  min-height: 100%;
+  margin: 0;
+  padding: 26px 27px 46px;
+  border: 0;
+  border-radius: 0;
+  color: #1a3022;
+  background-color: #dceee2;
+  background-image:
+    linear-gradient(130deg, transparent 0 19%, rgba(26,140,77,.055) 19% 24%, transparent 24% 49%, rgba(34,143,93,.04) 49% 55%, transparent 55%),
+    repeating-linear-gradient(43deg, transparent 0 68px, rgba(35,138,83,.027) 68px 104px, transparent 104px 172px),
+    radial-gradient(ellipse at 92% 9%, rgba(209,197,125,.14), transparent 30%),
+    linear-gradient(147deg, #cfe7d8 0%, #eef7f1 55%, #d6e9da 100%);
+  box-shadow: none;
+  animation: none !important;
+}
+
+/* Top navigation stays distinct from the green hero. */
+.admin-create-announcement .admin-create-announcement__toolbar {
+  margin: 0 0 15px;
+}
+.admin-create-announcement .admin-create-announcement__back {
+  min-height: 42px;
+  padding: 9px 15px;
+  border: 1px solid #c5dfcc;
+  border-radius: 11px;
+  color: #075a35;
+  background: #ffffff;
+  font-size: 12px;
+  font-weight: 750;
+  box-shadow: 0 5px 14px rgba(14,77,43,.06);
+}
+.admin-create-announcement .admin-create-announcement__back:hover:not(:disabled) {
+  border-color: #98c8a9;
+  background: #effaf3;
+  color: #06472b;
+}
+
+/* Green identity hero: match Registrar Dashboard, not the old pale header. */
+.admin-create-announcement .admin-create-announcement__hero {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  min-height: 185px;
+  gap: 22px;
+  padding: 31px 33px;
+  margin: 0 0 19px;
+  border: 1px solid rgba(255,255,255,.25);
+  border-radius: 23px;
+  background: linear-gradient(111deg, #054c2c 0%, #08683e 54%, #17854d 84%, #2d9861 100%);
+  box-shadow: 0 17px 32px rgba(6,66,39,.18);
+}
+.admin-create-announcement .admin-create-announcement__hero::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 0 auto;
+  width: min(39%, 450px);
+  background:
+    radial-gradient(circle at 27% 6%, rgba(205,255,224,.14) 0 22%, transparent 23%),
+    radial-gradient(circle at 45% 33%, rgba(174,250,207,.10) 0 29%, transparent 30%);
+  pointer-events: none;
+}
+.admin-create-announcement .admin-create-announcement__hero::after {
+  content: "";
+  position: absolute;
+  top: 13px;
+  right: -83px;
+  width: 278px;
+  height: 278px;
+  border: 1px solid rgba(222,255,236,.22);
+  border-radius: 50%;
+  background: transparent;
+  box-shadow: 0 0 0 49px rgba(219,255,233,.035);
+  pointer-events: none;
+}
+.admin-create-announcement .admin-create-announcement__hero-copy,
+.admin-create-announcement .admin-create-announcement__hero-status {
+  position: relative;
+  z-index: 1;
+}
+.admin-create-announcement .admin-create-announcement__eyebrow {
+  margin-bottom: 13px;
+  gap: 10px;
+  color: #eafff1;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .04em;
+}
+.admin-create-announcement .admin-create-announcement__eyebrow > span {
+  border: 1px solid rgba(255,255,255,.25);
+  color: #ffffff;
+  background: rgba(255,255,255,.13);
+}
+.admin-create-announcement .admin-create-announcement__hero h1 {
+  color: #ffffff !important;
+  font-size: clamp(29px, 3vw, 39px);
+  font-weight: 820;
+  line-height: 1.16;
+  letter-spacing: -.035em;
+}
+.admin-create-announcement .admin-create-announcement__hero p {
+  max-width: 690px;
+  margin-top: 10px;
+  color: #e9fff0 !important;
+  font-size: 13px;
+  line-height: 1.7;
+}
+.admin-create-announcement .admin-create-announcement__status {
+  min-height: 39px;
+  padding: 9px 14px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 800;
+  box-shadow: 0 8px 20px rgba(4,49,28,.11);
+}
+.admin-create-announcement .admin-create-announcement__status--active {
+  border-color: rgba(255,255,255,.7);
+  color: #075f37;
+  background: #ebfbf0;
+}
+.admin-create-announcement .admin-create-announcement__status--inactive {
+  border-color: #f2dfb3;
+  color: #865d0c;
+  background: #fff6db;
+}
+
+/* Grid, panels and colorful section icons; no invented summary statistics. */
+.admin-create-announcement .admin-create-announcement__form-grid {
+  grid-template-columns: minmax(0, 1.48fr) minmax(310px, .89fr);
+  gap: 17px;
+}
+.admin-create-announcement .admin-create-announcement__main-column,
+.admin-create-announcement .admin-create-announcement__side-column {
+  gap: 17px;
+}
+.admin-create-announcement .admin-create-announcement__card,
+.admin-create-announcement .admin-create-announcement__actions-card {
+  border: 1px solid #d8e9df;
+  border-radius: 20px;
+  background: #ffffff;
+  box-shadow: 0 13px 28px rgba(20,78,45,.09);
+}
+.admin-create-announcement .admin-create-announcement__card-header {
+  gap: 13px;
+  padding: 19px 20px;
+  border-bottom: 1px solid #e1eae3;
+  background: linear-gradient(125deg, #ffffff, #f6fbf7);
+}
+.admin-create-announcement .admin-create-announcement__card-icon {
+  width: 43px;
+  height: 43px;
+  flex: 0 0 43px;
+  border: 1px solid #c9e8d4;
+  border-radius: 13px;
+  background: #e5f8ec;
+  color: #086b3c;
+  box-shadow: 0 5px 12px rgba(16,99,55,.06);
+}
+.admin-create-announcement .admin-create-announcement__main-column > .admin-create-announcement__card:nth-child(2) .admin-create-announcement__card-icon {
+  border-color: #d8ccff;
+  background: #f0ebff;
+  color: #7732e4;
+}
+.admin-create-announcement .admin-create-announcement__side-column > .admin-create-announcement__card:nth-child(1) .admin-create-announcement__card-icon {
+  border-color: #c7d9ff;
+  background: #ecf3ff;
+  color: #245fea;
+}
+.admin-create-announcement .admin-create-announcement__side-column > .admin-create-announcement__card:nth-child(2) .admin-create-announcement__card-icon {
+  border-color: #f5db98;
+  background: #fff6dd;
+  color: #b17c06;
+}
+.admin-create-announcement .admin-create-announcement__card-header > div > span {
+  margin-bottom: 4px;
+  color: #087444;
+  font-size: 10px;
+  font-weight: 800;
+}
+.admin-create-announcement .admin-create-announcement__card-header h2 {
+  color: #1b2e22;
+  font-size: 18px;
+  font-weight: 800;
+}
+.admin-create-announcement .admin-create-announcement__card-header p {
+  margin-top: 5px;
+  color: #6b7e70;
+  font-size: 11px;
+  line-height: 1.55;
+}
+.admin-create-announcement .admin-create-announcement__card-body {
+  padding: 20px;
+  gap: 17px;
+}
+.admin-create-announcement .admin-create-announcement__field { gap: 8px; }
+.admin-create-announcement .admin-create-announcement__field > span {
+  color: #294637;
+  font-size: 12px;
+  font-weight: 760;
+}
+.admin-create-announcement .admin-create-announcement__field input,
+.admin-create-announcement .admin-create-announcement__field select,
+.admin-create-announcement .admin-create-announcement__field textarea {
+  border: 1px solid #cfded3;
+  border-radius: 11px;
+  background: #f9fcfa;
+  color: #203a29;
+  font-size: 12px;
+  line-height: 1.5;
+}
+.admin-create-announcement .admin-create-announcement__field input,
+.admin-create-announcement .admin-create-announcement__field select {
+  min-height: 45px;
+  padding: 10px 12px;
+}
+.admin-create-announcement .admin-create-announcement__field textarea {
+  min-height: 212px;
+  padding: 13px;
+}
+.admin-create-announcement .admin-create-announcement__field :is(input, select, textarea)::placeholder { color: #889b8d; }
+.admin-create-announcement .admin-create-announcement__field :is(input, select, textarea):focus {
+  border-color: #16965b;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(21,148,82,.13);
+}
+.admin-create-announcement .admin-create-announcement__field :is(input, select, textarea):disabled {
+  background: #edf3ee;
+  color: #697d6e;
+}
+.admin-create-announcement .admin-create-announcement__counter,
+.admin-create-announcement .admin-create-announcement__field > small:not(.admin-create-announcement__counter) {
+  color: #748879;
+  font-size: 10px;
+}
+.admin-create-announcement .admin-create-announcement__input-with-icon > svg { color: #258358; }
+.admin-create-announcement .admin-create-announcement__input-with-icon input { padding-left: 36px; }
+
+/* Clickable recipient-role tiles with unambiguous selected states. */
+.admin-create-announcement .admin-create-announcement__recipients { gap: 9px; }
+.admin-create-announcement .admin-create-announcement__recipient {
+  min-height: 47px;
+  gap: 9px;
+  padding: 10px 12px;
+  border-color: #d6e7da;
+  border-radius: 12px;
+  background: #f8fbf9;
+  color: #385241;
+  font-size: 12px;
+  line-height: 1.35;
+}
+.admin-create-announcement .admin-create-announcement__recipient:hover {
+  border-color: #7fc69d;
+  background: #effaf2;
+}
+.admin-create-announcement .admin-create-announcement__recipient--selected {
+  border-color: #64bb8b;
+  color: #065d35;
+  background: #e5f7ec;
+  box-shadow: inset 4px 0 #0e9a57;
+}
+.admin-create-announcement .admin-create-announcement__recipient input {
+  width: 17px;
+  height: 17px;
+  flex-basis: 17px;
+}
+.admin-create-announcement .admin-create-announcement__selection {
+  gap: 6px;
+  padding: 13px;
+  border-color: #cde7d5;
+  border-radius: 12px;
+  background: #f1fbf4;
+}
+.admin-create-announcement .admin-create-announcement__selection span {
+  color: #447359;
+  font-size: 10px;
+}
+.admin-create-announcement .admin-create-announcement__selection strong {
+  color: #164a2b;
+  font-size: 11px;
+  overflow-wrap: anywhere;
+}
+.admin-create-announcement .admin-create-announcement__inline-state {
+  min-height: 70px;
+  border-color: #c6e1ce;
+  border-radius: 12px;
+  background: #f5faf7;
+  color: #557563;
+  font-size: 11px;
+}
+
+/* Upload area. Focus style works even though the native input is visually hidden. */
+.admin-create-announcement .admin-create-announcement__file-field {
+  min-height: 94px;
+  padding: 15px;
+  gap: 12px;
+  border: 1px dashed #9bceab;
+  border-radius: 15px;
+  background: #f5fcf7;
+}
+.admin-create-announcement .admin-create-announcement__file-field:hover,
+.admin-create-announcement .admin-create-announcement__file-field:focus-within {
+  border-color: #098649;
+  background: #ebf9f0;
+}
+.admin-create-announcement .admin-create-announcement__file-icon {
+  border-radius: 12px;
+  border-color: #d4e8dd;
+  background: #e2f4ea;
+  color: #066d40;
+}
+.admin-create-announcement .admin-create-announcement__file-copy strong {
+  color: #244532;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+.admin-create-announcement .admin-create-announcement__file-copy small {
+  color: #6a8071;
+  font-size: 10px;
+}
+.admin-create-announcement .admin-create-announcement__file-action {
+  min-height: 37px;
+  padding: 8px 12px;
+  border-color: #a9d8b9;
+  border-radius: 10px;
+  color: #075c35;
+  background: #ffffff;
+  font-size: 11px;
+}
+
+/* Submission panel: explanatory text remains visible above actions. */
+.admin-create-announcement .admin-create-announcement__actions-card { padding: 18px; }
+.admin-create-announcement .admin-create-announcement__actions-copy {
+  gap: 11px;
+  margin-bottom: 17px;
+  padding: 14px;
+  border: 1px solid #cde9d7;
+  border-radius: 12px;
+  background: #f1faf4;
+  color: #087342;
+}
+.admin-create-announcement .admin-create-announcement__actions-copy strong {
+  color: #1d4930;
+  font-size: 12px;
+}
+.admin-create-announcement .admin-create-announcement__actions-copy span {
+  color: #607666;
+  font-size: 10px;
+}
+.admin-create-announcement .admin-create-announcement__actions { gap: 10px; }
+.admin-create-announcement .admin-create-announcement__button {
+  min-height: 43px;
+  padding: 10px 15px;
+  border-radius: 11px;
+  font-size: 11px;
+  font-weight: 800;
+}
+.admin-create-announcement .admin-create-announcement__button--secondary {
+  border-color: #c8d9cf;
+  color: #335643;
+  background: #ffffff;
+}
+.admin-create-announcement .admin-create-announcement__button--primary {
+  border-color: #087547;
+  color: #ffffff;
+  background: #087547;
+  box-shadow: 0 7px 16px rgba(9,89,49,.2);
+}
+.admin-create-announcement .admin-create-announcement__button--primary:hover:not(:disabled) {
+  background: #065832;
+  border-color: #065832;
+}
+.admin-create-announcement .admin-create-announcement__error {
+  padding: 14px 15px;
+  margin-bottom: 17px;
+  border: 1px solid #eab2ae;
+  border-radius: 12px;
+  background: #fff0ed;
+  color: #a32118;
+  font-size: 12px;
+  font-weight: 650;
+}
+
+@media (max-width: 1120px) {
+  .admin-create-announcement .admin-create-announcement__form-grid { grid-template-columns: 1fr; }
+  .admin-create-announcement .admin-create-announcement__side-column { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .admin-create-announcement .admin-create-announcement__actions-card { grid-column: 1 / -1; }
+}
+@media (max-width: 760px) {
+  .dashboard-content > .admin-create-announcement { padding: 21px 17px 32px; }
+  .admin-create-announcement .admin-create-announcement__hero { padding: 25px 23px; min-height: 0; }
+  .admin-create-announcement .admin-create-announcement__side-column { grid-template-columns: 1fr; }
+  .admin-create-announcement .admin-create-announcement__actions-card { grid-column: auto; }
+}
+@media (max-width: 540px) {
+  .dashboard-content > .admin-create-announcement { padding: 16px 12px 29px; }
+  .admin-create-announcement .admin-create-announcement__hero { padding: 24px 18px; border-radius: 18px; }
+  .admin-create-announcement .admin-create-announcement__hero h1 { font-size: 28px; }
+  .admin-create-announcement .admin-create-announcement__card-header { padding: 16px; }
+  .admin-create-announcement .admin-create-announcement__card-body { padding: 16px; }
+  .admin-create-announcement .admin-create-announcement__recipients { grid-template-columns: minmax(0, 1fr); }
+  .admin-create-announcement .admin-create-announcement__file-field { grid-template-columns: 38px minmax(0, 1fr); }
+  .admin-create-announcement .admin-create-announcement__actions { flex-direction: column-reverse; }
+  .admin-create-announcement .admin-create-announcement__actions .admin-create-announcement__button { width: 100%; }
+}
+
+/* Never introduce a white page flash in Dark Mode. Only the loading spinner animates. */
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark,[data-theme="dark"])
+  .dashboard-main:has(> .dashboard-content > .admin-create-announcement) > .dashboard-content {
+  background: #121e16;
+}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark,[data-theme="dark"])
+  .dashboard-content > .admin-create-announcement {
+  --aca-text-950: #eef9f0;
+  --aca-text-800: #dceee1;
+  --aca-text-700: #c0d8c6;
+  --aca-text-600: #a9c1b0;
+  --aca-text-500: #9bb2a2;
+  --aca-border: #375540;
+  --aca-border-strong: #496954;
+  --aca-surface: #1c2f22;
+  --aca-bg: #141f18;
+  color: #eef9f0;
+  background-color: #131f18;
+  background-image:
+    radial-gradient(circle at 91% 7%, rgba(26,136,75,.13), transparent 30%),
+    repeating-linear-gradient(45deg, transparent 0 77px, rgba(52,134,85,.035) 77px 113px, transparent 113px 170px),
+    linear-gradient(145deg,#192a1f 0%,#111b15 100%);
+}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark,[data-theme="dark"])
+  .admin-create-announcement .admin-create-announcement__hero {
+  border-color: #35714c;
+  background: linear-gradient(112deg,#06341f 0%,#075430 56%,#147444 100%);
+}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark,[data-theme="dark"])
+  .admin-create-announcement .admin-create-announcement__back {
+  background: #223c2b;
+  border-color: #466b52;
+  color: #d8efe0;
+}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark,[data-theme="dark"])
+  .admin-create-announcement :is(.admin-create-announcement__card,.admin-create-announcement__actions-card) {
+  background: #1c2e22;
+  border-color: #395440;
+  box-shadow: none;
+}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark,[data-theme="dark"])
+  .admin-create-announcement .admin-create-announcement__card-header {
+  background: linear-gradient(135deg,#243b2b,#213628);
+  border-color: #3d5744;
+}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark,[data-theme="dark"])
+  .admin-create-announcement .admin-create-announcement__card-header h2,
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark,[data-theme="dark"])
+  .admin-create-announcement .admin-create-announcement__field > span,
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark,[data-theme="dark"])
+  .admin-create-announcement .admin-create-announcement__actions-copy strong {
+  color: #ecf8ef;
+}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark,[data-theme="dark"])
+  .admin-create-announcement .admin-create-announcement__card-header > div > span {
+  color: #8be0a7;
+}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark,[data-theme="dark"])
+  .admin-create-announcement :is(.admin-create-announcement__card-header p,.admin-create-announcement__counter,.admin-create-announcement__field > small,.admin-create-announcement__file-copy small,.admin-create-announcement__actions-copy span) {
+  color: #a4c1aa;
+}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark,[data-theme="dark"])
+  .admin-create-announcement .admin-create-announcement__field :is(input,select,textarea) {
+  background: #203428;
+  border-color: #496451;
+  color: #e9f6ed;
+  color-scheme: dark;
+}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark,[data-theme="dark"])
+  .admin-create-announcement .admin-create-announcement__field :is(input,select,textarea):disabled {
+  background: #1c2b22;
+  color: #91ad9b;
+}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark,[data-theme="dark"])
+  .admin-create-announcement .admin-create-announcement__field :is(input,select,textarea)::placeholder { color: #94aa9a; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark,[data-theme="dark"])
+  .admin-create-announcement .admin-create-announcement__recipient {
+  background: #263b2b;
+  border-color: #3f5c45;
+  color: #d6e9db;
+}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark,[data-theme="dark"])
+  .admin-create-announcement .admin-create-announcement__recipient--selected {
+  background: #16462d;
+  border-color: #44a873;
+  color: #edfff3;
+  box-shadow: inset 4px 0 #39c680;
+}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark,[data-theme="dark"])
+  .admin-create-announcement :is(.admin-create-announcement__selection,.admin-create-announcement__inline-state,.admin-create-announcement__file-field,.admin-create-announcement__actions-copy) {
+  background: #253b2c;
+  border-color: #3b6648;
+}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark,[data-theme="dark"])
+  .admin-create-announcement :is(.admin-create-announcement__selection strong,.admin-create-announcement__file-copy strong) {
+  color: #e9f5eb;
+}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark,[data-theme="dark"])
+  .admin-create-announcement :is(.admin-create-announcement__selection span,.admin-create-announcement__inline-state) {
+  color: #a7cbb3;
+}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark,[data-theme="dark"])
+  .admin-create-announcement .admin-create-announcement__file-action {
+  background: #19412b;
+  border-color: #468c5c;
+  color: #d6f7df;
+}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark,[data-theme="dark"])
+  .admin-create-announcement .admin-create-announcement__button--secondary {
+  color: #d5eadb;
+  border-color: #4b7058;
+  background: #284333;
+}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark,[data-theme="dark"])
+  .admin-create-announcement .admin-create-announcement__button--primary {
+  color: #ffffff;
+  border-color: #19844d;
+  background: #0b7945;
+}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark,[data-theme="dark"])
+  .admin-create-announcement .admin-create-announcement__error {
+  color: #ffc6c0;
+  border-color: #713e39;
+  background: #462a28;
+}
+@media (prefers-reduced-motion: reduce) {
+  .admin-create-announcement .admin-create-announcement__spinner { animation: none; }
+  .admin-create-announcement .admin-create-announcement__back,
+  .admin-create-announcement .admin-create-announcement__button,
+  .admin-create-announcement .admin-create-announcement__field :is(input,select,textarea) { transition: none; }
+}

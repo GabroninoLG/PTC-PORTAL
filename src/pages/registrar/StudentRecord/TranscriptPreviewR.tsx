@@ -683,6 +683,15 @@ export default function TranscriptPreviewR() {
     <DashboardLayout>
       <div className="transcript-page">
         <div className="transcript-action-bar">
+          <div className="transcript-hero-copy">
+            <span className="transcript-hero-eyebrow">
+              <span className="transcript-hero-symbol" aria-hidden="true">▦</span>
+              REGISTRAR · ACADEMIC RECORDS
+            </span>
+            <h1>Transcript Preview</h1>
+            <p>Review a student’s official academic history and prepare the Transcript of Records for printing.</p>
+          </div>
+
           <button
             type="button"
             className="transcript-back-btn"
@@ -708,6 +717,50 @@ export default function TranscriptPreviewR() {
               Generate TOR
             </button>
           </div>
+        </div>
+
+        <section className="transcript-overview" aria-label="Transcript record summary">
+          <div className="transcript-metric transcript-metric--green">
+            <span className="transcript-metric-icon" aria-hidden="true">▤</span>
+            <div className="transcript-metric-copy">
+              <span>Official Records</span>
+              <strong>{records.length}</strong>
+              <small>Recognized academic entries</small>
+            </div>
+          </div>
+          <div className="transcript-metric transcript-metric--gold">
+            <span className="transcript-metric-icon" aria-hidden="true">∑</span>
+            <div className="transcript-metric-copy">
+              <span>Recorded Units</span>
+              <strong>{totalRecordedUnits}</strong>
+              <small>Units on the transcript</small>
+            </div>
+          </div>
+          <div className="transcript-metric transcript-metric--blue">
+            <span className="transcript-metric-icon" aria-hidden="true">✓</span>
+            <div className="transcript-metric-copy">
+              <span>Earned Units</span>
+              <strong>{earnedUnits}</strong>
+              <small>Curriculum-satisfied units</small>
+            </div>
+          </div>
+          <div className="transcript-metric transcript-metric--violet">
+            <span className="transcript-metric-icon" aria-hidden="true">↗</span>
+            <div className="transcript-metric-copy">
+              <span>Transfer Credits</span>
+              <strong>{transferCreditCount}</strong>
+              <small>Recognized transfer subjects</small>
+            </div>
+          </div>
+        </section>
+
+        <div className="transcript-preview-heading">
+          <div>
+            <span>OFFICIAL RECORD PREVIEW</span>
+            <h2>Transcript of Records</h2>
+            <p>Check the student details and official results before printing.</p>
+          </div>
+          <span className="transcript-preview-tag">Official records only</span>
         </div>
 
         <div className="transcript-document">

@@ -965,3 +965,266 @@
     animation-iteration-count: 1 !important;
   }
 }
+
+
+/* ============================================================
+   REGISTRAR STUDENT LIST — DASHBOARD-MATCHED VISUAL REFRESH
+   Scoped to StudentlistR.tsx. No shared sidebar/footer changes.
+   Uses static surfaces only: no page entrance fades/white flashes.
+============================================================ */
+.dashboard-main:has(.registrar-student-list) .dashboard-content {
+  padding: 0;
+  overflow-x: hidden;
+  background: linear-gradient(180deg, #eaf4ed, #e2efe7);
+}
+
+.registrar-student-list {
+  --rsl-gold: #d4a72c;
+  --rsl-blue: #2563eb;
+  --rsl-violet: #7c3aed;
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  min-height: 100%;
+  overflow-x: clip;
+  padding: 28px 28px 42px;
+  background-color: #e6f1e9;
+  background-image:
+    linear-gradient(135deg, rgba(15,122,69,.08) 25%, transparent 25%),
+    linear-gradient(225deg, rgba(15,122,69,.055) 25%, transparent 25%),
+    linear-gradient(45deg, rgba(212,167,44,.045) 25%, transparent 25%),
+    linear-gradient(315deg, rgba(37,99,235,.035) 25%, transparent 25%),
+    radial-gradient(circle at 12% 10%, rgba(21,148,82,.22), transparent 25%),
+    radial-gradient(circle at 88% 6%, rgba(212,167,44,.18), transparent 23%),
+    radial-gradient(circle at 92% 72%, rgba(37,99,235,.10), transparent 24%),
+    linear-gradient(180deg, #edf6f0 0%, #e5f0e9 48%, #dce9e0 100%);
+  background-size: 96px 96px, 96px 96px, 128px 128px, 128px 128px, auto, auto, auto, auto;
+  background-position: 0 0, 48px 48px, 0 0, 64px 64px, center, center, center, center;
+}
+.registrar-student-list::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  top: 14px;
+  left: 16px;
+  right: 16px;
+  height: 374px;
+  border: 1px solid rgba(15,122,69,.14);
+  border-radius: 30px;
+  background: linear-gradient(120deg, rgba(255,255,255,.70), rgba(240,248,242,.48));
+  box-shadow: inset 0 1px rgba(255,255,255,.95), 0 26px 55px rgba(7,59,36,.11);
+  pointer-events: none;
+}
+.registrar-student-list::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  top: 420px;
+  right: -92px;
+  width: min(470px, 100%);
+  aspect-ratio: 1;
+  border: 2px solid rgba(15,122,69,.13);
+  border-radius: 50%;
+  box-shadow: 0 0 0 48px rgba(15,122,69,.045), 0 0 0 96px rgba(212,167,44,.025), 0 0 0 144px rgba(15,122,69,.018);
+  pointer-events: none;
+}
+.registrar-student-list__hero {
+  position: relative;
+  z-index: 1;
+  min-height: 188px;
+  padding: 30px 32px;
+  border: 0;
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at 84% 18%, rgba(255,255,255,.18) 0 8%, transparent 8.5%),
+    radial-gradient(circle at 91% 52%, rgba(255,255,255,.08) 0 13%, transparent 13.5%),
+    linear-gradient(120deg, #064e2f 0%, #0d6b3e 46%, #15803d 72%, #1d8d4d 100%);
+  box-shadow: 0 18px 42px rgba(6,78,47,.24);
+}
+.registrar-student-list__hero::before {
+  content: "";
+  position: absolute;
+  right: -60px;
+  bottom: -95px;
+  width: 270px;
+  height: 270px;
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 50%;
+  pointer-events: none;
+}
+.registrar-student-list__hero::after {
+  top: -115px;
+  right: 105px;
+  width: 250px;
+  height: 250px;
+  border: 44px solid rgba(255,255,255,.055);
+}
+.registrar-student-list__eyebrow { color: #dff8e8; }
+.registrar-student-list__eyebrow-icon {
+  color: #fff;
+  background: rgba(255,255,255,.14);
+  border: 1px solid rgba(255,255,255,.18);
+  box-shadow: inset 0 1px rgba(255,255,255,.15);
+}
+.registrar-student-list__hero h1 {
+  color: #fff;
+  font-size: clamp(30px, 3.4vw, 40px);
+  font-weight: 790;
+  letter-spacing: -.035em;
+}
+.registrar-student-list__hero p {
+  max-width: 790px;
+  color: rgba(239,255,245,.86);
+  font-size: 14.5px;
+}
+.registrar-student-list__hero-badge {
+  border-color: rgba(255,255,255,.22);
+  background: rgba(255,255,255,.14);
+  box-shadow: 0 12px 25px rgba(0,0,0,.10);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+.registrar-student-list__hero-badge-icon {
+  color: #0a5a34;
+  background: linear-gradient(145deg, #fff, #dff7e8);
+  box-shadow: 0 6px 16px rgba(0,0,0,.13);
+}
+.registrar-student-list__hero-badge small { color: rgba(255,255,255,.74); }
+.registrar-student-list__hero-badge strong { color: #fff; }
+
+/* Four contrasting dashboard KPI cards. */
+.registrar-student-list__stats {
+  position: relative;
+  z-index: 1;
+  gap: 16px;
+  padding: 10px;
+  margin: -2px -2px 20px;
+  border: 1px solid rgba(255,255,255,.72);
+  border-radius: 22px;
+  background: rgba(255,255,255,.42);
+  box-shadow: 0 14px 34px rgba(7,59,36,.08);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+.registrar-student-list__stat-card {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  min-height: 118px;
+  padding: 20px;
+  border: 0;
+  border-radius: 19px;
+  box-shadow: 0 12px 28px rgba(31,56,40,.09);
+}
+.registrar-student-list__stat-card::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0 auto 0 0;
+  width: 5px;
+  background: #159452;
+}
+.registrar-student-list__stat-card::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  top: -42px;
+  right: -38px;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: rgba(21,148,82,.08);
+  pointer-events: none;
+}
+.registrar-student-list__stat-card:nth-child(1) { background: linear-gradient(145deg, #fff, #ecfbf2); }
+.registrar-student-list__stat-card:nth-child(2) { background: linear-gradient(145deg, #fff, #fff8e4); }
+.registrar-student-list__stat-card:nth-child(2)::before { background: var(--rsl-gold); }
+.registrar-student-list__stat-card:nth-child(2)::after { background: rgba(212,167,44,.10); }
+.registrar-student-list__stat-card:nth-child(3) { background: linear-gradient(145deg, #fff, #edf5ff); }
+.registrar-student-list__stat-card:nth-child(3)::before { background: var(--rsl-blue); }
+.registrar-student-list__stat-card:nth-child(3)::after { background: rgba(37,99,235,.08); }
+.registrar-student-list__stat-card:nth-child(4) { background: linear-gradient(145deg, #fff, #f6efff); }
+.registrar-student-list__stat-card:nth-child(4)::before { background: var(--rsl-violet); }
+.registrar-student-list__stat-card:nth-child(4)::after { background: rgba(124,58,237,.08); }
+.registrar-student-list__stat-icon { width: 50px; height: 50px; border-radius: 15px; box-shadow: 0 8px 18px rgba(15,122,69,.10); }
+.registrar-student-list__stat-card:nth-child(2) .registrar-student-list__stat-icon { color: #a97908; background: #fff7dc; border-color: #edd796; }
+.registrar-student-list__stat-card:nth-child(3) .registrar-student-list__stat-icon { color: var(--rsl-blue); background: #eef5ff; border-color: #cfe0ff; }
+.registrar-student-list__stat-card:nth-child(4) .registrar-student-list__stat-icon { color: var(--rsl-violet); background: #f5f0ff; border-color: #dfd1ff; }
+.registrar-student-list__stat-card span { font-size: 11px; font-weight: 760; letter-spacing: .025em; text-transform: uppercase; }
+.registrar-student-list__stat-card strong { font-size: 26px; }
+
+/* Student directory / filters / table. */
+.registrar-student-list__panel {
+  position: relative;
+  z-index: 1;
+  border: 1px solid rgba(15,122,69,.14);
+  border-radius: 24px;
+  background: rgba(255,255,255,.97);
+  box-shadow: 0 16px 38px rgba(7,59,36,.09);
+}
+.registrar-student-list__panel-heading {
+  padding: 23px 26px 18px;
+  border-bottom: 1px solid rgba(15,122,69,.08);
+  background: linear-gradient(110deg, rgba(255,255,255,.98), rgba(239,249,242,.8));
+}
+.registrar-student-list__panel-heading h2 { font-size: 20px; font-weight: 780; }
+.registrar-student-list__record-count { border-color: #c7e5d1; color: #0d653b; background: #eaf7ee; }
+.registrar-student-list__toolbar { gap: 14px; padding: 17px 26px 19px; background: rgba(249,253,250,.96); }
+.registrar-student-list__search input, .registrar-student-list__filters select {
+  height: 44px;
+  border-color: #d1e2d6;
+  border-radius: 12px;
+  background-color: #fff;
+}
+.registrar-student-list__clear-filters { height: 44px; }
+.registrar-student-list__search input:focus-visible,
+.registrar-student-list__filters select:focus-visible,
+.registrar-student-list__action:focus-visible,
+.registrar-student-list__page-btn:focus-visible,
+.registrar-student-list__clear-filters:focus-visible,
+.registrar-student-list__search-clear:focus-visible {
+  outline: 3px solid rgba(21,148,82,.28);
+  outline-offset: 2px;
+}
+.registrar-student-list__filter-summary { margin-right: 26px; margin-left: 26px; background: #effaf3; }
+.registrar-student-list__table-shell { border-top-color: #deebe2; }
+.registrar-student-list__table thead th { padding-top: 15px; padding-bottom: 15px; background: #edf7f0; color: #24523a; }
+.registrar-student-list__table tbody td { padding-top: 15px; padding-bottom: 15px; }
+.registrar-student-list__table tbody tr:not(.registrar-student-list__skeleton-row):hover td { background: #f2faf5; }
+.registrar-student-list__avatar { border-radius: 13px; background: linear-gradient(145deg,#e3f7e9,#cfead8); }
+.registrar-student-list__course-chip { border-color: #c9e6d2; border-radius: 9px; background: #eaf7ef; }
+.registrar-student-list__action { min-height: 35px; border-radius: 9px; }
+.registrar-student-list__action--primary { background: #0d653b; border-color: #0d653b; }
+.registrar-student-list__action--primary:hover { background: #084b2c; border-color: #084b2c; }
+.registrar-student-list__pagination-bar { padding: 17px 24px; background: #f4faf6; }
+.registrar-student-list__page-btn--active { background: #0d653b; border-color: #0d653b; }
+.registrar-student-list__state { min-height: 300px; margin: 18px; border: 1px dashed #bfdcc9; border-radius: 18px; background: linear-gradient(135deg, #fbfefc, #f0f8f3); }
+.registrar-student-list__state-icon { border-radius: 50%; background: #e4f7ea; }
+.registrar-student-list__state--error .registrar-student-list__state-icon { background: #fff1ef; }
+/* Dark skeletons are needed only if the application supplies a dark theme class. */
+:is(.dark, .dark-mode, [data-theme="dark"]) .registrar-student-list__skeleton { background: #314239; }
+:is(.dark, .dark-mode, [data-theme="dark"]) .registrar-student-list__skeleton::after { background: linear-gradient(90deg,transparent,rgba(95,126,109,.26),transparent); }
+
+@media (max-width: 760px) {
+  .registrar-student-list { padding: 18px 14px 32px; background-size: 72px 72px, 72px 72px, 92px 92px, 92px 92px, auto, auto, auto, auto; }
+  .registrar-student-list::before { top: 9px; right: 7px; left: 7px; height: 340px; border-radius: 22px; }
+  .registrar-student-list::after { top: 510px; right: -200px; }
+  .registrar-student-list__hero { min-height: 0; padding: 24px 22px; border-radius: 20px; }
+  .registrar-student-list__hero h1 { font-size: clamp(28px, 6vw, 36px); }
+  .registrar-student-list__stats { margin-left: 0; margin-right: 0; padding: 9px; border-radius: 19px; }
+  .registrar-student-list__stat-card { min-height: 105px; }
+  .registrar-student-list__panel { border-radius: 20px; }
+  .registrar-student-list__panel-heading, .registrar-student-list__toolbar { padding-left: 18px; padding-right: 18px; }
+  .registrar-student-list__filter-summary { margin-left: 18px; margin-right: 18px; }
+}
+@media (max-width: 520px) {
+  .registrar-student-list { padding: 14px 10px 28px; }
+  .registrar-student-list__hero { padding: 22px 18px; }
+  .registrar-student-list__hero-badge { min-width: 0; }
+  .registrar-student-list__stat-card { padding: 16px; }
+  .registrar-student-list__panel-heading, .registrar-student-list__toolbar { padding-left: 14px; padding-right: 14px; }
+  .registrar-student-list__filter-summary { margin-left: 14px; margin-right: 14px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .registrar-student-list__stat-card, .registrar-student-list__action { transition: none; }
+}

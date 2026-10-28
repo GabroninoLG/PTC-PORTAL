@@ -1,0 +1,360 @@
+/* ============================================================================
+   PTC PORTAL — UNIFIED PAGE CANVAS  |  2026-10-28
+
+   One shared page background for the ALREADY-REDESIGNED Admin, Registrar,
+   and Program Head screens. Reference: Registrar Dashboard V4 geometric canvas.
+
+   Installation: import this file LAST from src/main.tsx, after admin-theme.css.
+   Scope: dashboard content and its immediate page root only.
+   It DOES NOT style navigation, footer, forms, stats, tables, or modals.
+   Do not independently change these background settings in page CSS files.
+   ============================================================================ */
+
+:root {
+  --ptc-canvas-color: #e6f1e9;
+  --ptc-canvas-pattern:
+    linear-gradient(135deg, rgba(15, 122, 69, 0.08) 25%, transparent 25%),
+    linear-gradient(225deg, rgba(15, 122, 69, 0.055) 25%, transparent 25%),
+    linear-gradient(45deg, rgba(212, 167, 44, 0.045) 25%, transparent 25%),
+    linear-gradient(315deg, rgba(37, 99, 235, 0.035) 25%, transparent 25%),
+    radial-gradient(circle at 12% 10%, rgba(21, 148, 82, 0.22), transparent 25%),
+    radial-gradient(circle at 88% 6%, rgba(212, 167, 44, 0.18), transparent 23%),
+    radial-gradient(circle at 92% 72%, rgba(37, 99, 235, 0.10), transparent 24%),
+    linear-gradient(180deg, #edf6f0 0%, #e5f0e9 48%, #dce9e0 100%);
+  --ptc-canvas-tiles:
+    96px 96px, 96px 96px, 128px 128px, 128px 128px,
+    auto, auto, auto, auto;
+  --ptc-canvas-offsets:
+    0 0, 48px 48px, 0 0, 64px 64px,
+    center, center, center, center;
+}
+
+/* Match the same pattern in the parent workspace, eliminating white strips.
+   All matches require a redesigned root: other roles are unaffected. */
+html body .dashboard-wrapper .dashboard-main:has(> .dashboard-content > :is(
+    .registrar-dashboard,
+    .registrar-announcements,
+    .registrar-announcement-detail,
+    .registrar-announcement-create,
+    .registrar-announcement-edit,
+    .registrar-student-list,
+    .registrar-course-management,
+    .registrar-curriculum-management,
+    .registrar-curriculum-details,
+    .registrar-department-management,
+    .registrar-subject-management,
+    .registrar-enrollment-management,
+    .registrar-enrollment-details,
+    .registrar-enrollment-period,
+    .offering-batches-page,
+    .registrar-class-offering,
+    .registrar-teaching-schedule,
+    .registrar-doc-request,
+    .registrar-grade-change-page,
+    .registrar-manual-payment,
+    .registrar-student-details,
+    .registrar-academic-record,
+    .registrar-cog,
+    .registrar-cor,
+    .transcript-page,
+    .registrar-transfer-page,
+    .programhead-dashboard,
+    .program-head-profile-page,
+    .programhead-announcements,
+    .programhead-announcement-detail,
+    .programhead-class-management,
+    .ph-offering-batches,
+    .faculty-summary-page,
+    .program-head-pending-grades-page,
+    .ph-grade-change-page,
+    .program-head-transfer-review,
+    .admin-dashboard,
+    .admin-manage-students,
+    .admin-student-management,
+    .admin-createstudents-students,
+    .admin-edit-student,
+    .admin-student-profile,
+    .admin-user-directory,
+    .admin-create-user,
+    .admin-edit-user,
+    .admin-user-activity,
+    .admin-user-roles,
+    .admin-announcement-directory,
+    .admin-announcement-details-view,
+    .admin-create-announcement,
+    .admin-announcement-editor
+  )) > .dashboard-content,
+html body .dashboard-wrapper .dashboard-main:has(> .dashboard-content > .faculty-schedule-page > .faculty-schedule-page__read-only-note) > .dashboard-content {
+  padding: 0 !important;
+  min-width: 0;
+  background-color: var(--ptc-canvas-color) !important;
+  background-image: var(--ptc-canvas-pattern) !important;
+  background-size: var(--ptc-canvas-tiles) !important;
+  background-position: var(--ptc-canvas-offsets) !important;
+  background-repeat: repeat, repeat, repeat, repeat, no-repeat, no-repeat, no-repeat, no-repeat !important;
+  overflow-x: clip;
+}
+
+/* Override competing per-page backgrounds and Admin theme gradients.
+   Keep the same sizes/positions on the root and workspace, so the pattern
+   does not unexpectedly get larger on Create/Edit/Announcement pages. */
+html body .dashboard-wrapper .dashboard-main .dashboard-content > :is(
+    .registrar-dashboard,
+    .registrar-announcements,
+    .registrar-announcement-detail,
+    .registrar-announcement-create,
+    .registrar-announcement-edit,
+    .registrar-student-list,
+    .registrar-course-management,
+    .registrar-curriculum-management,
+    .registrar-curriculum-details,
+    .registrar-department-management,
+    .registrar-subject-management,
+    .registrar-enrollment-management,
+    .registrar-enrollment-details,
+    .registrar-enrollment-period,
+    .offering-batches-page,
+    .registrar-class-offering,
+    .registrar-teaching-schedule,
+    .registrar-doc-request,
+    .registrar-grade-change-page,
+    .registrar-manual-payment,
+    .registrar-student-details,
+    .registrar-academic-record,
+    .registrar-cog,
+    .registrar-cor,
+    .transcript-page,
+    .registrar-transfer-page,
+    .programhead-dashboard,
+    .program-head-profile-page,
+    .programhead-announcements,
+    .programhead-announcement-detail,
+    .programhead-class-management,
+    .ph-offering-batches,
+    .faculty-summary-page,
+    .program-head-pending-grades-page,
+    .ph-grade-change-page,
+    .program-head-transfer-review,
+    .admin-dashboard,
+    .admin-manage-students,
+    .admin-student-management,
+    .admin-createstudents-students,
+    .admin-edit-student,
+    .admin-student-profile,
+    .admin-user-directory,
+    .admin-create-user,
+    .admin-edit-user,
+    .admin-user-activity,
+    .admin-user-roles,
+    .admin-announcement-directory,
+    .admin-announcement-details-view,
+    .admin-create-announcement,
+    .admin-announcement-editor,
+    .faculty-schedule-page:has(> .faculty-schedule-page__read-only-note)
+  ) {
+  background-color: var(--ptc-canvas-color) !important;
+  background-image: var(--ptc-canvas-pattern) !important;
+  background-size: var(--ptc-canvas-tiles) !important;
+  background-position: var(--ptc-canvas-offsets) !important;
+  background-repeat: repeat, repeat, repeat, repeat, no-repeat, no-repeat, no-repeat, no-repeat !important;
+  background-attachment: scroll !important;
+  min-width: 0;
+  max-width: 100%;
+}
+
+/* The Admin Dashboard previously drew giant decorative rings *behind*
+   its KPI cards. Remove only those page-root rings. Header decorations and
+   colored KPI card artwork remain unchanged. */
+html body .dashboard-wrapper .dashboard-main .dashboard-content > .admin-dashboard::before,
+html body .dashboard-wrapper .dashboard-main .dashboard-content > .admin-dashboard::after {
+  content: none !important;
+}
+
+/* Keep Dark Mode charcoal, with dark geometric tiles and no light canvas.
+   No animations or transitions are introduced by this file. */
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark,
+    .dark-mode, .theme-dark, [data-theme="dark"])
+  .dashboard-wrapper .dashboard-main:has(> .dashboard-content > :is(
+    .registrar-dashboard,
+    .registrar-announcements,
+    .registrar-announcement-detail,
+    .registrar-announcement-create,
+    .registrar-announcement-edit,
+    .registrar-student-list,
+    .registrar-course-management,
+    .registrar-curriculum-management,
+    .registrar-curriculum-details,
+    .registrar-department-management,
+    .registrar-subject-management,
+    .registrar-enrollment-management,
+    .registrar-enrollment-details,
+    .registrar-enrollment-period,
+    .offering-batches-page,
+    .registrar-class-offering,
+    .registrar-teaching-schedule,
+    .registrar-doc-request,
+    .registrar-grade-change-page,
+    .registrar-manual-payment,
+    .registrar-student-details,
+    .registrar-academic-record,
+    .registrar-cog,
+    .registrar-cor,
+    .transcript-page,
+    .registrar-transfer-page,
+    .programhead-dashboard,
+    .program-head-profile-page,
+    .programhead-announcements,
+    .programhead-announcement-detail,
+    .programhead-class-management,
+    .ph-offering-batches,
+    .faculty-summary-page,
+    .program-head-pending-grades-page,
+    .ph-grade-change-page,
+    .program-head-transfer-review,
+    .admin-dashboard,
+    .admin-manage-students,
+    .admin-student-management,
+    .admin-createstudents-students,
+    .admin-edit-student,
+    .admin-student-profile,
+    .admin-user-directory,
+    .admin-create-user,
+    .admin-edit-user,
+    .admin-user-activity,
+    .admin-user-roles,
+    .admin-announcement-directory,
+    .admin-announcement-details-view,
+    .admin-create-announcement,
+    .admin-announcement-editor
+  )) > .dashboard-content,
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark,
+    .dark-mode, .theme-dark, [data-theme="dark"])
+  .dashboard-wrapper .dashboard-main:has(> .dashboard-content > .faculty-schedule-page > .faculty-schedule-page__read-only-note) > .dashboard-content,
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark,
+    .dark-mode, .theme-dark, [data-theme="dark"])
+  .dashboard-wrapper .dashboard-main .dashboard-content > :is(
+    .registrar-dashboard,
+    .registrar-announcements,
+    .registrar-announcement-detail,
+    .registrar-announcement-create,
+    .registrar-announcement-edit,
+    .registrar-student-list,
+    .registrar-course-management,
+    .registrar-curriculum-management,
+    .registrar-curriculum-details,
+    .registrar-department-management,
+    .registrar-subject-management,
+    .registrar-enrollment-management,
+    .registrar-enrollment-details,
+    .registrar-enrollment-period,
+    .offering-batches-page,
+    .registrar-class-offering,
+    .registrar-teaching-schedule,
+    .registrar-doc-request,
+    .registrar-grade-change-page,
+    .registrar-manual-payment,
+    .registrar-student-details,
+    .registrar-academic-record,
+    .registrar-cog,
+    .registrar-cor,
+    .transcript-page,
+    .registrar-transfer-page,
+    .programhead-dashboard,
+    .program-head-profile-page,
+    .programhead-announcements,
+    .programhead-announcement-detail,
+    .programhead-class-management,
+    .ph-offering-batches,
+    .faculty-summary-page,
+    .program-head-pending-grades-page,
+    .ph-grade-change-page,
+    .program-head-transfer-review,
+    .admin-dashboard,
+    .admin-manage-students,
+    .admin-student-management,
+    .admin-createstudents-students,
+    .admin-edit-student,
+    .admin-student-profile,
+    .admin-user-directory,
+    .admin-create-user,
+    .admin-edit-user,
+    .admin-user-activity,
+    .admin-user-roles,
+    .admin-announcement-directory,
+    .admin-announcement-details-view,
+    .admin-create-announcement,
+    .admin-announcement-editor,
+    .faculty-schedule-page:has(> .faculty-schedule-page__read-only-note)
+  ) {
+  background-color: #111c16 !important;
+  background-image:
+    radial-gradient(circle at 12% 9%, rgba(20, 108, 61, 0.17), transparent 30%),
+    radial-gradient(circle at 88% 8%, rgba(42, 100, 65, 0.09), transparent 28%),
+    linear-gradient(135deg, rgba(117, 163, 126, 0.025) 25%, transparent 25%),
+    linear-gradient(225deg, rgba(117, 163, 126, 0.025) 25%, transparent 25%),
+    linear-gradient(45deg, rgba(117, 163, 126, 0.02) 25%, transparent 25%),
+    linear-gradient(315deg, rgba(117, 163, 126, 0.02) 25%, transparent 25%),
+    linear-gradient(180deg, #101a15, #17231b) !important;
+  background-size: auto, auto, 96px 96px, 96px 96px, 128px 128px, 128px 128px, auto !important;
+  background-position: center, center, 0 0, 48px 48px, 0 0, 64px 64px, center !important;
+  background-repeat: no-repeat, no-repeat, repeat, repeat, repeat, repeat, no-repeat !important;
+}
+
+@media (max-width: 720px) {
+  html body .dashboard-wrapper .dashboard-main:has(> .dashboard-content > :is(
+    .registrar-dashboard,
+    .registrar-announcements,
+    .registrar-announcement-detail,
+    .registrar-announcement-create,
+    .registrar-announcement-edit,
+    .registrar-student-list,
+    .registrar-course-management,
+    .registrar-curriculum-management,
+    .registrar-curriculum-details,
+    .registrar-department-management,
+    .registrar-subject-management,
+    .registrar-enrollment-management,
+    .registrar-enrollment-details,
+    .registrar-enrollment-period,
+    .offering-batches-page,
+    .registrar-class-offering,
+    .registrar-teaching-schedule,
+    .registrar-doc-request,
+    .registrar-grade-change-page,
+    .registrar-manual-payment,
+    .registrar-student-details,
+    .registrar-academic-record,
+    .registrar-cog,
+    .registrar-cor,
+    .transcript-page,
+    .registrar-transfer-page,
+    .programhead-dashboard,
+    .program-head-profile-page,
+    .programhead-announcements,
+    .programhead-announcement-detail,
+    .programhead-class-management,
+    .ph-offering-batches,
+    .faculty-summary-page,
+    .program-head-pending-grades-page,
+    .ph-grade-change-page,
+    .program-head-transfer-review,
+    .admin-dashboard,
+    .admin-manage-students,
+    .admin-student-management,
+    .admin-createstudents-students,
+    .admin-edit-student,
+    .admin-student-profile,
+    .admin-user-directory,
+    .admin-create-user,
+    .admin-edit-user,
+    .admin-user-activity,
+    .admin-user-roles,
+    .admin-announcement-directory,
+    .admin-announcement-details-view,
+    .admin-create-announcement,
+    .admin-announcement-editor
+  )) > .dashboard-content,
+html body .dashboard-wrapper .dashboard-main:has(> .dashboard-content > .faculty-schedule-page > .faculty-schedule-page__read-only-note) > .dashboard-content {
+    padding: 0 !important;
+  }
+}
