@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   AlertCircle,
-  BookOpenCheck,
+  CalendarCheck2,
   Building2,
   CalendarDays,
   ChevronRight,
@@ -726,7 +726,7 @@ export default function ClassSchedule() {
         >
           <article>
             <span className="faculty-schedule-page__summary-icon">
-              <BookOpenCheck size={19} />
+              <CalendarCheck2 size={22} />
             </span>
 
             <div>
@@ -738,7 +738,7 @@ export default function ClassSchedule() {
 
           <article>
             <span className="faculty-schedule-page__summary-icon">
-              <CalendarDays size={19} />
+              <CalendarDays size={22} />
             </span>
 
             <div>
@@ -750,7 +750,7 @@ export default function ClassSchedule() {
 
           <article>
             <span className="faculty-schedule-page__summary-icon">
-              <UsersRound size={19} />
+              <UsersRound size={22} />
             </span>
 
             <div>
@@ -762,7 +762,7 @@ export default function ClassSchedule() {
 
           <article>
             <span className="faculty-schedule-page__summary-icon">
-              <Clock3 size={19} />
+              <Clock3 size={22} />
             </span>
 
             <div>

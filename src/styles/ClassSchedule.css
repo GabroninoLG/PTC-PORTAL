@@ -2100,3 +2100,408 @@
   .faculty-schedule-page:has(> .faculty-schedule-page__read-only-note) .faculty-schedule-entry__time strong {
   color: #9ae2b3;
 }
+
+/* ============================================================================
+   PTC PORTAL — FACULTY / CLASS SCHEDULE  |  UNIFIED UI
+   Append to the previously delivered ClassSchedule.css (Program Head edition).
+   Scoping: this page does not have Program Head's read-only note or monitor flag.
+   The Program Head-only rules above remain intact and unaffected.
+   Source: src/pages/faculty/Classes/ClassSchedule.tsx
+   ============================================================================ */
+
+/* The same approved subtle tile pattern, no local crosshatching or big rings. */
+html body .dashboard-wrapper .dashboard-main:has(> .dashboard-content > .faculty-schedule-page):not(:has(.faculty-schedule-page__read-only-note)):not(:has(.faculty-schedule-page--faculty-monitoring)) > .dashboard-content {
+  padding: 0 !important;
+  min-width: 0;
+  overflow-x: clip;
+  background-color: var(--ptc-canvas-color, #e6f1e9) !important;
+  background-image: var(--ptc-canvas-pattern, linear-gradient(#edf6f0, #dce9e0)) !important;
+  background-size: var(--ptc-canvas-tiles, auto) !important;
+  background-position: var(--ptc-canvas-offsets, center) !important;
+  background-repeat: repeat, repeat, repeat, repeat, no-repeat, no-repeat, no-repeat, no-repeat !important;
+}
+
+.faculty-schedule-page:not(.faculty-schedule-page--faculty-monitoring):not(:has(> .faculty-schedule-page__read-only-note)) {
+  --fs-green-950: #073b24;
+  --fs-green-900: #075431;
+  --fs-green-800: #0d653b;
+  --fs-green-700: #0f7a45;
+  --fs-text-950: #182720;
+  --fs-text-800: #28382e;
+  --fs-text-600: #587064;
+  --fs-text-500: #6d8174;
+  --fs-border: #d8e9dd;
+  padding: 24px 26px 38px;
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: clip;
+  color: var(--fs-text-950);
+  background-color: var(--ptc-canvas-color, #e6f1e9) !important;
+  background-image: var(--ptc-canvas-pattern, linear-gradient(#edf6f0, #dce9e0)) !important;
+  background-size: var(--ptc-canvas-tiles, auto) !important;
+  background-position: var(--ptc-canvas-offsets, center) !important;
+  background-repeat: repeat, repeat, repeat, repeat, no-repeat, no-repeat, no-repeat, no-repeat !important;
+}
+
+/* HERO — no unsupported circle pseudo-elements. */
+.faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-page__hero {
+  position: relative;
+  isolation: isolate;
+  min-height: 176px;
+  margin-bottom: 15px;
+  padding: 27px 30px;
+  border: 1px solid rgba(225, 255, 237, .18);
+  border-radius: 22px;
+  color: #fff;
+  background: linear-gradient(108deg, #06482e 0%, #086c3c 54%, #14874b 100%);
+  box-shadow: 0 14px 28px rgba(8, 79, 42, .14);
+}
+.faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-page__hero::before,
+.faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-page__hero::after {
+  content: none !important;
+  display: none !important;
+}
+.faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-page__eyebrow { color: #e5f9ec; font-size: 11px; letter-spacing: .055em; }
+.faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-page__eyebrow > span {
+  color: #fff;
+  background: rgba(255,255,255,.16);
+  border: 1px solid rgba(255,255,255,.25);
+}
+.faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-page__hero h1 { color: #fff !important; font-size: clamp(29px, 2.8vw, 38px); font-weight: 820; letter-spacing: -.035em; }
+.faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-page__hero p { color: #ddf5e7 !important; font-size: 13px; line-height: 1.6; }
+.faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-page__refresh {
+  min-height: 43px;
+  padding: 10px 15px;
+  color: #08683d;
+  background: #fff;
+  border: 1px solid #fff;
+  border-radius: 11px;
+  box-shadow: 0 5px 14px rgba(7, 53, 29, .1);
+  font-size: 12px;
+  font-weight: 730;
+}
+.faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-page__refresh:hover:not(:disabled) { background: #eaf9ef; border-color: #eaf9ef; color: #065b35; }
+
+/* FACULTY IDENTITY */
+.faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-page__faculty {
+  border-radius: 17px;
+  border: 1px solid #d4e8da;
+  background: rgba(255,255,255,.93);
+  box-shadow: 0 7px 20px rgba(7, 70, 34, .045);
+  margin-bottom: 16px;
+}
+.faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-page__faculty-icon { background: #ddf5e8; color: #066b3b; }
+.faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-page__faculty strong { font-size: 12px; }
+
+/* 4 REAL SUMMARY COUNTS: green / gold / blue / violet. */
+.faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-page__summary { gap: 12px; margin-bottom: 17px; }
+.faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-page__summary article {
+  position: relative;
+  overflow: hidden;
+  min-height: 110px;
+  padding: 17px 16px;
+  border-radius: 17px;
+  border: 1px solid #d5eadd;
+  border-left: 4px solid #10a05a;
+  background: linear-gradient(110deg, #f4fcf7, #e9f8ef);
+  box-shadow: 0 6px 17px rgba(8, 67, 36, .045);
+}
+.faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-page__summary article:nth-child(2) { border-color: #f0e1b8; border-left-color: #e5a30a; background: linear-gradient(110deg, #fffbf3, #fff4db); }
+.faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-page__summary article:nth-child(3) { border-color: #d8e6ff; border-left-color: #2563eb; background: linear-gradient(110deg, #f6f9ff, #eaf2ff); }
+.faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-page__summary article:nth-child(4) { border-color: #e7ddff; border-left-color: #8539ec; background: linear-gradient(110deg, #fcf9ff, #f2ebff); }
+.faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-page__summary-icon { width: 46px; height: 46px; background: #086a3b; color: #fff; border-radius: 13px; box-shadow: 0 5px 12px rgba(6, 103, 55, .15); }
+.faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-page__summary article:nth-child(2) .faculty-schedule-page__summary-icon { background: #fff5db; color: #b97b00; border: 1px solid #efd48d; box-shadow: none; }
+.faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-page__summary article:nth-child(3) .faculty-schedule-page__summary-icon { background: #eaf2ff; color: #2563eb; border: 1px solid #cbdeff; box-shadow: none; }
+.faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-page__summary article:nth-child(4) .faculty-schedule-page__summary-icon { background: #f3ebff; color: #7e39e9; border: 1px solid #e0d2ff; box-shadow: none; }
+.faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-page__summary small { color: #5c7063; font-size: 9.5px; }
+.faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-page__summary strong { color: #192720; font-size: 25px; }
+.faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-page__summary article > div > span { color: #6e8073; font-size: 9.5px; white-space: normal; }
+
+/* Filters and weekly timetable share the same white card treatment. */
+.faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) :is(.faculty-schedule-page__filters, .faculty-schedule-page__week, .faculty-schedule-page__unscheduled) {
+  min-width: 0;
+  border: 1px solid #d9e9df;
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 9px 23px rgba(8, 66, 36, .06);
+}
+.faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) :is(.faculty-schedule-page__filters > header, .faculty-schedule-page__section-header) {
+  padding: 19px 20px;
+  border-bottom: 1px solid #e4eee7;
+  background: linear-gradient(100deg, #fff 60%, #f4fbf6);
+}
+.faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) :is(.faculty-schedule-page__filters-icon, .faculty-schedule-page__unscheduled-icon) { color: #087a46; background: #e7f8ed; }
+.faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-page__filters header strong { color: #182b20; font-size: 13px; }
+.faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-page__section-header > div > span {
+  display: inline-flex;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: #e7f8ed;
+  color: #087947;
+  font-size: 9px;
+  font-weight: 800;
+}
+.faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-page__section-header h2 { font-size: 18px; color: #182720; }
+.faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-page__count { color: #087a46; border-color: #c5e5d1; background: #eaf8ee; }
+.faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-page__filter-grid { padding: 18px 20px; }
+.faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-page__filter-grid :is(input,select) {
+  border-radius: 10px;
+  border-color: #cfdfd4;
+  background: #fbfefd;
+  color: #23372b;
+  min-height: 41px;
+}
+.faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-page__filter-grid :is(input,select):focus-visible { border-color: #54aa7a; box-shadow: 0 0 0 3px rgba(21, 148, 82, .14); }
+.faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-page__filters header button { border-color: #c7e2d0; color: #086b40; background: #f5fcf7; }
+.faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-page__days { gap: 12px; padding: 16px; }
+.faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-day { border-color: #d9e8de; border-radius: 13px; }
+.faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-day__header { background: #f0faf4; border-bottom-color: #d9e8df; }
+.faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-entry { border-color: #dce9df; background: #f8fcf9; }
+.faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-page__unscheduled-grid article { border-color: #deebe1; background: #f9fcfa; }
+.faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-page__unscheduled-actions button {
+  height: auto !important;
+  min-height: 34px !important;
+  padding: 7px 10px !important;
+  border-radius: 9px !important;
+  color: #086c40 !important;
+  background: #fff !important;
+  border-color: #bbdac8 !important;
+  font-size: 10px !important;
+}
+.faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-page__unscheduled-actions button:hover { background: #eaf8ef !important; }
+.faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-entry__side button { min-height: 30px; border-radius: 8px; background: #fff; }
+
+/* FACULTY SCHEDULE EDITOR — includes time validation and conflict state. */
+.faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-modal-backdrop {
+  z-index: 1500;
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: rgba(9, 28, 19, .64);
+  backdrop-filter: blur(4px);
+}
+.faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-modal {
+  width: min(640px, 100%);
+  max-height: min(90dvh, 840px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border: 1px solid #d6e9dc;
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 26px 80px rgba(5, 32, 19, .28);
+}
+.faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-modal__header {
+  padding: 20px 23px;
+  border-bottom-color: rgba(255,255,255,.12);
+  border-radius: 19px 19px 0 0;
+  background: linear-gradient(108deg, #06482e, #0b7843);
+}
+.faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-modal__header :is(span,h2,p) { color: #fff; }
+.faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-modal__header span { color: #d3f6df; }
+.faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-modal__header p { color: #def5e6; }
+.faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-modal__header > button { color: #fff; background: rgba(255,255,255,.14); border-color: rgba(255,255,255,.27); }
+.faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-modal__body { padding: 21px 23px; gap: 16px; }
+.faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-modal__class { border-color: #d5e8db; background: #f2faf5; }
+.faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-modal__days input:checked + span { border-color: #4bae78; color: #076239; background: #e2f6e8; }
+.faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-modal__days label > span { min-height: 39px; border-radius: 10px; }
+.faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-modal__time-grid input { min-height: 44px; border-color: #d1e3d6; border-radius: 10px; background: #fbfefd; color: #213a2a; }
+.faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-modal__time-grid input:focus-visible { outline: 3px solid rgba(18, 147, 78, .17); outline-offset: 1px; }
+.faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-modal__conflicts { background: #fff9ef; border-color: #e8c993; }
+.faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-modal__error { background: #fff5f5; border-color: #f1c6c6; }
+.faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-modal__footer { padding: 15px 23px; background: #f8fcf9; border-top-color: #e0ece4; }
+.faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-modal__footer button:last-child { color: #fff; background: #0b7945; border-color: #0b7945; box-shadow: 0 4px 12px rgba(11, 121, 69, .15); }
+.faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-modal__footer button:last-child:hover:not(:disabled) { background: #075a34; }
+
+/* Dark mode: no light canvas, loading flash, or white schedule editor. */
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark) .dashboard-wrapper .dashboard-main:has(> .dashboard-content > .faculty-schedule-page):not(:has(.faculty-schedule-page__read-only-note)):not(:has(.faculty-schedule-page--faculty-monitoring)) > .dashboard-content { background: #17231c !important; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark) .faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) {
+  --fs-text-950: #edf7ee;
+  --fs-text-800: #dfefe1;
+  --fs-text-600: #b4c9b8;
+  --fs-text-500: #98afa1;
+  --fs-border: #375442;
+  color: #edf7ee;
+  background: #17231c !important;
+}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark) .faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) :is(.faculty-schedule-page__faculty,.faculty-schedule-page__filters,.faculty-schedule-page__week,.faculty-schedule-page__unscheduled,.faculty-schedule-page__loading,.faculty-schedule-page__empty) { background: #202d24; border-color: #385445; box-shadow: none; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark) .faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-page__summary article { background: #203b2a; border-color: #315e42; border-left-color: #50bd7f; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark) .faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-page__summary article:nth-child(2) { background: #3b3120; border-color: #6d572e; border-left-color: #e5b34b; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark) .faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-page__summary article:nth-child(3) { background: #1f3148; border-color: #364c72; border-left-color: #7da8ff; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark) .faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-page__summary article:nth-child(4) { background: #312742; border-color: #5a4278; border-left-color: #c49aff; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark) .faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-page__summary :is(strong,small,article > div > span) { color: #eef6ef; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark) .faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) :is(.faculty-schedule-page__filters > header,.faculty-schedule-page__section-header) { background: #26382d; border-color: #3b5746; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark) .faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) :is(.faculty-schedule-page__filters header strong,.faculty-schedule-page__section-header h2,.faculty-schedule-page__faculty strong,.faculty-schedule-page__loading strong,.faculty-schedule-page__empty strong) { color: #edf7ee; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark) .faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) :is(.faculty-schedule-page__filters header p,.faculty-schedule-page__section-header p,.faculty-schedule-page__faculty small,.faculty-schedule-page__loading span,.faculty-schedule-page__empty p) { color: #b4cbbc; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark) .faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-page__filter-grid :is(input,select) { color: #edf7ee; background: #23392c; border-color: #42644e; color-scheme: dark; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark) .faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-page__filter-grid input::placeholder { color: #adbeaf; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark) .faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) :is(.faculty-schedule-day,.faculty-schedule-entry,.faculty-schedule-page__unscheduled-grid article) { background: #24382b; border-color: #3b6048; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark) .faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-day__header { background: #2b4434; border-color: #3b6149; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark) .faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) :is(.faculty-schedule-day__header strong,.faculty-schedule-entry__subject strong,.faculty-schedule-page__unscheduled-grid article > div:nth-child(2) > strong) { color: #eaf5ec; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark) .faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) :is(.faculty-schedule-day__header small,.faculty-schedule-entry__meta > span,.faculty-schedule-page__unscheduled-grid article > div:nth-child(2) > small,.faculty-schedule-day__no-class) { color: #b5cbb9; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark) .faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-entry__side { border-color: #3c5e48; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark) .faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-page__unscheduled-actions button { color: #c9f2d8 !important; background: #2a4c37 !important; border-color: #50775c !important; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark) .faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-entry__side button { color: #c9f2d8; background: #2a4c37; border-color: #50775c; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark) .faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-modal { background: #202d25; border-color: #45604e; color: #edf7ee; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark) .faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-modal__body { background: #202d25; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark) .faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-modal__class { background: #284332; border-color: #416c4e; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark) .faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-modal__class strong { color: #f0f7f1; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark) .faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-modal__class span { color: #bad1c1; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark) .faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) :is(.faculty-schedule-modal__days legend,.faculty-schedule-modal__time-grid label > span) { color: #dfefe2; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark) .faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-modal__days label > span { color: #d2e5d7; background: #273b2e; border-color: #4a6a52; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark) .faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-modal__days input:checked + span { color: #e6fcef; background: #19543a; border-color: #46a16d; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark) .faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-modal__time-grid input { color: #eff7f0; background: #273c2e; border-color: #4a7155; color-scheme: dark; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark) .faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-modal__note { color: #c7d8cb; background: #293a2f; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark) .faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-modal__conflicts { background: #392f25; border-color: #806044; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark) .faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-modal__conflicts :is(strong,span,small) { color: #ffe3b9; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark) .faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-modal__error { color: #ffcbc6; background: #3b2627; border-color: #865254; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark) .faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-modal__footer { background: #243529; border-color: #435e49; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark) .faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-modal__footer button:first-child { background: #2c4233; color: #dfefe1; border-color: #50705a; }
+
+@media (max-width: 850px) {
+  .faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) { padding: 18px 16px 32px; }
+  .faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-page__hero { padding: 24px 22px; }
+}
+@media (max-width: 620px) {
+  .faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) { padding: 13px 10px 26px; }
+  .faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-page__hero { padding: 21px 18px; border-radius: 16px; }
+  .faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-page__summary article { min-height: 92px; }
+  .faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-page__filter-grid { padding: 14px; }
+  .faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-modal { max-height: calc(100dvh - 22px); }
+  .faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-modal__header { padding: 17px; }
+  .faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-modal__body { padding: 16px; }
+  .faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-modal__footer { padding: 14px 16px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .faculty-schedule-page:not(:has(> .faculty-schedule-page__read-only-note)) :is(.faculty-schedule-entry,.faculty-schedule-page__refresh) { transition: none; }
+}
+
+/* ============================================================================
+   FACULTY TEACHING SCHEDULE — MATCH APPROVED FACULTY MY CLASSES
+   Corrects identity ribbon, faculty icon, summary card framing and spacing.
+   Strictly Faculty-scoped: does not modify Program Head read-only schedules,
+   Faculty scheduling logic, editor modals, or the shared canvas/background.
+   ============================================================================ */
+
+/* Same 80px identity cards and 16px corners used on Faculty My Classes. */
+.faculty-schedule-page:not(.faculty-schedule-page--faculty-monitoring):not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-page__faculty {
+  gap: 12px;
+  margin-bottom: 16px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.faculty-schedule-page:not(.faculty-schedule-page--faculty-monitoring):not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-page__faculty > div {
+  min-height: 80px;
+  padding: 14px 17px;
+  border: 1px solid #d9e9df;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 6px 18px rgba(8, 66, 36, .06);
+}
+.faculty-schedule-page:not(.faculty-schedule-page--faculty-monitoring):not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-page__faculty-main {
+  display: grid !important;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 10px !important;
+}
+.faculty-schedule-page:not(.faculty-schedule-page--faculty-monitoring):not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-page__faculty-icon {
+  display: inline-flex;
+  width: 39px;
+  height: 39px;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 11px;
+  background: linear-gradient(145deg, #0b9955, #065c34);
+  color: #fff;
+  box-shadow: 0 5px 11px rgba(4, 100, 57, .15);
+}
+.faculty-schedule-page:not(.faculty-schedule-page--faculty-monitoring):not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-page__faculty small {
+  color: #66786d;
+  font-size: 9px;
+}
+.faculty-schedule-page:not(.faculty-schedule-page--faculty-monitoring):not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-page__faculty strong {
+  color: #253a2c;
+  font-size: 12px;
+}
+
+/* The same translucent outer container and colored card sizing as My Classes. */
+.faculty-schedule-page:not(.faculty-schedule-page--faculty-monitoring):not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-page__summary {
+  gap: 12px;
+  padding: 11px;
+  margin-bottom: 19px;
+  border: 1px solid rgba(255, 255, 255, .8);
+  border-radius: 23px;
+  background: rgba(255, 255, 255, .55);
+  box-shadow: 0 10px 24px rgba(10, 66, 36, .08);
+}
+.faculty-schedule-page:not(.faculty-schedule-page--faculty-monitoring):not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-page__summary article {
+  min-height: 110px;
+  padding: 16px;
+  gap: 12px;
+  border-radius: 17px;
+  border-left-color: #0b9953;
+  box-shadow: 0 6px 16px rgba(13, 69, 37, .055);
+}
+.faculty-schedule-page:not(.faculty-schedule-page--faculty-monitoring):not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-page__summary article:nth-child(2) {
+  border-left-color: #dc9b0c;
+}
+.faculty-schedule-page:not(.faculty-schedule-page--faculty-monitoring):not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-page__summary article:nth-child(3) {
+  border-left-color: #2563eb;
+}
+.faculty-schedule-page:not(.faculty-schedule-page--faculty-monitoring):not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-page__summary article:nth-child(4) {
+  border-left-color: #873cec;
+}
+.faculty-schedule-page:not(.faculty-schedule-page--faculty-monitoring):not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-page__summary-icon {
+  width: 45px;
+  height: 45px;
+  border-radius: 12px;
+}
+.faculty-schedule-page:not(.faculty-schedule-page--faculty-monitoring):not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-page__summary small {
+  color: #5f7165;
+  font-size: 10px;
+  font-weight: 780;
+}
+.faculty-schedule-page:not(.faculty-schedule-page--faculty-monitoring):not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-page__summary strong {
+  color: #18271d;
+  font-size: 27px;
+  font-weight: 820;
+}
+.faculty-schedule-page:not(.faculty-schedule-page--faculty-monitoring):not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-page__summary article > div > span {
+  color: #718278;
+  font-size: 10px;
+}
+
+/* Keep cards and labels readable in the existing dark theme. */
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .faculty-schedule-page:not(.faculty-schedule-page--faculty-monitoring):not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-page__faculty > div {
+  background: #1d2922;
+  border-color: #354b3c;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, .14);
+}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .faculty-schedule-page:not(.faculty-schedule-page--faculty-monitoring):not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-page__faculty small {
+  color: #b9cbbd;
+}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .faculty-schedule-page:not(.faculty-schedule-page--faculty-monitoring):not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-page__faculty strong {
+  color: #edf6ef;
+}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .faculty-schedule-page:not(.faculty-schedule-page--faculty-monitoring):not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-page__summary {
+  background: rgba(21, 32, 25, .72);
+  border-color: #3b5442;
+}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .faculty-schedule-page:not(.faculty-schedule-page--faculty-monitoring):not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-page__summary :is(strong, small, article > div > span) {
+  color: #edf6ef;
+}
+@media (max-width: 620px) {
+  .faculty-schedule-page:not(.faculty-schedule-page--faculty-monitoring):not(:has(> .faculty-schedule-page__read-only-note)) .faculty-schedule-page__summary {
+    padding: 8px;
+    border-radius: 17px;
+  }
+}

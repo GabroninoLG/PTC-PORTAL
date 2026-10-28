@@ -2351,3 +2351,561 @@
     flex: none;
   }
 }
+
+
+/* ============================================================================
+   FACULTY / ENTER GRADES — PTC APPROVED UNIFIED DESIGN
+   Follows Registrar Dashboard and the approved My Classes page.
+   CSS-only: grade calculations, submission, INC workflow and routing unchanged.
+   Includes BOTH submission and INC completion dialogs; no page-entry animation.
+   ============================================================================ */
+
+/* Reuse the exact mint tile variables from ptc-unified-canvas.css. The parent
+   wrapper must match as well, or a white vertical gutter appears near sidebar. */
+html body .dashboard-wrapper .dashboard-main:has(> .dashboard-content > .faculty-enter-grades-page) > .dashboard-content {
+  padding: 0 !important;
+  min-width: 0;
+  overflow-x: clip;
+  background-color: var(--ptc-canvas-color, #e6f1e9) !important;
+  background-image: var(--ptc-canvas-pattern) !important;
+  background-size: var(--ptc-canvas-tiles) !important;
+  background-position: var(--ptc-canvas-offsets) !important;
+  background-repeat: repeat, repeat, repeat, repeat, no-repeat, no-repeat, no-repeat, no-repeat !important;
+}
+.dashboard-main:has(.faculty-enter-grades-page) > .header-container:has(.app-header.hide) {
+  height: 0;
+  min-height: 0;
+  border: 0;
+}
+html body .dashboard-wrapper .dashboard-main .dashboard-content > .faculty-enter-grades-page {
+  --feg-green-950: #063e28;
+  --feg-green-900: #075431;
+  --feg-green-800: #0a7041;
+  --feg-green-700: #0c824a;
+  --feg-green-600: #13975b;
+  --feg-text-950: #17251e;
+  --feg-text-800: #2c4033;
+  --feg-text-600: #607469;
+  --feg-text-500: #76877c;
+  --feg-border: #dce9e0;
+  --feg-border-strong: #c6ddce;
+  --feg-surface: #fff;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  min-height: 100%;
+  padding: 27px 27px 40px;
+  background-color: var(--ptc-canvas-color, #e6f1e9) !important;
+  background-image: var(--ptc-canvas-pattern) !important;
+  background-size: var(--ptc-canvas-tiles) !important;
+  background-position: var(--ptc-canvas-offsets) !important;
+  background-repeat: repeat, repeat, repeat, repeat, no-repeat, no-repeat, no-repeat, no-repeat !important;
+}
+
+/* Approved hero: simple green gradient, *no floating circles*. */
+.faculty-enter-grades-page .faculty-grade-header {
+  min-height: 184px;
+  margin-bottom: 16px;
+  padding: 28px 30px;
+  border: 1px solid rgba(221, 255, 236, .16);
+  border-radius: 23px;
+  background: linear-gradient(108deg, #06482e 0%, #086b3c 55%, #138848 100%);
+  box-shadow: 0 16px 34px rgba(4, 71, 36, .16);
+}
+.faculty-enter-grades-page .faculty-grade-header::before,
+.faculty-enter-grades-page .faculty-grade-header::after {
+  content: none !important;
+  display: none !important;
+}
+.faculty-enter-grades-page .faculty-grade-eyebrow {
+  color: #e6f9ed;
+  font-size: 10.5px;
+  letter-spacing: .06em;
+  font-weight: 800;
+}
+.faculty-enter-grades-page .faculty-grade-eyebrow__icon {
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, .24);
+  background: rgba(255,255,255,.15);
+  width: 31px;
+  height: 31px;
+}
+.faculty-enter-grades-page .faculty-grade-header h1 {
+  color: #fff !important;
+  font-size: clamp(30px, 2.5vw, 38px);
+  letter-spacing: -.04em;
+  font-weight: 820;
+}
+.faculty-enter-grades-page .faculty-grade-header p {
+  color: #e1f7e9 !important;
+  font-size: 12.8px;
+  line-height: 1.65;
+}
+.faculty-enter-grades-page .faculty-grade-back {
+  color: #f2fff8;
+  background: rgba(255,255,255,.13);
+  border-color: rgba(255,255,255,.23);
+}
+.faculty-enter-grades-page .faculty-grade-back:hover {
+  color: #064e2e;
+  background: #fff;
+  border-color: #fff;
+}
+.faculty-enter-grades-page .faculty-grade-header-button {
+  min-height: 44px;
+  padding: 10px 14px;
+  border-color: rgba(255,255,255,.9);
+  color: #075a34;
+  background: #fff;
+  border-radius: 11px;
+  box-shadow: 0 6px 14px rgba(3,51,27,.1);
+}
+.faculty-enter-grades-page .faculty-grade-header-button--primary {
+  color: #076a3c;
+  background: #e8f9ee;
+  border-color: #e8f9ee;
+}
+.faculty-enter-grades-page .faculty-grade-header-button:hover:not(:disabled) {
+  background: #e8f8ed;
+  border-color: #e8f8ed;
+}
+
+/* Faculty identity and searchable assigned-class context, matching My Classes. */
+.faculty-enter-grades-page .faculty-grade-toolbar {
+  gap: 13px;
+  margin-bottom: 17px;
+}
+.faculty-enter-grades-page .faculty-grade-faculty,
+.faculty-enter-grades-page .faculty-grade-class-select {
+  border: 1px solid #d5e6dc;
+  border-radius: 17px;
+  background: #fff;
+  box-shadow: 0 7px 20px rgba(10,66,36,.055);
+}
+.faculty-enter-grades-page .faculty-grade-faculty__icon {
+  width: 43px;
+  height: 43px;
+  flex-basis: 43px;
+  color: #fff;
+  background: linear-gradient(145deg,#0b9955,#065c34);
+  border-color: transparent;
+  box-shadow: 0 6px 14px rgba(4,100,57,.16);
+}
+.faculty-enter-grades-page .faculty-grade-class-select__heading small {
+  color: #0a7542;
+}
+.faculty-enter-grades-page .faculty-assigned-class-search__input input,
+.faculty-enter-grades-page .faculty-gradebook-search input,
+.faculty-enter-grades-page .faculty-gradebook-filter select,
+.faculty-enter-grades-page .faculty-grade-input,
+.faculty-enter-grades-page .faculty-grade-table select,
+.faculty-enter-grades-page .faculty-grade-table textarea {
+  border-color: #cfe0d4;
+  border-radius: 10px;
+  background: #fbfdfb;
+}
+.faculty-enter-grades-page :is(input, select, textarea):focus-visible,
+.faculty-enter-grades-page :is(button):focus-visible {
+  outline-color: #4fb87d;
+  outline-offset: 2px;
+}
+.faculty-enter-grades-page .faculty-assigned-class-suggestions {
+  background: #fff;
+  border-color: #cfe0d4;
+  box-shadow: 0 18px 40px rgba(13,67,35,.15);
+}
+
+/* Selected class details: original six facts remain intact. */
+.faculty-enter-grades-page .faculty-grade-class-card {
+  margin-bottom: 16px;
+  overflow: hidden;
+  border: 1px solid #d7e9de;
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 10px 25px rgba(8,66,36,.07);
+}
+.faculty-enter-grades-page .faculty-grade-subject {
+  background: linear-gradient(110deg,#f1faf4,#f8fdf9);
+}
+.faculty-enter-grades-page .faculty-grade-subject__icon,
+.faculty-enter-grades-page .faculty-grade-detail-icon {
+  color: #0d7d48;
+  background: #e5f7ec;
+  border-color: #d0e9d9;
+}
+.faculty-enter-grades-page .faculty-grade-class-details > div {
+  background: #fff;
+  border-color: #e6eee8;
+}
+
+/* Six real grade counters: green, neutral, blue, violet, gold, green.
+   Do not fabricate a fourth or remove existing metrics. */
+.faculty-enter-grades-page .faculty-grade-summary {
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 10px;
+  padding: 11px;
+  border: 1px solid rgba(255,255,255,.78);
+  border-radius: 21px;
+  background: rgba(255,255,255,.6);
+  box-shadow: 0 10px 25px rgba(10,66,36,.08);
+}
+.faculty-enter-grades-page .faculty-grade-summary-card {
+  min-height: 111px;
+  border-radius: 15px;
+  padding: 14px 12px;
+  gap: 9px;
+  border: 1px solid #d5eadb;
+  background: linear-gradient(120deg,#f5fcf7,#e8f8ee);
+  box-shadow: 0 5px 14px rgba(13,69,37,.05);
+}
+.faculty-enter-grades-page .faculty-grade-summary-card::before {
+  width: 4px;
+  background: #129454;
+}
+.faculty-enter-grades-page .faculty-grade-summary-card--empty {
+  border-color: #dce6df;
+  background: linear-gradient(120deg,#fcfdfc,#f2f6f3);
+}
+.faculty-enter-grades-page .faculty-grade-summary-card--empty::before { background: #93a59a; }
+.faculty-enter-grades-page .faculty-grade-summary-card--draft {
+  border-color: #d3e4fc;
+  background: linear-gradient(120deg,#f6faff,#e8f1ff);
+}
+.faculty-enter-grades-page .faculty-grade-summary-card--draft::before { background: #2563eb; }
+.faculty-enter-grades-page .faculty-grade-summary-card--submitted {
+  border-color: #e5d9ff;
+  background: linear-gradient(120deg,#fbf8ff,#f1e9ff);
+}
+.faculty-enter-grades-page .faculty-grade-summary-card--submitted::before { background: #8844dc; }
+.faculty-enter-grades-page .faculty-grade-summary-card--returned {
+  border-color: #f1e4bf;
+  background: linear-gradient(120deg,#fffaf0,#fff3d9);
+}
+.faculty-enter-grades-page .faculty-grade-summary-card--returned::before { background: #d9a221; }
+.faculty-enter-grades-page .faculty-grade-summary-card--approved {
+  border-color: #d0e9d9;
+  background: linear-gradient(120deg,#f3fcf6,#ddf5e7);
+}
+.faculty-enter-grades-page .faculty-grade-summary-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  flex: 0 0 42px;
+}
+.faculty-enter-grades-page .faculty-grade-summary-card small {
+  font-size: 9px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .025em;
+}
+.faculty-enter-grades-page .faculty-grade-summary-card strong {
+  font-size: 25px;
+}
+.faculty-enter-grades-page .faculty-grade-summary-card > div > span { white-space: normal; }
+
+/* Gradebook, search, status filters, results and scrolling table. */
+.faculty-enter-grades-page .faculty-gradebook,
+.faculty-enter-grades-page .faculty-grade-workflow-section,
+.faculty-enter-grades-page .faculty-grade-loading,
+.faculty-enter-grades-page .faculty-grade-error {
+  border-radius: 20px;
+  border-color: #d9e9df;
+  background: #fff;
+  box-shadow: 0 10px 26px rgba(8,66,36,.065);
+}
+.faculty-enter-grades-page .faculty-gradebook-header {
+  padding: 21px 23px 18px;
+  border-bottom-color: #e5eee8;
+  background: linear-gradient(100deg,#fff 60%,#f3fbf6);
+}
+.faculty-enter-grades-page .faculty-gradebook-header__icon {
+  width: 43px;
+  height: 43px;
+  background: #e5f7eb;
+  color: #09814a;
+}
+.faculty-enter-grades-page .faculty-gradebook-header h2 { color: #17251e; font-size: 18px; font-weight: 790; }
+.faculty-enter-grades-page .faculty-gradebook-header__title > div > span {
+  display: inline-block;
+  padding: 5px 9px;
+  margin-bottom: 7px;
+  border-radius: 999px;
+  color: #0a7a43;
+  background: #e6f7ed;
+  font-size: 9px;
+}
+.faculty-enter-grades-page .faculty-gradebook-table-meta {
+  background: #f7fbf8;
+  border-bottom-color: #e4eee7;
+}
+.faculty-enter-grades-page .faculty-grade-table-wrapper {
+  max-width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  -webkit-overflow-scrolling: touch;
+}
+.faculty-enter-grades-page .faculty-grade-table { min-width: 1040px; }
+.faculty-enter-grades-page .faculty-grade-table thead th {
+  background: #f3f9f5;
+  color: #496456;
+  border-color: #dfece2;
+}
+.faculty-enter-grades-page .faculty-grade-table tbody tr:hover { background: #f4fbf6; }
+.faculty-enter-grades-page .faculty-grade-empty {
+  background: #fff;
+}
+.faculty-enter-grades-page .faculty-grade-workflow-section > header {
+  border-color: #e0ede4;
+  background: linear-gradient(100deg,#fff,#f3fbf6);
+}
+.faculty-enter-grades-page .faculty-grade-workflow article {
+  background: #fbfefc;
+  border-color: #deece3;
+  border-radius: 14px;
+}
+.faculty-enter-grades-page .faculty-grade-workflow__icon {
+  color: #0c824a;
+  background: #e6f7ed;
+}
+
+/* Both custom dialogs share faculty-inc-modal classes in the original TSX.
+   Give them the same accessible green header and consistent scroll behavior. */
+.faculty-enter-grades-page .faculty-inc-modal-backdrop {
+  z-index: 9999;
+  position: fixed;
+  inset: 0;
+  display: flex;
+  padding: 18px;
+  align-items: center;
+  justify-content: center;
+  overflow-y: auto;
+  background: rgba(7, 29, 18, .65);
+  backdrop-filter: blur(4px);
+}
+.faculty-enter-grades-page .faculty-inc-modal {
+  position: relative;
+  flex: 0 1 680px;
+  width: min(680px, 100%);
+  max-height: calc(100dvh - 36px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border: 1px solid #d7e9de;
+  border-radius: 19px;
+  background: #fff;
+  box-shadow: 0 25px 70px rgba(4,29,16,.28);
+  animation: none !important;
+}
+.faculty-enter-grades-page .faculty-inc-modal__header {
+  padding: 22px 23px 20px;
+  background: linear-gradient(108deg,#06482e,#0a7442 65%,#138848);
+  border-color: rgba(255,255,255,.16);
+}
+.faculty-enter-grades-page .faculty-inc-modal__header > div > span {
+  color: #d6f6e5;
+  font-weight: 800;
+}
+.faculty-enter-grades-page .faculty-inc-modal__header h2,
+.faculty-enter-grades-page .faculty-inc-modal__header p { color: #fff !important; }
+.faculty-enter-grades-page .faculty-inc-modal__header p { color: #dcf5e7 !important; }
+.faculty-enter-grades-page .faculty-inc-modal__close {
+  color: #fff;
+  border-color: rgba(255,255,255,.27);
+  background: rgba(255,255,255,.12);
+}
+.faculty-enter-grades-page .faculty-inc-modal__close:hover:not(:disabled) {
+  color: #075431;
+  background: #fff;
+}
+.faculty-enter-grades-page .faculty-inc-modal__student > div {
+  border-color: #dce9e0;
+  background: #f5faf7;
+}
+.faculty-enter-grades-page .faculty-inc-modal__student > div:nth-child(2) {
+  border-color: #d5e5fd;
+  background: #f3f8ff;
+}
+.faculty-enter-grades-page .faculty-inc-modal__preview {
+  border-color: #cde9d6;
+  background: #edf9f2;
+}
+.faculty-enter-grades-page .faculty-inc-modal__form input,
+.faculty-enter-grades-page .faculty-inc-modal__remarks textarea {
+  border-color: #cbded1;
+  background: #fbfdfb;
+}
+.faculty-enter-grades-page .faculty-inc-modal__notice {
+  border-color: #cfe6d8;
+  background: #f0faf4;
+}
+.faculty-enter-grades-page .faculty-inc-modal__footer {
+  border-color: #e1eee6;
+  background: #f9fcfa;
+}
+.faculty-enter-grades-page .faculty-inc-modal__submit {
+  color: #fff;
+  background: #0c824a;
+  border-color: #0c824a;
+}
+.faculty-enter-grades-page .faculty-inc-modal__submit:hover:not(:disabled) {
+  background: #075f38;
+  border-color: #075f38;
+}
+
+/* The shared canvas is never used in dark mode. Dark forms, dialogs and
+   skeletons are set explicitly so routing and overlays do not flash white. */
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, .dark)
+ .dashboard-main:has(> .dashboard-content > .faculty-enter-grades-page) > .dashboard-content,
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, .dark)
+ .dashboard-wrapper .dashboard-main .dashboard-content > .faculty-enter-grades-page {
+  background-color: #151d1a !important;
+  background-image:
+    linear-gradient(135deg, rgba(59,94,73,.15) 25%, transparent 25%),
+    linear-gradient(225deg, rgba(54,81,64,.1) 25%, transparent 25%),
+    linear-gradient(180deg,#17211c,#111816) !important;
+  background-size: 96px 96px, 96px 96px, auto !important;
+  background-position: 0 0,48px 48px,center !important;
+  background-repeat: repeat,repeat,no-repeat !important;
+}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, .dark)
+ .faculty-enter-grades-page {
+  --feg-text-950: #edf6ef;
+  --feg-text-800: #deeee2;
+  --feg-text-700: #c3d5c9;
+  --feg-text-600: #b6cabd;
+  --feg-text-500: #9eb5a5;
+  --feg-surface: #1d2922;
+  --feg-bg: #151d1a;
+  --feg-border: #344a3b;
+  --feg-border-strong: #45644e;
+  color: #edf6ef;
+}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, .dark)
+ .faculty-enter-grades-page :is(.faculty-grade-faculty,.faculty-grade-class-select,.faculty-grade-class-card,.faculty-gradebook,.faculty-grade-workflow-section,.faculty-grade-loading,.faculty-grade-error,.faculty-grade-empty) {
+  color: #edf6ef;
+  border-color: #344c3c;
+  background: #1d2922;
+  box-shadow: 0 7px 22px rgba(0,0,0,.16);
+}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, .dark)
+ .faculty-enter-grades-page :is(.faculty-grade-subject,.faculty-grade-class-details > div,.faculty-gradebook-header,.faculty-gradebook-table-meta,.faculty-grade-workflow-section > header,.faculty-grade-workflow article) {
+  color: #deeee2;
+  border-color: #344c3c;
+  background: #202e25;
+}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, .dark)
+ .faculty-enter-grades-page .faculty-grade-summary {
+  border-color: #344c3c;
+  background: rgba(18,30,22,.72);
+}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, .dark)
+ .faculty-enter-grades-page .faculty-grade-summary-card { background: #21392b; border-color: #3b5944; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, .dark)
+ .faculty-enter-grades-page .faculty-grade-summary-card--empty { background: #26332a; border-color: #465349; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, .dark)
+ .faculty-enter-grades-page .faculty-grade-summary-card--draft { background: #202d41; border-color: #354964; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, .dark)
+ .faculty-enter-grades-page .faculty-grade-summary-card--submitted { background: #30263c; border-color: #534265; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, .dark)
+ .faculty-enter-grades-page .faculty-grade-summary-card--returned { background: #372f20; border-color: #665338; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, .dark)
+ .faculty-enter-grades-page :is(.faculty-grade-summary-card strong,.faculty-grade-summary-card small,.faculty-grade-faculty__copy strong,.faculty-grade-class-select__heading strong,.faculty-grade-subject strong,.faculty-grade-class-details strong,.faculty-gradebook-header h2,.faculty-grade-table td,.faculty-grade-workflow-section h2,.faculty-grade-workflow strong,.faculty-grade-loading strong) {
+  color: #edf6ef;
+}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, .dark)
+ .faculty-enter-grades-page :is(.faculty-gradebook-header p,.faculty-grade-summary-card > div > span,.faculty-grade-class-details p,.faculty-grade-subject p,.faculty-grade-workflow p,.faculty-grade-faculty__copy span,.faculty-grade-faculty__copy small) {
+  color: #a9c0af;
+}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, .dark)
+ .faculty-enter-grades-page :is(.faculty-grade-table,.faculty-grade-table td,.faculty-grade-table th) {
+  color: #dcece1;
+  border-color: #344c3c;
+  background: #1d2922;
+}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, .dark)
+ .faculty-enter-grades-page .faculty-grade-table thead th { background: #25372b; color: #bdd4c2; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, .dark)
+ .faculty-enter-grades-page .faculty-grade-table tbody tr:hover { background: #273e2e; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, .dark)
+ .faculty-enter-grades-page :is(.faculty-grade-summary-card > div > span,.faculty-gradebook-table-meta,.faculty-grade-status,.faculty-grade-review,.faculty-grade-no-review,.faculty-grade-locked) {
+  color: #c5d6c9;
+}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, .dark)
+ .faculty-enter-grades-page :is(.faculty-assigned-class-search__input input,.faculty-gradebook-search input,.faculty-gradebook-filter select,.faculty-grade-input,.faculty-grade-table select,.faculty-grade-table textarea,.faculty-inc-modal__form input,.faculty-inc-modal__remarks textarea) {
+  color: #e6f3e9;
+  background: #17231b;
+  border-color: #415d48;
+}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, .dark)
+ .faculty-enter-grades-page :is(input,textarea)::placeholder { color: #93ad9b; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, .dark)
+ .faculty-enter-grades-page .faculty-assigned-class-suggestions {
+  background: #1d2922;
+  border-color: #3b5542;
+}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, .dark)
+ .faculty-enter-grades-page .faculty-assigned-class-suggestion {
+  color: #e6f3e9;
+}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, .dark)
+ .faculty-enter-grades-page .faculty-assigned-class-suggestion:hover,
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, .dark)
+ .faculty-enter-grades-page .faculty-assigned-class-suggestion.is-selected { background: #294333; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, .dark)
+ .faculty-enter-grades-page .faculty-assigned-class-suggestion strong { color: #e6f3e9; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, .dark)
+ .faculty-enter-grades-page .faculty-inc-modal {
+  border-color: #3e5945;
+  background: #1d2922;
+  color: #e9f5ec;
+  box-shadow: 0 25px 65px rgba(0,0,0,.45);
+}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, .dark)
+ .faculty-enter-grades-page :is(.faculty-inc-modal__student > div,.faculty-inc-modal__preview,.faculty-inc-modal__notice,.faculty-inc-modal__footer) {
+  border-color: #395540;
+  color: #d5e9dc;
+  background: #24382b;
+}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, .dark)
+ .faculty-enter-grades-page :is(.faculty-inc-modal__student strong,.faculty-inc-modal__preview strong,.faculty-inc-modal__form label > span,.faculty-inc-modal__remarks > span) {
+  color: #e9f5ec;
+}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, .dark)
+ .faculty-enter-grades-page :is(.faculty-inc-modal__student small,.faculty-inc-modal__student span,.faculty-inc-modal__preview small,.faculty-inc-modal__notice p,.faculty-inc-modal__remarks small) {
+  color: #b3c9b9;
+}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, .dark)
+ .faculty-enter-grades-page .faculty-inc-modal__cancel {
+  border-color: #45614d;
+  color: #e2f0e6;
+  background: #293c2e;
+}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, .dark)
+ .faculty-enter-grades-page .faculty-inc-modal__submit { color: #fff; }
+
+@media (max-width: 1300px) {
+  .faculty-enter-grades-page .faculty-grade-summary { grid-template-columns: repeat(3,minmax(0,1fr)); }
+}
+@media (max-width: 760px) {
+  html body .dashboard-wrapper .dashboard-main .dashboard-content > .faculty-enter-grades-page { padding: 18px 14px 30px; }
+  .faculty-enter-grades-page .faculty-grade-header { padding: 22px 20px; min-height: auto; }
+  .faculty-enter-grades-page .faculty-grade-summary { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .faculty-enter-grades-page .faculty-gradebook-header { flex-direction: column; }
+  .faculty-enter-grades-page .faculty-gradebook-tools { width: 100%; flex: none; }
+  .faculty-enter-grades-page .faculty-inc-modal-backdrop { align-items: flex-start; padding: 12px; }
+  .faculty-enter-grades-page .faculty-inc-modal { max-height: calc(100dvh - 24px); }
+}
+@media (max-width: 520px) {
+  html body .dashboard-wrapper .dashboard-main .dashboard-content > .faculty-enter-grades-page { padding: 14px 12px 27px; }
+  .faculty-enter-grades-page .faculty-grade-header { border-radius: 17px; }
+  .faculty-enter-grades-page .faculty-grade-summary { grid-template-columns: 1fr; padding: 9px; }
+  .faculty-enter-grades-page .faculty-grade-summary-card { min-height: 90px; }
+  .faculty-enter-grades-page .faculty-gradebook-tools { grid-template-columns: 1fr; }
+  .faculty-enter-grades-page .faculty-inc-modal__footer { flex-direction: column-reverse; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .faculty-enter-grades-page .faculty-inc-modal,
+  .faculty-enter-grades-page :is(button, input, textarea, select) {
+    animation: none !important;
+    transition-duration: 0.01ms !important;
+  }
+}
