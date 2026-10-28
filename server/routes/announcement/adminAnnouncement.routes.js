@@ -68,6 +68,37 @@ function normalizeAttachmentIds(attachments) {
   ];
 }
 
+async function canUseAttachments(
+  connection,
+  actorUserId,
+  attachmentIds,
+  announcementId = null,
+) {
+  if (attachmentIds.length === 0) {
+    return true;
+  }
+
+  const placeholders = attachmentIds.map(() => "?").join(", ");
+
+  const [rows] = await connection.execute(
+    `
+    SELECT DISTINCT f.file_id
+    FROM files f
+    LEFT JOIN announcement_attachments aa
+      ON aa.file_id = f.file_id
+      AND aa.announcement_id = ?
+    WHERE f.file_id IN (${placeholders})
+      AND (
+        f.uploaded_by = ?
+        OR aa.attachment_id IS NOT NULL
+      )
+    `,
+    [announcementId, ...attachmentIds, actorUserId],
+  );
+
+  return rows.length === attachmentIds.length;
+}
+
 // ======================================================
 // GET ALL ANNOUNCEMENTS FOR MANAGEMENT
 //
@@ -409,6 +440,15 @@ router.post("/", async (req, res) => {
 
     await connection.beginTransaction();
 
+    if (!(await canUseAttachments(connection, actorUserId, attachmentIds))) {
+      await connection.rollback();
+
+      return res.status(403).json({
+        success: false,
+        message: "You can only attach files you uploaded.",
+      });
+    }
+
     // ====================================================
     // CREATE ANNOUNCEMENT
     // ====================================================
@@ -654,6 +694,22 @@ router.put("/:id", async (req, res) => {
     // ====================================================
 
     await connection.beginTransaction();
+
+    if (
+      !(await canUseAttachments(
+        connection,
+        actorUserId,
+        attachmentIds,
+        announcementId,
+      ))
+    ) {
+      await connection.rollback();
+
+      return res.status(403).json({
+        success: false,
+        message: "Unauthorized announcement attachment.",
+      });
+    }
 
     // ====================================================
     // UPDATE ANNOUNCEMENT

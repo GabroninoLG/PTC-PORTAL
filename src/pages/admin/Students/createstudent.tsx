@@ -23,8 +23,6 @@ const API_BASE_URL = apiUrl("/api/students");
 // STATIC OPTIONS
 // =====================================================
 
-const COURSES = ["BSIT", "BSCS", "BSA"] as const;
-
 const YEAR_LEVELS = ["1st Year", "2nd Year", "3rd Year", "4th Year"] as const;
 
 const SEMESTERS = [
@@ -47,6 +45,20 @@ const GENDERS = ["Male", "Female"] as const;
 // =====================================================
 // TYPES
 // =====================================================
+
+type CourseOption = {
+  course_id: number;
+  course_code: string;
+  course_name: string;
+  total_years: number;
+};
+
+type CoursesResponse = {
+  success: boolean;
+  courses?: CourseOption[];
+  message?: string;
+  error?: string;
+};
 
 type CurriculumOption = {
   curriculum_id: number;
@@ -231,6 +243,16 @@ export default function CreateStudent() {
   } | null>(null);
 
   // ===================================================
+  // COURSES FROM REGISTRAR COURSE MANAGEMENT
+  // ===================================================
+
+  const [courses, setCourses] = useState<CourseOption[]>([]);
+
+  const [isLoadingCourses, setIsLoadingCourses] = useState(true);
+
+  const [courseError, setCourseError] = useState<string | null>(null);
+
+  // ===================================================
   // CURRICULA
   // ===================================================
 
@@ -325,6 +347,76 @@ export default function CreateStudent() {
 
     return true;
   };
+
+  // ===================================================
+  // LOAD COURSES FROM REGISTRAR-MANAGED DATABASE
+  // ===================================================
+
+  useEffect(() => {
+    if (!authenticated || userRole !== "Admin") {
+      return;
+    }
+
+    const controller = new AbortController();
+
+    const loadCourses = async () => {
+      setIsLoadingCourses(true);
+      setCourseError(null);
+
+      try {
+        const response = await authService.authFetch(
+          `${API_BASE_URL}/courses`,
+          {
+            method: "GET",
+            headers: {
+              Accept: "application/json",
+            },
+            signal: controller.signal,
+          },
+        );
+
+        if (response.status === 401) {
+          authService.logout();
+          navigate("/login", { replace: true });
+          return;
+        }
+
+        if (response.status === 403) {
+          throw new Error("Admin access is required.");
+        }
+
+        const data: CoursesResponse = await response.json();
+
+        if (!response.ok || !data.success || !Array.isArray(data.courses)) {
+          throw new Error(
+            data.message || data.error || "Failed to load courses.",
+          );
+        }
+
+        if (!controller.signal.aborted) {
+          setCourses(data.courses);
+        }
+      } catch (error) {
+        if (controller.signal.aborted) return;
+
+        setCourses([]);
+
+        setCourseError(
+          error instanceof Error ? error.message : "Failed to load courses.",
+        );
+      } finally {
+        if (!controller.signal.aborted) {
+          setIsLoadingCourses(false);
+        }
+      }
+    };
+
+    void loadCourses();
+
+    return () => {
+      controller.abort();
+    };
+  }, [authenticated, userRole, navigate]);
 
   // ===================================================
   // LOAD CURRICULA WHEN COURSE CHANGES
@@ -566,6 +658,18 @@ export default function CreateStudent() {
       !formState.province.trim()
     ) {
       setErrorMessage("Please fill in all required fields.");
+
+      return;
+    }
+
+    if (
+      isLoadingCourses ||
+      courseError ||
+      !courses.some((course) => course.course_code === formState.course)
+    ) {
+      setErrorMessage(
+        "Please select a valid course from Registrar Course Management.",
+      );
 
       return;
     }
@@ -990,16 +1094,35 @@ Password: ${createdStudent.temporaryPassword}`,
               name="course"
               value={formState.course}
               onChange={handleInputChange}
+              disabled={
+                isSaving ||
+                isLoadingCourses ||
+                !!courseError ||
+                courses.length === 0
+              }
               required
             >
-              <option value="">Select course</option>
+              <option value="">
+                {isLoadingCourses
+                  ? "Loading courses..."
+                  : courseError
+                    ? "Unable to load courses"
+                    : courses.length === 0
+                      ? "No courses available"
+                      : "Select course"}
+              </option>
 
-              {COURSES.map((course) => (
-                <option key={course} value={course}>
-                  {course}
+              {courses.map((course) => (
+                <option key={course.course_id} value={course.course_code}>
+                  {course.course_code} - {course.course_name}
                 </option>
               ))}
             </select>
+            {courseError && (
+              <small className="admin-manage-students__error" role="alert">
+                {courseError}
+              </small>
+            )}
           </label>
 
           {/* =================================================

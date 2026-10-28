@@ -97,6 +97,7 @@ export default async function authenticate(req, res, next) {
         u.role_id,
         u.is_active,
         u.is_verified,
+        u.is_archived,
         r.role_name
       FROM users u
       INNER JOIN roles r
@@ -119,6 +120,13 @@ export default async function authenticate(req, res, next) {
     }
 
     const user = rows[0];
+
+    if (Number(user.is_archived) === 1) {
+      return res.status(403).json({
+        success: false,
+        message: "This account has been archived.",
+      });
+    }
 
     // ==========================================
     // 7. Account must be active

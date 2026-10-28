@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import {
   AlertCircle,
   BookOpenCheck,
-  Building2,
   CalendarDays,
   CheckCircle2,
   ChevronRight,
@@ -149,18 +148,6 @@ function formatScheduleDays(value: string | null) {
     })
     .filter(Boolean)
     .join(", ");
-}
-
-function getRoomLabel(room: FacultyClass["room"]) {
-  if (!room) {
-    return "Not assigned";
-  }
-
-  if (room.room_code && room.room_name) {
-    return `${room.room_code} · ${room.room_name}`;
-  }
-
-  return room.room_code || room.room_name || "Not assigned";
 }
 
 export default function MyClasses() {
@@ -686,9 +673,6 @@ export default function MyClasses() {
                     <th>Section</th>
                     <th>Academic Period</th>
                     <th>Schedule</th>
-                    <th>Room</th>
-                    <th>Official Students</th>
-                    <th>Status</th>
                     <th>Action</th>
                   </tr>
                 </thead>
@@ -741,28 +725,6 @@ export default function MyClasses() {
                             {item.schedule.time || "Not scheduled"}
                           </small>
                         </div>
-                      </td>
-
-                      <td>
-                        <div className="faculty-class-room">
-                          <Building2 size={14} />
-                          <span>{getRoomLabel(item.room)}</span>
-                        </div>
-                      </td>
-
-                      <td>
-                        <div className="faculty-class-students">
-                          <strong>{item.capacity.official_students}</strong>
-                          <small>of {item.capacity.max_students}</small>
-                        </div>
-                      </td>
-
-                      <td>
-                        <span
-                          className={`faculty-class-status ${item.offering_status.toLowerCase()}`}
-                        >
-                          {item.offering_status}
-                        </span>
                       </td>
 
                       <td>

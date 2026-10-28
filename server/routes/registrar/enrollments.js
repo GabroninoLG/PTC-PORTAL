@@ -11168,6 +11168,7 @@ router.get("/:id/validate", async (req, res) => {
 
     const errors = [];
     const warnings = [];
+
     // =================================================
     // 6. ENROLLMENT STATUS
     //
@@ -11196,6 +11197,48 @@ router.get("/:id/validate", async (req, res) => {
 
         message: `Enrollment cannot be approved while its current status is "${enrollmentStatus}".`,
       });
+    }
+
+    // =================================================
+    // 6A. CHECK FOR CONFLICTING ACTIVE ENROLLMENTS
+    // =================================================
+
+    if (isPending) {
+      const [conflictingEnrollments] = await connection.execute(
+        `
+            SELECT
+                enrollment_id,
+                enrollment_status
+
+            FROM enrollments
+
+            WHERE student_id = ?
+
+              AND academic_year_id = ?
+
+              AND semester_id = ?
+
+              AND enrollment_id <> ?
+
+              AND enrollment_status IN (
+                  'Draft',
+                  'Pending',
+                  'Approved'
+              )
+
+            LIMIT 1
+          `,
+        [studentId, academicYearId, semesterId, enrollmentId],
+      );
+
+      if (conflictingEnrollments.length > 0) {
+        errors.push({
+          code: "CONFLICTING_ACTIVE_ENROLLMENT",
+
+          message:
+            "Another active enrollment exists for this student and term. Resolve it before approval.",
+        });
+      }
     }
 
     // =================================================
@@ -12603,6 +12646,42 @@ router.post("/:id/approve", async (req, res) => {
     const academicYearId = Number(enrollment.academic_year_id);
 
     const semesterId = Number(enrollment.semester_id);
+
+    // =================================================
+    // 6A. CHECK FOR ANOTHER ACTIVE ENROLLMENT
+    // =================================================
+
+    const [conflictingEnrollments] = await connection.execute(
+      `
+          SELECT
+              enrollment_id,
+              enrollment_status
+          FROM enrollments
+          WHERE student_id = ?
+            AND academic_year_id = ?
+            AND semester_id = ?
+            AND enrollment_id <> ?
+            AND enrollment_status IN (
+                'Draft',
+                'Pending',
+                'Approved'
+            )
+          LIMIT 1
+        `,
+      [studentId, academicYearId, semesterId, enrollmentId],
+    );
+
+    if (conflictingEnrollments.length > 0) {
+      await connection.rollback();
+      transactionActive = false;
+
+      return res.status(409).json({
+        success: false,
+        code: "CONFLICTING_ACTIVE_ENROLLMENT",
+        message:
+          "Another active enrollment exists for this student and term. Resolve it before approval.",
+      });
+    }
 
     // =================================================
     // 7. VALID ACTIVE CURRICULUM

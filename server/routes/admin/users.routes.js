@@ -30,7 +30,6 @@ function normalizeUsername(value) {
   return normalizeText(value).toUpperCase();
 }
 
-
 const STAFF_GENDERS = new Set(["Male", "Female"]);
 const EMPLOYMENT_STATUSES = new Set(["Regular", "Part-Time", "Contractual"]);
 
@@ -304,7 +303,6 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-
 /*
 |--------------------------------------------------------------------------
 | CREATE USER
@@ -572,7 +570,6 @@ router.post("/", async (req, res) => {
   }
 });
 
-
 /*
 |--------------------------------------------------------------------------
 | UPDATE USER
@@ -725,16 +722,44 @@ router.put("/:id", async (req, res) => {
     connection = await db.getConnection();
     await connection.beginTransaction();
 
+    const [lockedUsers] = await connection.execute(
+      `SELECT is_archived
+   FROM users
+   WHERE user_id = ?
+   LIMIT 1
+   FOR UPDATE`,
+      [userId],
+    );
+
+    if (lockedUsers.length === 0) {
+      await connection.rollback();
+
+      return res.status(404).json({
+        success: false,
+        error: "User not found.",
+      });
+    }
+
+    if (Number(lockedUsers[0].is_archived) === 1) {
+      await connection.rollback();
+
+      return res.status(409).json({
+        success: false,
+        error: "Archived accounts cannot be edited.",
+      });
+    }
+
     await connection.execute(
       `
-      UPDATE users
-      SET
-        username = ?,
-        email = ?,
-        role_id = ?,
-        is_active = ?
-      WHERE user_id = ?
-      `,
+  UPDATE users
+  SET
+    username = ?,
+    email = ?,
+    role_id = ?,
+    is_active = ?
+  WHERE user_id = ?
+    AND is_archived = 0
+  `,
       [username, email, roleId, isActive, userId],
     );
 
@@ -927,7 +952,6 @@ router.put("/:id", async (req, res) => {
   }
 });
 
-
 /*
 |--------------------------------------------------------------------------
 | ACTIVATE / DEACTIVATE
@@ -952,22 +976,57 @@ router.patch("/:id/status", async (req, res) => {
     });
   }
 
+  let connection;
+
   try {
-    const [result] = await db.execute(
+    connection = await db.getConnection();
+    await connection.beginTransaction();
+
+    // Step 1: Check and lock the account.
+    const [accountRows] = await connection.execute(
       `
-      UPDATE users
-      SET is_active = ?
+      SELECT user_id, is_archived
+      FROM users
       WHERE user_id = ?
+      LIMIT 1
+      FOR UPDATE
       `,
-      [is_active, userId],
+      [userId],
     );
 
-    if (result.affectedRows === 0) {
+    // Step 2: Ensure the account exists.
+    if (accountRows.length === 0) {
+      await connection.rollback();
+
       return res.status(404).json({
         success: false,
         error: "User not found.",
       });
     }
+
+    // Step 3: Reject archived accounts.
+    if (Number(accountRows[0].is_archived) === 1) {
+      await connection.rollback();
+
+      return res.status(409).json({
+        success: false,
+        error: "Archived accounts cannot have their status changed.",
+      });
+    }
+
+    // Step 4: Update a nonarchived account.
+    await connection.execute(
+      `
+      UPDATE users
+      SET is_active = ?
+      WHERE user_id = ?
+        AND is_archived = 0
+      `,
+      [is_active, userId],
+    );
+
+    // Step 5: Save changes.
+    await connection.commit();
 
     return res.json({
       success: true,
@@ -976,12 +1035,24 @@ router.patch("/:id/status", async (req, res) => {
         : "User deactivated successfully.",
     });
   } catch (err) {
+    if (connection) {
+      try {
+        await connection.rollback();
+      } catch (rollbackError) {
+        console.error("UPDATE STATUS ROLLBACK ERROR:", rollbackError);
+      }
+    }
+
     console.error("UPDATE USER STATUS ERROR:", err);
 
     return res.status(500).json({
       success: false,
       error: "Failed to update status.",
     });
+  } finally {
+    if (connection) {
+      connection.release();
+    }
   }
 });
 
@@ -1015,40 +1086,86 @@ router.patch("/:id/reset-password", async (req, res) => {
       error: "Password must be at least 8 characters.",
     });
   }
-
+  let connection;
   try {
     const hash = await bcrypt.hash(password, 10);
 
-    const [result] = await db.execute(
-      `
-      UPDATE users
-      SET password_hash = ?
-      WHERE user_id = ?
-      `,
-      [hash, userId],
+    connection = await db.getConnection();
+    await connection.beginTransaction();
+
+    // Lock and check the target account.
+    const [accountRows] = await connection.execute(
+      `SELECT is_archived
+     FROM users
+     WHERE user_id = ?
+     LIMIT 1
+     FOR UPDATE`,
+      [userId],
     );
 
-    if (result.affectedRows === 0) {
+    if (accountRows.length === 0) {
+      await connection.rollback();
+
       return res.status(404).json({
         success: false,
         error: "User not found.",
       });
     }
 
+    if (Number(accountRows[0].is_archived) === 1) {
+      await connection.rollback();
+
+      return res.status(409).json({
+        success: false,
+        error: "Archived accounts cannot have their passwords reset.",
+      });
+    }
+
+    // Reset only nonarchived accounts.
+    const [result] = await connection.execute(
+      `UPDATE users
+     SET password_hash = ?
+     WHERE user_id = ?
+       AND is_archived = 0`,
+      [hash, userId],
+    );
+
+    if (result.affectedRows !== 1) {
+      await connection.rollback();
+
+      return res.status(409).json({
+        success: false,
+        error: "Account status changed. Password not reset.",
+      });
+    }
+
+    await connection.commit();
+
     return res.json({
       success: true,
       message: "Password reset successfully.",
     });
   } catch (err) {
+    if (connection) {
+      try {
+        await connection.rollback();
+      } catch (rollbackError) {
+        console.error("RESET PASSWORD ROLLBACK ERROR:", rollbackError);
+      }
+    }
+
     console.error("RESET PASSWORD ERROR:", err);
 
     return res.status(500).json({
       success: false,
       error: "Failed to reset password.",
     });
+  } finally {
+    if (connection) {
+      connection.release();
+    }
   }
 });
-
 /*
 |--------------------------------------------------------------------------
 | ARCHIVE USER

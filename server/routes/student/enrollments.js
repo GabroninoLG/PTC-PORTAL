@@ -980,9 +980,23 @@ router.get("/current", async (req, res) => {
 
             AND e.semester_id = ?
 
-          ORDER BY
-              e.created_at DESC,
-              e.enrollment_id DESC
+         
+ORDER BY
+    CASE
+        WHEN e.enrollment_status IN (
+            'Approved',
+            'Pending'
+        ) THEN 0
+
+        WHEN e.enrollment_status = 'Draft'
+        THEN 1
+
+        ELSE 2
+    END ASC,
+
+    e.created_at DESC,
+    e.enrollment_id DESC
+
 
           LIMIT 1
         `,
@@ -2146,9 +2160,23 @@ ORDER BY
           AND e.academic_year_id = ?
           AND e.semester_id = ?
 
-        ORDER BY
-            e.created_at DESC,
-            e.enrollment_id DESC
+       
+ORDER BY
+    CASE
+        WHEN e.enrollment_status IN (
+            'Approved',
+            'Pending'
+        ) THEN 0
+
+        WHEN e.enrollment_status = 'Draft'
+        THEN 1
+
+        ELSE 2
+    END ASC,
+
+    e.created_at DESC,
+    e.enrollment_id DESC
+
 
         LIMIT 1
       `,
@@ -3436,9 +3464,23 @@ router.post("/prepare", async (req, res) => {
 
             AND semester_id = ?
 
-          ORDER BY
-              created_at DESC,
-              enrollment_id DESC
+        
+ORDER BY
+    CASE
+        WHEN enrollment_status IN (
+            'Approved',
+            'Pending'
+        ) THEN 0
+
+        WHEN enrollment_status = 'Draft'
+        THEN 1
+
+        ELSE 2
+    END ASC,
+
+    created_at DESC,
+    enrollment_id DESC
+
 
           LIMIT 1
 
@@ -4415,6 +4457,61 @@ router.post("/:enrollment_id/submit", async (req, res) => {
 
           enrollment_status: enrollmentStatus,
         },
+      });
+    }
+
+    // =================================================
+    // 6A. PREVENT DUPLICATE ACTIVE ENROLLMENTS
+    // =================================================
+
+    const [conflictingEnrollments] = await connection.execute(
+      `
+          SELECT
+              enrollment_id,
+              enrollment_status
+
+          FROM enrollments
+
+          WHERE student_id = ?
+
+            AND academic_year_id = ?
+
+            AND semester_id = ?
+
+            AND enrollment_id <> ?
+
+            AND enrollment_status IN (
+                'Draft',
+                'Pending',
+                'Approved'
+            )
+
+          ORDER BY enrollment_id DESC
+
+          LIMIT 1
+
+          FOR UPDATE
+        `,
+      [
+        studentId,
+        Number(enrollment.academic_year_id),
+        Number(enrollment.semester_id),
+        enrollmentId,
+      ],
+    );
+
+    if (conflictingEnrollments.length > 0) {
+      await connection.rollback();
+
+      transactionActive = false;
+
+      return res.status(409).json({
+        success: false,
+
+        code: "CONFLICTING_ACTIVE_ENROLLMENT",
+
+        message:
+          "Another active enrollment exists for this term. Contact the Registrar to resolve the duplicate records.",
       });
     }
 

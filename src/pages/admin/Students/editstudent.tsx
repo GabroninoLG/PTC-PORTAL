@@ -11,6 +11,7 @@ import {
   BookOpen,
   CalendarDays,
   CircleAlert,
+  CheckCircle2,
   GraduationCap,
   LoaderCircle,
   Mail,
@@ -26,7 +27,32 @@ import "../../../styles/AdminEditStudent.css";
 
 const API_BASE_URL = apiUrl("/api/students");
 
-const COURSES = ["BSIT", "BSCS", "BSA"] as const;
+type CourseOption = {
+  course_id: number;
+  course_code: string;
+  course_name: string;
+  total_years: number;
+};
+
+type CoursesResponse = {
+  success: boolean;
+  courses?: CourseOption[];
+  message?: string;
+  error?: string;
+};
+
+type CurriculumOption = {
+  curriculum_id: number;
+  curriculum_name: string;
+  effective_year: number | null;
+};
+
+type CurriculaResponse = {
+  success: boolean;
+  curricula?: CurriculumOption[];
+  message?: string;
+  error?: string;
+};
 
 const YEAR_LEVELS = ["1st Year", "2nd Year", "3rd Year", "4th Year"] as const;
 
@@ -64,6 +90,7 @@ interface StudentResponse {
   province?: string;
   zipCode?: string;
   course?: string;
+  curriculumId?: number | string;
   yearLevel?: string;
   section?: string;
   semesterId?: number | string;
@@ -124,6 +151,7 @@ const emptyForm = {
   province: "",
   zipCode: "",
   course: "",
+  curriculumId: "",
   yearLevel: "1st Year",
   section: "",
   semesterId: "1",
@@ -145,6 +173,14 @@ export default function EditStudent() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [showSuccessDialog, setShowSuccessDialog] = useState(false);
+
+  const [courses, setCourses] = useState<CourseOption[]>([]);
+  const [isLoadingCourses, setIsLoadingCourses] = useState(true);
+  const [courseError, setCourseError] = useState<string | null>(null);
+  const [curricula, setCurricula] = useState<CurriculumOption[]>([]);
+  const [isLoadingCurricula, setIsLoadingCurricula] = useState(false);
+  const [curriculumError, setCurriculumError] = useState<string | null>(null);
 
   const sectionOptions = useMemo(
     () => generateSectionOptions(formState.course, formState.yearLevel),
@@ -173,6 +209,56 @@ export default function EditStudent() {
         });
       }
     }
+  }, [authenticated, userRole, navigate]);
+
+  // Registrar-managed course options for Admin Edit Student.
+  useEffect(() => {
+    if (!authenticated || userRole !== "Admin") return;
+
+    const controller = new AbortController();
+
+    const loadCourses = async () => {
+      setIsLoadingCourses(true);
+      setCourseError(null);
+
+      try {
+        const response = await authService.authFetch(
+          `${API_BASE_URL}/courses`,
+          {
+            method: "GET",
+            headers: { Accept: "application/json" },
+            signal: controller.signal,
+          },
+        );
+
+        if (response.status === 401) {
+          authService.logout();
+          navigate("/login", { replace: true });
+          return;
+        }
+
+        const data: CoursesResponse = await response.json();
+
+        if (!response.ok || !data.success || !Array.isArray(data.courses)) {
+          throw new Error(
+            data.error || data.message || "Failed to load courses.",
+          );
+        }
+
+        if (!controller.signal.aborted) setCourses(data.courses);
+      } catch (error) {
+        if (controller.signal.aborted) return;
+        setCourses([]);
+        setCourseError(
+          error instanceof Error ? error.message : "Failed to load courses.",
+        );
+      } finally {
+        if (!controller.signal.aborted) setIsLoadingCourses(false);
+      }
+    };
+
+    void loadCourses();
+    return () => controller.abort();
   }, [authenticated, userRole, navigate]);
 
   useEffect(() => {
@@ -278,6 +364,7 @@ export default function EditStudent() {
           province: student.province || "",
           zipCode: student.zipCode || "",
           course: student.course || "",
+          curriculumId: String(student.curriculumId ?? ""),
           yearLevel: student.yearLevel || "1st Year",
           section: student.section || "",
           semesterId: student.semesterId ? String(student.semesterId) : "1",
@@ -314,6 +401,59 @@ export default function EditStudent() {
     };
   }, [id, authenticated, userRole, navigate]);
 
+  // Active curricula belong to the selected Registrar-managed course.
+  useEffect(() => {
+    if (!authenticated || userRole !== "Admin") return;
+
+    if (!formState.course) {
+      setCurricula([]);
+      setCurriculumError(null);
+      setIsLoadingCurricula(false);
+      return;
+    }
+
+    const controller = new AbortController();
+    setCurricula([]);
+    setCurriculumError(null);
+
+    const loadCurricula = async () => {
+      setIsLoadingCurricula(true);
+      try {
+        const url = `${API_BASE_URL}/curricula?course=${encodeURIComponent(formState.course)}`;
+        const response = await authService.authFetch(url, {
+          method: "GET",
+          headers: { Accept: "application/json" },
+          signal: controller.signal,
+        });
+
+        if (response.status === 401) {
+          authService.logout();
+          navigate("/login", { replace: true });
+          return;
+        }
+
+        const data: CurriculaResponse = await response.json();
+        if (!response.ok || !data.success || !Array.isArray(data.curricula)) {
+          throw new Error(
+            data.error || data.message || "Failed to load curricula.",
+          );
+        }
+        if (!controller.signal.aborted) setCurricula(data.curricula);
+      } catch (error) {
+        if (controller.signal.aborted) return;
+        setCurricula([]);
+        setCurriculumError(
+          error instanceof Error ? error.message : "Failed to load curricula.",
+        );
+      } finally {
+        if (!controller.signal.aborted) setIsLoadingCurricula(false);
+      }
+    };
+
+    void loadCurricula();
+    return () => controller.abort();
+  }, [formState.course, authenticated, userRole, navigate]);
+
   const handleInputChange = (
     event: ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
@@ -324,6 +464,11 @@ export default function EditStudent() {
         ...current,
         [name]: value,
       };
+
+      if (name === "course") {
+        updated.curriculumId = "";
+        updated.section = "";
+      }
 
       if (name === "course" || name === "yearLevel") {
         const validSections = generateSectionOptions(
@@ -377,6 +522,29 @@ export default function EditStudent() {
       return;
     }
 
+    if (
+      isLoadingCourses ||
+      courseError ||
+      !courses.some((course) => course.course_code === formState.course)
+    ) {
+      setErrorMessage(
+        "Select a course available in Registrar Course Management.",
+      );
+      return;
+    }
+
+    if (
+      isLoadingCurricula ||
+      curriculumError ||
+      !curricula.some(
+        (curriculum) =>
+          String(curriculum.curriculum_id) === formState.curriculumId,
+      )
+    ) {
+      setErrorMessage("Select an active curriculum for the chosen course.");
+      return;
+    }
+
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     if (!emailPattern.test(formState.email.trim())) {
@@ -414,12 +582,11 @@ export default function EditStudent() {
         province: formState.province.trim(),
         zipCode: formState.zipCode.trim(),
         course: formState.course,
+        curriculumId: Number(formState.curriculumId),
         yearLevel: formState.yearLevel,
         section: formState.section,
         semesterId: Number(formState.semesterId),
       };
-
-      console.log("UPDATE ADMIN STUDENT:", studentNumber, payload);
 
       const response = await authService.authFetch(
         `${API_BASE_URL}/${encodeURIComponent(studentNumber)}`,
@@ -472,9 +639,8 @@ export default function EditStudent() {
         );
       }
 
-      window.alert(data?.message || "Student updated successfully.");
-
-      navigate(`/admin/students/profile/${encodeURIComponent(studentNumber)}`);
+      // Show portal-styled confirmation instead of the browser's "localhost says" alert.
+      setShowSuccessDialog(true);
     } catch (error) {
       console.error("UPDATE ADMIN STUDENT ERROR:", error);
 
@@ -798,14 +964,92 @@ export default function EditStudent() {
                       name="course"
                       value={formState.course}
                       onChange={handleInputChange}
-                      disabled={isSaving}
+                      disabled={
+                        isSaving ||
+                        isLoadingCourses ||
+                        Boolean(courseError) ||
+                        courses.length === 0
+                      }
                       required
                     >
-                      <option value="">Select course</option>
+                      <option value="">
+                        {isLoadingCourses
+                          ? "Loading courses..."
+                          : courseError
+                            ? "Unable to load courses"
+                            : courses.length === 0
+                              ? "No courses available"
+                              : "Select course"}
+                      </option>
+                      {!isLoadingCourses &&
+                        formState.course &&
+                        !courses.some(
+                          (course) => course.course_code === formState.course,
+                        ) && (
+                          <option value={formState.course} disabled>
+                            {formState.course} (not available in Registrar
+                            courses)
+                          </option>
+                        )}
+                      {courses.map((course) => (
+                        <option
+                          key={course.course_id}
+                          value={course.course_code}
+                        >
+                          {course.course_code} — {course.course_name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </label>
 
-                      {COURSES.map((course) => (
-                        <option key={course} value={course}>
-                          {course}
+                <label className="admin-edit-student__field">
+                  <span>
+                    Curriculum <em>*</em>
+                  </span>
+                  <div className="admin-edit-student__select-with-icon">
+                    <BookOpen size={15} aria-hidden="true" />
+                    <select
+                      name="curriculumId"
+                      value={formState.curriculumId}
+                      onChange={handleInputChange}
+                      disabled={
+                        isSaving ||
+                        isLoadingCurricula ||
+                        Boolean(curriculumError) ||
+                        !formState.course ||
+                        curricula.length === 0
+                      }
+                      required
+                    >
+                      <option value="">
+                        {isLoadingCurricula
+                          ? "Loading curricula..."
+                          : curriculumError
+                            ? "Unable to load curricula"
+                            : !formState.course
+                              ? "Select course first"
+                              : curricula.length === 0
+                                ? "No active curricula"
+                                : "Select curriculum"}
+                      </option>
+                      {!isLoadingCurricula &&
+                        formState.curriculumId &&
+                        !curricula.some(
+                          (curriculum) =>
+                            String(curriculum.curriculum_id) ===
+                            formState.curriculumId,
+                        ) && (
+                          <option value={formState.curriculumId} disabled>
+                            Previously assigned curriculum (no longer active)
+                          </option>
+                        )}
+                      {curricula.map((curriculum) => (
+                        <option
+                          key={curriculum.curriculum_id}
+                          value={curriculum.curriculum_id}
+                        >
+                          {curriculum.curriculum_name}
                         </option>
                       ))}
                     </select>
@@ -886,6 +1130,91 @@ export default function EditStudent() {
               </button>
             </footer>
           </form>
+        )}
+
+        {showSuccessDialog && (
+          <div
+            style={{
+              position: "fixed",
+              inset: 0,
+              zIndex: 2000,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: "16px",
+              background: "rgba(10, 28, 17, 0.58)",
+            }}
+          >
+            <div
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="edit-student-success-title"
+              aria-describedby="edit-student-success-description"
+              style={{
+                width: "min(420px, 100%)",
+                padding: "30px 26px 26px",
+                borderRadius: "18px",
+                border: "1px solid var(--aes-border, #dfe8e2)",
+                background: "var(--aes-surface, #ffffff)",
+                color: "var(--aes-text-950, #17201b)",
+                textAlign: "center",
+                boxShadow: "0 20px 65px rgba(0, 0, 0, 0.22)",
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  width: "64px",
+                  height: "64px",
+                  margin: "0 auto 16px",
+                  borderRadius: "50%",
+                  background: "var(--aes-green-100, #dcf5e6)",
+                  color: "var(--aes-green-700, #0f7a45)",
+                }}
+              >
+                <CheckCircle2 size={36} aria-hidden="true" />
+              </div>
+
+              <h2
+                id="edit-student-success-title"
+                style={{
+                  margin: "0 0 8px",
+                  fontSize: "21px",
+                  fontWeight: 750,
+                }}
+              >
+                Student Updated Successfully!
+              </h2>
+              <p
+                id="edit-student-success-description"
+                style={{
+                  margin: "0 0 22px",
+                  fontSize: "13px",
+                  lineHeight: 1.6,
+                  color: "var(--aes-text-600, #5e6b63)",
+                }}
+              >
+                The student information has been saved successfully. You can now
+                view the updated profile.
+              </p>
+
+              <button
+                type="button"
+                autoFocus
+                className="admin-edit-student__save"
+                style={{ width: "100%", minHeight: "43px", fontSize: "13px" }}
+                onClick={() =>
+                  navigate(
+                    `/admin/students/profile/${encodeURIComponent(studentNumber)}`,
+                  )
+                }
+              >
+                View Student Profile
+              </button>
+            </div>
+          </div>
         )}
       </main>
     </DashboardLayout>

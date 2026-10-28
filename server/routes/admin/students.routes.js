@@ -263,6 +263,41 @@ ORDER BY
 });
 
 // =====================================================
+// GET COURSES FOR ADMIN CREATE / EDIT STUDENT
+// GET /api/students/courses
+// =====================================================
+
+router.get("/courses", async (req, res) => {
+  try {
+    const [courses] = await db.execute(`
+      SELECT
+        c.course_id,
+        c.course_code,
+        c.course_name,
+        c.total_years
+      FROM courses c
+      INNER JOIN departments d
+        ON d.department_id = c.department_id
+      ORDER BY
+        c.course_code ASC,
+        c.course_id ASC
+    `);
+
+    return res.status(200).json({
+      success: true,
+      courses,
+    });
+  } catch (error) {
+    console.error("GET ADMIN COURSE OPTIONS ERROR:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to load courses.",
+    });
+  }
+});
+
+// =====================================================
 // GET ACTIVE CURRICULA BY COURSE
 //
 // GET /api/students/curricula?course=BSIT

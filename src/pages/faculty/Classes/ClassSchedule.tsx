@@ -10,7 +10,6 @@ import {
   Filter,
   GraduationCap,
   MapPin,
-  PencilLine,
   RefreshCw,
   Save,
   RotateCcw,
@@ -1013,14 +1012,6 @@ export default function ClassSchedule() {
                                 >
                                   {item.offering_status}
                                 </span>
-
-                                <button
-                                  type="button"
-                                  onClick={() => openScheduleEditor(item)}
-                                >
-                                  <PencilLine size={14} />
-                                  Edit Schedule
-                                </button>
 
                                 <button
                                   type="button"

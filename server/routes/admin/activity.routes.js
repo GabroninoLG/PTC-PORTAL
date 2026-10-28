@@ -79,23 +79,4 @@ router.get("/user/:id", async (req, res) => {
   }
 });
 
-// ==========================================
-// DELETE ALL LOGS (Optional)
-// ==========================================
-router.delete("/", async (req, res) => {
-  try {
-    await db.execute("DELETE FROM activity_logs");
-
-    res.json({
-      message: "Activity logs cleared successfully.",
-    });
-  } catch (err) {
-    console.error(err);
-
-    res.status(500).json({
-      error: "Failed to clear activity logs.",
-    });
-  }
-});
-
 export default router;
