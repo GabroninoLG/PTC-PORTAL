@@ -797,3 +797,141 @@
     transition-duration: 0.01ms !important;
   }
 }
+
+
+/* ==========================================================
+   REGISTRAR ACADEMIC / DEPARTMENT MODAL — DASHBOARD ALIGNMENT
+   Keeps the existing Add/Edit JSX and all form interactions.
+========================================================== */
+
+.registrar-department-modal__overlay {
+  background: rgba(6, 29, 17, .64);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  animation: none; /* No white or light page-entry flash. */
+}
+.registrar-department-modal {
+  max-height: min(90dvh, 780px);
+  overflow-y: auto;
+  border: 1px solid rgba(171, 227, 190, .52);
+  border-radius: 22px;
+  background: #fff;
+  box-shadow: 0 30px 85px rgba(4, 39, 22, .35);
+  animation: none;
+}
+.registrar-department-modal__header {
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 91% 18%, rgba(255, 255, 255, .14) 0 14%, transparent 14.5%),
+    linear-gradient(115deg, #064e2f, #0d703e 65%, #168b4e);
+  border-color: rgba(255, 255, 255, .15);
+}
+.registrar-department-modal__header::after {
+  content: "";
+  position: absolute;
+  right: -55px;
+  bottom: -90px;
+  width: 220px;
+  height: 220px;
+  border: 1px solid rgba(255, 255, 255, .12);
+  border-radius: 50%;
+  pointer-events: none;
+}
+.registrar-department-modal__header > * { position: relative; z-index: 1; }
+.registrar-department-modal__header-icon {
+  color: #fff;
+  background: rgba(255, 255, 255, .15);
+  border: 1px solid rgba(255, 255, 255, .21);
+  box-shadow: inset 0 1px rgba(255, 255, 255, .10);
+}
+.registrar-department-modal__header-copy > span { color: #cef2d9; }
+.registrar-department-modal__header-copy h2 { color: #fff; }
+.registrar-department-modal__header-copy p { color: #dcefe1; }
+.registrar-department-modal__close {
+  color: #fff;
+  background: rgba(255, 255, 255, .15);
+  border-color: rgba(255, 255, 255, .25);
+}
+.registrar-department-modal__close:hover:not(:disabled) {
+  color: #063e25;
+  background: #fff;
+  border-color: #fff;
+}
+.registrar-department-modal__form { background: #fff; }
+.registrar-department-modal__context {
+  background: #eff9f2;
+  border-color: #cce8d6;
+  color: #186941;
+  border-radius: 12px;
+}
+.registrar-department-modal__input-wrap input {
+  background: #fff;
+  border-color: #cbded1;
+  border-radius: 11px;
+}
+.registrar-department-modal__input-wrap:focus-within input {
+  border-color: #159452;
+  box-shadow: 0 0 0 3px rgba(15, 122, 69, .12);
+}
+.registrar-department-modal__input-wrap:focus-within > svg { color: #0f7a45; }
+.registrar-department-modal__button--primary {
+  color: #fff;
+  background: linear-gradient(145deg, #108147, #07552f);
+  border-color: #0b6b3b;
+}
+.registrar-department-modal__button--primary:hover:not(:disabled) {
+  background: #075d35;
+}
+.registrar-department-modal__button--secondary {
+  color: #0b6b3d;
+  background: #fff;
+  border-color: #cbded1;
+}
+.registrar-department-modal__button--secondary:hover:not(:disabled) {
+  background: #eff9f2;
+}
+
+/* Modal is portaled by its component outside the page's style context.
+   Give it its own dark-mode rules. */
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-department-modal {
+  background: #1b2a20;
+  color: #e6f0e8;
+  border-color: #3c5844;
+}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-department-modal__form { background: #1b2a20; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-department-modal__context,
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-department-modal__unchanged-note {
+  color: #bce4c8;
+  background: #213d2b;
+  border-color: #3b6549;
+}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-department-modal__label-row label { color: #e3f1e7; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-department-modal__help,
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-department-modal__label-row small { color: #b0c6b7; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-department-modal__input-wrap input {
+  color: #edf7ef;
+  background: #13221a;
+  border-color: #385542;
+}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-department-modal__input-wrap input::placeholder { color: #93ae9b; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-department-modal__button--secondary {
+  color: #c9eed2;
+  background: #233b2c;
+  border-color: #41664e;
+}
+
+@media (max-width: 640px) {
+  .registrar-department-modal__overlay { align-items: center; padding: 12px; }
+  .registrar-department-modal { max-height: calc(100dvh - 24px); border-radius: 17px; }
+}

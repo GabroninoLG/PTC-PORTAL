@@ -705,6 +705,7 @@
   font-weight: 700;
   line-height: 1.45;
   -webkit-box-orient: vertical;
+  line-clamp: 2;
   -webkit-line-clamp: 2;
 }
 
@@ -743,6 +744,7 @@
   font-weight: 650;
   line-height: 1.4;
   -webkit-box-orient: vertical;
+  line-clamp: 2;
   -webkit-line-clamp: 2;
 }
 
@@ -1288,4 +1290,546 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+
+/* =========================================================
+   REGISTRAR DASHBOARD VISUAL ALIGNMENT · OCT 2026
+   CSS-only update for Academic > Courses. All selectors stay
+   local to this page; the global sidebar/footer are untouched.
+   No page-entry overlay or white-flash animation is added.
+========================================================= */
+
+.registrar-course-management {
+  position: relative;
+  isolation: isolate;
+  min-height: 100%;
+  overflow: hidden;
+  padding: 27px 28px 38px;
+  background-color: #e6f1e9;
+  background-image:
+    linear-gradient(135deg, rgba(15,122,69,.08) 25%, transparent 25%),
+    linear-gradient(225deg, rgba(15,122,69,.055) 25%, transparent 25%),
+    linear-gradient(45deg, rgba(212,167,44,.045) 25%, transparent 25%),
+    linear-gradient(315deg, rgba(37,99,235,.035) 25%, transparent 25%),
+    radial-gradient(circle at 12% 10%, rgba(21,148,82,.22), transparent 25%),
+    radial-gradient(circle at 88% 6%, rgba(212,167,44,.18), transparent 23%),
+    radial-gradient(circle at 92% 72%, rgba(37,99,235,.10), transparent 24%),
+    linear-gradient(180deg, #edf6f0 0%, #e5f0e9 48%, #dce9e0 100%);
+  background-size: 96px 96px, 96px 96px, 128px 128px, 128px 128px,
+                   auto, auto, auto, auto;
+  background-position: 0 0, 48px 48px, 0 0, 64px 64px,
+                       center, center, center, center;
+}
+
+.registrar-course-management::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  top: 14px;
+  left: 16px;
+  right: 16px;
+  height: 370px;
+  border: 1px solid rgba(15,122,69,.14);
+  border-radius: 30px;
+  background: linear-gradient(120deg, rgba(255,255,255,.70), rgba(240,248,242,.48));
+  box-shadow: inset 0 1px rgba(255,255,255,.95),
+              0 26px 55px rgba(7,59,36,.11);
+  pointer-events: none;
+}
+
+.registrar-course-management::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  top: 420px;
+  right: -92px;
+  width: min(470px, 100%);
+  aspect-ratio: 1;
+  border: 2px solid rgba(15,122,69,.13);
+  border-radius: 50%;
+  box-shadow: 0 0 0 48px rgba(15,122,69,.045),
+              0 0 0 96px rgba(212,167,44,.025),
+              0 0 0 144px rgba(15,122,69,.018);
+  pointer-events: none;
+}
+
+/* Hero banner: PTC green with translucent circular detailing. */
+.registrar-course-management__hero {
+  position: relative;
+  z-index: 1;
+  min-height: 188px;
+  padding: 30px 32px;
+  border: 0;
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at 84% 18%, rgba(255,255,255,.18) 0 8%, transparent 8.5%),
+    radial-gradient(circle at 91% 52%, rgba(255,255,255,.08) 0 13%, transparent 13.5%),
+    linear-gradient(120deg, #064e2f 0%, #0d6b3e 46%, #15803d 72%, #1d8d4d 100%);
+  box-shadow: 0 18px 42px rgba(6,78,47,.24);
+}
+.registrar-course-management__hero::before {
+  content: "";
+  position: absolute;
+  right: -60px;
+  bottom: -95px;
+  width: 270px;
+  height: 270px;
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 50%;
+  pointer-events: none;
+}
+.registrar-course-management__hero::after {
+  top: -115px;
+  right: 105px;
+  width: 250px;
+  height: 250px;
+  border: 44px solid rgba(255,255,255,.055);
+}
+.registrar-course-management__eyebrow {
+  color: #dff8e8;
+  letter-spacing: .045em;
+}
+.registrar-course-management__eyebrow-icon {
+  color: #fff;
+  background: rgba(255,255,255,.14);
+  border: 1px solid rgba(255,255,255,.18);
+  box-shadow: inset 0 1px rgba(255,255,255,.15);
+}
+.registrar-course-management__hero h1 {
+  color: #fff;
+  font-size: clamp(30px, 3.4vw, 40px);
+  font-weight: 790;
+  letter-spacing: -.035em;
+}
+.registrar-course-management__hero p {
+  max-width: 790px;
+  color: rgba(239,255,245,.88);
+  font-size: 14px;
+}
+.registrar-course-management__hero-actions {
+  align-self: center;
+  gap: 10px;
+}
+.registrar-course-management__hero-actions .registrar-course-management__button {
+  min-height: 43px;
+  padding: 11px 15px;
+  border-radius: 11px;
+}
+.registrar-course-management__hero-actions .registrar-course-management__button--secondary {
+  color: #0a633a;
+  background: #fff;
+  border-color: rgba(255,255,255,.6);
+  box-shadow: 0 6px 17px rgba(4,44,22,.12);
+}
+.registrar-course-management__hero-actions .registrar-course-management__button--primary {
+  color: #074427;
+  background: #eaf9ef;
+  border-color: #dbf4e4;
+  box-shadow: 0 6px 17px rgba(4,44,22,.13);
+}
+.registrar-course-management__hero-actions .registrar-course-management__button:hover:not(:disabled) {
+  background: #e2f5e8;
+  color: #074427;
+  box-shadow: 0 8px 20px rgba(4,44,22,.20);
+}
+
+/* Soft dashboard shell around four color-coded KPI tiles. */
+.registrar-course-management__stats {
+  position: relative;
+  z-index: 1;
+  gap: 16px;
+  padding: 10px;
+  margin: 16px -2px 20px;
+  border: 1px solid rgba(255,255,255,.72);
+  border-radius: 22px;
+  background: rgba(255,255,255,.42);
+  box-shadow: 0 14px 34px rgba(7,59,36,.08);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+.registrar-course-management__stat-card {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  min-height: 118px;
+  padding: 20px 18px;
+  border: 0;
+  border-radius: 19px;
+  box-shadow: 0 12px 28px rgba(31,56,40,.09);
+}
+.registrar-course-management__stat-card::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0 auto 0 0;
+  width: 5px;
+  background: #159452;
+}
+.registrar-course-management__stat-card::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  top: -50px;
+  right: -45px;
+  width: 125px;
+  height: 125px;
+  border-radius: 50%;
+  background: rgba(15,122,69,.065);
+}
+.registrar-course-management__stat-card:nth-child(1) { background: #eefaf3; }
+.registrar-course-management__stat-card:nth-child(2) { background: #fff9e9; }
+.registrar-course-management__stat-card:nth-child(3) { background: #f0f6ff; }
+.registrar-course-management__stat-card:nth-child(4) { background: #f8f2ff; }
+.registrar-course-management__stat-card:nth-child(2)::before { background: #d7a116; }
+.registrar-course-management__stat-card:nth-child(3)::before { background: #2563eb; }
+.registrar-course-management__stat-card:nth-child(4)::before { background: #7c3aed; }
+.registrar-course-management__stat-card:nth-child(2)::after { background: rgba(215,161,22,.075); }
+.registrar-course-management__stat-card:nth-child(3)::after { background: rgba(37,99,235,.075); }
+.registrar-course-management__stat-card:nth-child(4)::after { background: rgba(124,58,237,.075); }
+.registrar-course-management__stat-icon {
+  width: 47px;
+  height: 47px;
+  border-radius: 14px;
+  background: #e2f6ea;
+  border-color: #c6e6d2;
+  box-shadow: 0 8px 16px rgba(31,56,40,.08);
+}
+/* Keep the Courses BookOpen glyph visible: the later pastel icon rule
+   otherwise overrides the original green fill while leaving white text. */
+.registrar-course-management__stat-card:first-child
+  .registrar-course-management__stat-icon--primary {
+  color: #ffffff;
+  background: linear-gradient(145deg, #0f7a45, #07532f);
+  border-color: #0b643b;
+}
+
+.registrar-course-management__stat-card:nth-child(2) .registrar-course-management__stat-icon {
+  color: #b47b05;
+  background: #fff6d7;
+  border-color: #f4d889;
+}
+.registrar-course-management__stat-card:nth-child(3) .registrar-course-management__stat-icon {
+  color: #2563eb;
+  background: #edf4ff;
+  border-color: #c9dcff;
+}
+.registrar-course-management__stat-card:nth-child(4) .registrar-course-management__stat-icon {
+  color: #7c3aed;
+  background: #f4edff;
+  border-color: #dccbff;
+}
+.registrar-course-management__stat-card span:not(.registrar-course-management__stat-icon) {
+  font-size: 10.5px;
+  font-weight: 750;
+  letter-spacing: .025em;
+  text-transform: uppercase;
+}
+.registrar-course-management__stat-card strong {
+  font-size: clamp(22px, 2vw, 27px);
+  font-weight: 800;
+  letter-spacing: -.035em;
+}
+.registrar-course-management__stat-card small {
+  max-width: 100%;
+  line-height: 1.45;
+}
+
+/* Directory: white surface, stronger hierarchy, readable controls. */
+.registrar-course-management__workspace {
+  position: relative;
+  z-index: 1;
+  border: 1px solid rgba(255,255,255,.85);
+  border-radius: 23px;
+  background: #fff;
+  box-shadow: 0 17px 38px rgba(7,59,36,.10);
+}
+.registrar-course-management__workspace-header {
+  padding: 24px 25px 20px;
+  border-bottom: 1px solid #e6eee9;
+  background: linear-gradient(108deg, #fff 57%, #f2faf5 100%);
+}
+.registrar-course-management__section-kicker {
+  display: inline-flex;
+  width: fit-content;
+  align-items: center;
+  min-height: 23px;
+  margin: 0 0 10px;
+  padding: 5px 9px;
+  border-radius: 999px;
+  background: #e7f6ec;
+  color: #137446;
+  font-size: 10px;
+  letter-spacing: .025em;
+}
+.registrar-course-management__workspace-header h2 {
+  font-size: clamp(19px, 2.1vw, 23px);
+  font-weight: 800;
+}
+.registrar-course-management__workspace-header p { color: #67776c; }
+.registrar-course-management__result-count {
+  padding: 9px 13px;
+  border: 1px solid #cde7d6;
+  border-radius: 12px;
+  background: #eaf8ef;
+}
+.registrar-course-management__toolbar {
+  gap: 14px;
+  padding: 18px 24px;
+  background: #fbfdfb;
+}
+.registrar-course-management__search input,
+.registrar-course-management__filter select {
+  border: 1px solid #d5e3d9;
+  border-radius: 12px;
+  background-color: #fff;
+  box-shadow: inset 0 1px 1px rgba(7,59,36,.015);
+}
+.registrar-course-management__search input:hover,
+.registrar-course-management__filter select:hover {
+  border-color: #afceb9;
+}
+.registrar-course-management__clear-filters {
+  border-radius: 11px;
+  color: #0e7542;
+  background: #edf9f1;
+}
+.registrar-course-management__active-filters strong {
+  background: #e8f7ee;
+  border-color: #ccebd6;
+}
+.registrar-course-management__table-shell { background: #fff; }
+.registrar-course-management__table thead {
+  background: #f1f7f3;
+}
+.registrar-course-management__table th {
+  color: #4b6655;
+  font-size: 10.5px;
+  font-weight: 750;
+  text-transform: uppercase;
+  letter-spacing: .035em;
+  border-bottom-color: #dae9df;
+}
+.registrar-course-management__table td {
+  border-bottom-color: #e9f0eb;
+}
+.registrar-course-management__table tbody tr:nth-child(even) { background: #fcfefc; }
+.registrar-course-management__table tbody tr:not(:has(.registrar-course-management__empty-state)):hover {
+  background: #f0faf3;
+}
+.registrar-course-management__course-code span {
+  background: #e6f5eb;
+  border-color: #cce6d4;
+  border-radius: 9px;
+}
+.registrar-course-management__department-code {
+  color: #0c6e3f;
+  background: #eff8f2;
+  border-color: #d4e9db;
+}
+.registrar-course-management__duration-pill {
+  color: #3c6549;
+  background: #f0f7f2;
+  border-color: #d9e8de;
+}
+.registrar-course-management__icon-button { border-radius: 10px; }
+.registrar-course-management__icon-button--edit {
+  background: #ecf9f0;
+  border-color: #cce7d5;
+}
+.registrar-course-management__icon-button--delete {
+  background: #fff6f5;
+  border-color: #f4d4d0;
+}
+
+/* Course editor dialogs: stylistically aligned, behavior unchanged. */
+.registrar-course-management .course-modal,
+.registrar-course-management__delete-dialog {
+  border-radius: 21px;
+  box-shadow: 0 28px 74px rgba(5,33,19,.27);
+}
+.registrar-course-management .course-modal-header {
+  background: linear-gradient(110deg, #07532f, #138047);
+  border-bottom-color: #0e7341;
+}
+.registrar-course-management .course-modal-header h2 { color: #fff; }
+.registrar-course-management .course-modal-header p { color: #e0f4e7; }
+.registrar-course-management .course-modal-close {
+  color: #fff;
+  background: rgba(255,255,255,.13);
+  border-color: rgba(255,255,255,.25);
+}
+.registrar-course-management .course-modal-close:hover:not(:disabled) {
+  color: #07532f;
+  background: #fff;
+}
+.registrar-course-management .course-form-group input,
+.registrar-course-management .course-form-group select { border-radius: 11px; }
+.registrar-course-management .course-save-btn {
+  border-radius: 11px;
+  background: linear-gradient(120deg, #08703d, #0d633b);
+}
+
+/* Retain explicit focus outlines for keyboard accessibility. */
+.registrar-course-management :is(button, input, select):focus-visible {
+  outline: 3px solid rgba(15,122,69,.27);
+  outline-offset: 2px;
+}
+
+/* Respond without changing the shared app shell. */
+@media (max-width: 1120px) {
+  .registrar-course-management__stats { gap: 12px; }
+  .registrar-course-management__stat-card { padding: 16px; }
+}
+@media (max-width: 820px) {
+  .registrar-course-management { padding: 20px 18px 30px; }
+  .registrar-course-management__hero { padding: 27px 24px; }
+  .registrar-course-management__stats { margin-left: 0; margin-right: 0; }
+}
+@media (max-width: 580px) {
+  .registrar-course-management { padding: 14px 12px 24px; }
+  .registrar-course-management::before { left: 6px; right: 6px; }
+  .registrar-course-management__hero { min-height: auto; padding: 23px 19px; border-radius: 19px; }
+  .registrar-course-management__hero h1 { font-size: 30px; }
+  .registrar-course-management__stats { padding: 8px; border-radius: 18px; }
+  .registrar-course-management__stat-card { min-height: 100px; padding: 16px; }
+  .registrar-course-management__workspace { border-radius: 17px; }
+  .registrar-course-management__workspace-header { padding: 19px 17px; }
+}
+
+/* A dark-mode navigation must never reveal a bright page or skeleton. */
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-course-management {
+  --rcm-text-950: #edf5ef;
+  --rcm-text-800: #dcece0;
+  --rcm-text-600: #b8cabc;
+  --rcm-text-500: #a9b9ad;
+  --rcm-border: #31533f;
+  --rcm-border-strong: #3f6049;
+  --rcm-surface: #1c2a21;
+  --rcm-bg: #101b14;
+  color: #eef6f0;
+  background: #101b14;
+  color-scheme: dark;
+}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-course-management::before,
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-course-management::after { display: none; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-course-management__stats {
+  background: #1b2d20;
+  border-color: #385442;
+}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-course-management__stat-card {
+  color: #eef6f0;
+  background: #213126;
+  border: 1px solid #385442;
+}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-course-management__stat-card strong,
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-course-management__workspace-header h2,
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-course-management__course-name strong { color: #edf5ef; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-course-management__stat-card small,
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-course-management__workspace-header p { color: #b8cabc; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-course-management__workspace,
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-course-management__workspace-header,
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-course-management__toolbar,
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-course-management__table-shell,
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-course-management__active-filters {
+  color: #e5f1e9;
+  background: #1b2a20;
+  border-color: #334f3d;
+}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-course-management__table thead { background: #273b2d; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-course-management__table th { color: #c5ddcc; border-color: #385442; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-course-management__table td,
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-course-management__date { color: #d7e8db; border-color: #304a39; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-course-management__table tbody tr:nth-child(even) { background: #202f24; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-course-management__table tbody tr:hover { background: #284333; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-course-management__search input,
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-course-management__filter select,
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-course-management .course-form-group input,
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-course-management .course-form-group select {
+  color: #eaf4ed;
+  background: #122119;
+  border-color: #385542;
+}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-course-management .course-modal,
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-course-management__delete-dialog {
+  color: #e8f3eb;
+  background: #1c2a21;
+  border-color: #45644f;
+}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-course-management__skeleton {
+  background: linear-gradient(90deg, #25362a 25%, #344b39 50%, #25362a 75%);
+  background-size: 200% 100%;
+}
+@media (prefers-reduced-motion: reduce) {
+  .registrar-course-management__stat-card { transform: none !important; }
+}
+
+/* ============================================================
+   REGISTRAR ACADEMIC — REMOVE SHARED LAYOUT WHITE GUTTER
+   The shell's .dashboard-content normally adds 20px padding,
+   leaving an unstyled strip between the sidebar and this page.
+   Limit the shell override to this specific page with :has().
+   The page retains its existing internal 27px/28px padding.
+   Sidebar and footer styles are never changed.
+============================================================ */
+
+.dashboard-main:has(.registrar-course-management) > .dashboard-content {
+  padding: 0;
+  background-color: #e5f0e9;
+  overflow-x: hidden;
+}
+
+/* A hidden 58px header must not leave an empty white bar. */
+.dashboard-main:has(.registrar-course-management)
+  > .header-container:has(.app-header.hide) {
+  height: 0;
+  min-height: 0;
+  border: 0;
+}
+
+/* When the header is visible, keep its original height. */
+.dashboard-main:has(.registrar-course-management)
+  > .header-container:has(.app-header.show) {
+  height: 58px;
+  min-height: 58px;
+}
+
+/* Fill the shell's content width; cards keep their original spacing. */
+.dashboard-main:has(.registrar-course-management) .registrar-course-management {
+  width: 100%;
+  min-height: 100%;
+}
+
+/* Dark mode: prevent a light-colored gutter during navigation. */
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .dashboard-main:has(.registrar-course-management) > .dashboard-content {
+  background-color: #101b14;
 }

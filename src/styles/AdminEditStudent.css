@@ -551,3 +551,477 @@
     transition-duration: 0.01ms !important;
   }
 }
+
+/* ========================================================================
+   PTC PORTAL · ADMIN / EDIT STUDENT — DESIGN SYSTEM 2026
+   Presentation-only additions. This file is appended to the original CSS.
+   Scope: .admin-edit-student and its containing DashboardLayout only.
+   Does NOT modify sidebar, shared footer, React logic or API requests.
+   ======================================================================== */
+
+/* Remove the shared 20px content gutter only on Edit Student. */
+.dashboard-main:has(> .dashboard-content > .admin-edit-student) > .dashboard-content {
+  padding: 0;
+  min-width: 0;
+  overflow-x: clip;
+  background: #dceee3;
+}
+
+/* The common header may be collapsed by existing app preferences. */
+.dashboard-main:has(.admin-edit-student) > .header-container:has(.app-header.hide) {
+  height: 0;
+  min-height: 0;
+  border: 0;
+  overflow: hidden;
+}
+.dashboard-main:has(.admin-edit-student) .app-header {
+  background: linear-gradient(90deg, #dcefe4 0%, #f1f7f0 100%);
+  border-bottom-color: #c7dfd0;
+}
+
+.admin-edit-student {
+  --aes-green-950: #063e28;
+  --aes-green-900: #075431;
+  --aes-green-800: #0a7041;
+  --aes-green-700: #0c824a;
+  --aes-green-600: #169357;
+  --aes-text-950: #182620;
+  --aes-text-800: #304438;
+  --aes-text-700: #4a6153;
+  --aes-text-600: #61776a;
+  --aes-text-500: #73887b;
+  --aes-border: #dbe9df;
+  --aes-border-strong: #cbded0;
+  --aes-surface: #ffffff;
+  --aes-bg: #deeee4;
+
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  min-width: 0;
+  min-height: 100%;
+  margin: 0;
+  padding: 26px clamp(14px, 2vw, 32px) 44px;
+  overflow: hidden;
+  color: var(--aes-text-950);
+  background-color: #dcece2;
+  background-image:
+    radial-gradient(circle at 1% 2%, rgba(9, 110, 63, .10) 0 8%, transparent 8.2%),
+    radial-gradient(circle at 96% 14%, rgba(218, 181, 84, .13), transparent 27%),
+    repeating-linear-gradient(135deg, rgba(8, 118, 67, .045) 0 21px, transparent 21px 77px),
+    linear-gradient(128deg, #d9eae0 0%, #f0f7f1 49%, #dcebe1 100%);
+  font-family: Inter, Poppins, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+/* Toolbar — same compact back control used across Registrar records. */
+.admin-edit-student__toolbar { margin: 0 0 13px; }
+.admin-edit-student__back {
+  min-height: 40px;
+  padding: 9px 15px;
+  gap: 8px;
+  border: 1px solid #cbded0;
+  border-radius: 11px;
+  color: #155e39;
+  background: rgba(255,255,255,.94);
+  font-size: 12px;
+  font-weight: 750;
+  box-shadow: 0 3px 10px rgba(21,78,47,.055);
+}
+.admin-edit-student__back:hover:not(:disabled) {
+  color: #063e28;
+  background: #eef9f1;
+  border-color: #a9cdb7;
+}
+
+/* Full-width PTC green identity header. */
+.admin-edit-student__hero {
+  position: relative;
+  min-height: 188px;
+  margin: 0 0 19px;
+  padding: 29px clamp(21px, 2.5vw, 38px);
+  gap: 22px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,.24);
+  border-radius: 23px;
+  background:
+    radial-gradient(circle at 85% 9%, rgba(255,255,255,.12) 0 8%, transparent 8.2%),
+    radial-gradient(circle at 94% 37%, transparent 0 11%, rgba(255,255,255,.11) 11.14% 11.46%, transparent 11.6%),
+    radial-gradient(circle at 102% 106%, rgba(135,215,163,.28), transparent 29%),
+    linear-gradient(110deg, #064b30 0%, #086e3e 54%, #17894d 100%);
+  box-shadow: 0 16px 35px rgba(6,67,37,.18);
+}
+.admin-edit-student__hero::after {
+  content: "";
+  position: absolute;
+  top: -117px;
+  right: -65px;
+  width: 315px;
+  height: 315px;
+  border: 1px solid rgba(255,255,255,.16);
+  border-radius: 50%;
+  background: transparent;
+  pointer-events: none;
+}
+.admin-edit-student__hero::before {
+  content: "";
+  position: absolute;
+  right: 95px;
+  bottom: -175px;
+  width: 300px;
+  height: 300px;
+  border: 34px solid rgba(255,255,255,.065);
+  border-radius: 50%;
+  pointer-events: none;
+}
+.admin-edit-student__hero-copy { max-width: 760px; min-width: 0; }
+.admin-edit-student__eyebrow {
+  margin: 0 0 14px;
+  gap: 10px;
+  color: #f1fff6;
+  font-size: 11px;
+  letter-spacing: .055em;
+  font-weight: 850;
+}
+.admin-edit-student__eyebrow > span {
+  width: 29px;
+  height: 29px;
+  border: 1px solid rgba(255,255,255,.2);
+  border-radius: 9px;
+  color: #f5fff8;
+  background: rgba(255,255,255,.13);
+}
+.admin-edit-student__hero h1 {
+  color: #ffffff;
+  font-size: clamp(30px, 3vw, 40px);
+  font-weight: 820;
+  letter-spacing: -.035em;
+  line-height: 1.16;
+}
+.admin-edit-student__hero p {
+  max-width: 690px;
+  margin-top: 10px;
+  color: #d8f5e2;
+  font-size: 13px;
+  line-height: 1.65;
+}
+.admin-edit-student__student-number {
+  flex: 0 0 auto;
+  min-width: 174px;
+  max-width: 230px;
+  padding: 15px 18px;
+  border: 1px solid rgba(255,255,255,.24);
+  border-radius: 13px;
+  color: #fff;
+  background: rgba(255,255,255,.15);
+  box-shadow: 0 5px 13px rgba(0,33,15,.09);
+  backdrop-filter: blur(4px);
+}
+.admin-edit-student__student-number small {
+  color: #d8f9e2;
+  font-size: 10px;
+  font-weight: 790;
+}
+.admin-edit-student__student-number strong {
+  overflow-wrap: anywhere;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+/* Errors and zero-flash loading state. */
+.admin-edit-student__error {
+  margin: 0 0 16px;
+  padding: 14px 16px;
+  border: 1px solid #efc0b7;
+  border-left: 4px solid #ca4e34;
+  border-radius: 12px;
+  color: #9d2d1d;
+  background: #fff2ee;
+  font-size: 12px;
+  font-weight: 550;
+}
+.admin-edit-student__state {
+  min-height: 300px;
+  padding: 28px;
+  border-color: #d4e7da;
+  border-radius: 19px;
+  background: rgba(247,253,249,.95);
+  box-shadow: 0 10px 27px rgba(12,70,37,.07);
+  color: #61776a;
+}
+.admin-edit-student__state > svg { color: #07844a; }
+.admin-edit-student__state strong { font-size: 14px; color: #1e3a2a; }
+.admin-edit-student__state span { font-size: 12px; }
+
+/* Clear, compact two-column form layout. */
+.admin-edit-student__form { gap: 17px; }
+.admin-edit-student__section {
+  min-width: 0;
+  border: 1px solid #d7e7dc;
+  border-radius: 19px;
+  background: #ffffff;
+  box-shadow: 0 9px 27px rgba(14,69,39,.075);
+}
+.admin-edit-student__section-header {
+  gap: 13px;
+  padding: 19px 21px;
+  border-bottom: 1px solid #e0ede4;
+  background: linear-gradient(105deg, #f9fdf9, #edf8f1);
+}
+.admin-edit-student__section-icon {
+  flex: 0 0 44px;
+  width: 44px;
+  height: 44px;
+  border: 1px solid #cfe9d8;
+  border-radius: 13px;
+  color: #ffffff;
+  background: linear-gradient(145deg, #07693e, #11864d);
+  box-shadow: 0 5px 12px rgba(10,106,62,.17);
+}
+/* Section identity accents: Personal / Address / Academic. */
+.admin-edit-student__section:nth-child(2) .admin-edit-student__section-icon {
+  color: #965d00;
+  border-color: #f0dda7;
+  background: #fff3d4;
+  box-shadow: none;
+}
+.admin-edit-student__section:nth-child(3) .admin-edit-student__section-icon {
+  color: #205dcd;
+  border-color: #d3e1ff;
+  background: #e9f2ff;
+  box-shadow: none;
+}
+.admin-edit-student__section-header > div > span {
+  margin-bottom: 4px;
+  color: #077344;
+  font-size: 10px;
+  font-weight: 820;
+  letter-spacing: .06em;
+}
+.admin-edit-student__section-header h2 {
+  color: #14251a;
+  font-size: clamp(17px, 1.6vw, 20px);
+  font-weight: 810;
+}
+.admin-edit-student__section-header p {
+  margin-top: 4px;
+  color: #657b6d;
+  font-size: 11px;
+  line-height: 1.5;
+}
+.admin-edit-student__fields,
+.admin-edit-student__academic-fields {
+  gap: 16px 15px;
+  padding: 22px;
+}
+.admin-edit-student__field { gap: 7px; }
+.admin-edit-student__field > span {
+  color: #385447;
+  font-size: 11.5px;
+  font-weight: 740;
+}
+.admin-edit-student__field em { color: #c53b2f; }
+.admin-edit-student__field input,
+.admin-edit-student__field select {
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid #ceded3;
+  border-radius: 10px;
+  color: #1d3025;
+  background: #fbfdfb;
+  font-size: 12px;
+  font-weight: 540;
+}
+.admin-edit-student__field input::placeholder { color: #92a29a; }
+.admin-edit-student__field input:hover:not(:disabled),
+.admin-edit-student__field select:hover:not(:disabled) { border-color: #a5c7b2; }
+.admin-edit-student__field input:focus,
+.admin-edit-student__field select:focus {
+  border-color: #0b8247;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(14,134,75,.11);
+}
+.admin-edit-student__field input:disabled,
+.admin-edit-student__field select:disabled {
+  color: #859489;
+  border-color: #e0e8e2;
+  background: #f0f4f1;
+}
+.admin-edit-student__input-with-icon > svg,
+.admin-edit-student__select-with-icon > svg { color: #438662; }
+.admin-edit-student__input-with-icon input,
+.admin-edit-student__select-with-icon select { padding-left: 35px; }
+
+/* Footer here is the FORM ACTION ROW only, not the shared portal footer. */
+.admin-edit-student__actions {
+  gap: 10px;
+  padding: 17px 22px;
+  border: 1px solid #d6e7db;
+  border-radius: 17px;
+  background: #ffffff;
+  box-shadow: 0 8px 22px rgba(14,69,39,.065);
+}
+.admin-edit-student__cancel,
+.admin-edit-student__save {
+  min-height: 42px;
+  padding: 10px 18px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 790;
+}
+.admin-edit-student__cancel {
+  color: #3e5a4a;
+  border-color: #cddfd3;
+  background: #f8fcf9;
+}
+.admin-edit-student__save {
+  color: #fff;
+  border-color: #087544;
+  background: linear-gradient(115deg, #075c38, #0b864d);
+  box-shadow: 0 7px 15px rgba(8,94,52,.18);
+}
+.admin-edit-student__save:hover:not(:disabled) {
+  border-color: #075a35;
+  background: linear-gradient(115deg, #064b30, #087344);
+}
+.admin-edit-student__back:focus-visible,
+.admin-edit-student__cancel:focus-visible,
+.admin-edit-student__save:focus-visible,
+.admin-edit-student__field input:focus-visible,
+.admin-edit-student__field select:focus-visible {
+  outline: 3px solid rgba(13,126,75,.24);
+  outline-offset: 2px;
+}
+
+/* Responsive: preserve form and avoid layout overflow. */
+@media (max-width: 1080px) {
+  .admin-edit-student__fields { grid-template-columns: 1fr; }
+  .admin-edit-student__academic-fields { grid-template-columns: repeat(2,minmax(0,1fr)); }
+}
+@media (max-width: 850px) {
+  .admin-edit-student { padding: 21px 18px 35px; }
+  .admin-edit-student__hero { min-height: 0; padding: 25px 22px; }
+  .admin-edit-student__student-number { width: 100%; max-width: none; }
+  .admin-edit-student__form { grid-template-columns: 1fr; }
+  .admin-edit-student__section--wide { grid-column: auto; }
+  .admin-edit-student__fields { grid-template-columns: repeat(2,minmax(0,1fr)); }
+}
+@media (max-width: 600px) {
+  .admin-edit-student { padding: 16px 12px 30px; }
+  .admin-edit-student__hero { padding: 24px 18px; border-radius: 19px; }
+  .admin-edit-student__hero h1 { font-size: 30px; }
+  .admin-edit-student__hero p { font-size: 12px; }
+  .admin-edit-student__section-header { padding: 16px; }
+  .admin-edit-student__fields,
+  .admin-edit-student__academic-fields { grid-template-columns: 1fr; gap: 13px; padding: 16px; }
+  .admin-edit-student__field--wide { grid-column: auto; }
+  .admin-edit-student__actions { padding: 14px; flex-direction: column-reverse; }
+  .admin-edit-student__back { min-height: 40px; }
+  .admin-edit-student__save,
+  .admin-edit-student__cancel { width: 100%; }
+}
+
+/* Theme overrides — strictly scoped to this page + its layout gutter. */
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark,[data-theme="dark"])
+  .dashboard-main:has(> .dashboard-content > .admin-edit-student) > .dashboard-content {
+  background: #101b16;
+}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark,[data-theme="dark"])
+  .dashboard-main:has(.admin-edit-student) .app-header {
+  background: #17291e;
+  border-bottom-color: #354a3b;
+}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark,[data-theme="dark"])
+  .admin-edit-student {
+  --aes-text-950: #f0f9f2;
+  --aes-text-800: #d9ebdf;
+  --aes-text-700: #bdd5c5;
+  --aes-text-600: #a6c1af;
+  --aes-text-500: #9cb5a4;
+  --aes-border: #355242;
+  --aes-border-strong: #476854;
+  --aes-surface: #1a2b20;
+  color: #eaf8ef;
+  background-color: #101b16;
+  background-image:
+    radial-gradient(ellipse at 82% 9%,rgba(11,117,67,.19),transparent 45%),
+    repeating-linear-gradient(135deg,rgba(22,76,47,.16) 0 18px,transparent 18px 76px),
+    linear-gradient(135deg,#101b16,#182a1f);
+}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark,[data-theme="dark"])
+  .admin-edit-student__back {
+  color: #c9ebd4;
+  border-color: #42664e;
+  background: #21392b;
+  box-shadow: none;
+}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark,[data-theme="dark"])
+  .admin-edit-student__back:hover:not(:disabled) { color: #fff; background: #2b4d38; border-color: #528669; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark,[data-theme="dark"])
+  .admin-edit-student__hero {
+  border-color: #3e7551;
+  background:
+    radial-gradient(circle at 85% 9%,rgba(255,255,255,.08) 0 8%,transparent 8.2%),
+    linear-gradient(110deg,#073f2b,#075634 57%,#0d7142);
+}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark,[data-theme="dark"])
+  .admin-edit-student__student-number { color: #fff; background: rgba(6,35,21,.32); border-color: #5a9069; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark,[data-theme="dark"])
+  .admin-edit-student__state,
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark,[data-theme="dark"])
+  .admin-edit-student__section,
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark,[data-theme="dark"])
+  .admin-edit-student__actions { color: #ebf6ee; background: #1b2d22; border-color: #355443; box-shadow: none; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark,[data-theme="dark"])
+  .admin-edit-student__section-header { background: #233b2b; border-bottom-color: #385c45; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark,[data-theme="dark"])
+  .admin-edit-student__section-header h2,
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark,[data-theme="dark"])
+  .admin-edit-student__state strong { color: #f0fff5; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark,[data-theme="dark"])
+  .admin-edit-student__section-header > div > span { color: #a4f0bf; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark,[data-theme="dark"])
+  .admin-edit-student__section-header p,
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark,[data-theme="dark"])
+  .admin-edit-student__state span { color: #b5cabd; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark,[data-theme="dark"])
+  .admin-edit-student__field > span { color: #d2e4d6; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark,[data-theme="dark"])
+  .admin-edit-student__field input,
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark,[data-theme="dark"])
+  .admin-edit-student__field select {
+  color: #effaf1;
+  border-color: #496a54;
+  background: #23392c;
+  color-scheme: dark;
+}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark,[data-theme="dark"])
+  .admin-edit-student__field input:hover:not(:disabled),
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark,[data-theme="dark"])
+  .admin-edit-student__field select:hover:not(:disabled) { border-color: #659a74; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark,[data-theme="dark"])
+  .admin-edit-student__field input:focus,
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark,[data-theme="dark"])
+  .admin-edit-student__field select:focus { background: #294332; border-color: #56bb7e; box-shadow: 0 0 0 3px rgba(69,195,117,.16); }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark,[data-theme="dark"])
+  .admin-edit-student__field input:disabled,
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark,[data-theme="dark"])
+  .admin-edit-student__field select:disabled { color: #b4c6bb; background: #1d3025; border-color: #365644; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark,[data-theme="dark"])
+  .admin-edit-student__field input::placeholder { color: #95af9f; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark,[data-theme="dark"])
+  .admin-edit-student__input-with-icon > svg,
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark,[data-theme="dark"])
+  .admin-edit-student__select-with-icon > svg { color: #8bd0a2; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark,[data-theme="dark"])
+  .admin-edit-student__cancel { color: #dcf1e3; border-color: #53715c; background: #2c4233; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark,[data-theme="dark"])
+  .admin-edit-student__cancel:hover:not(:disabled) { background: #375440; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark,[data-theme="dark"])
+  .admin-edit-student__error { color: #ffd4ca; border-color: #965950; background: #3c2423; }
+
+@media (prefers-reduced-motion: reduce) {
+  .admin-edit-student__hero,
+  .admin-edit-student__section,
+  .admin-edit-student__state { animation: none !important; }
+}

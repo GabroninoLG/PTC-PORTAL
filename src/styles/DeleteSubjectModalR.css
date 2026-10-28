@@ -337,3 +337,49 @@
     animation-duration: 1.5s;
   }
 }
+
+/* PTC Portal Registrar Subjects — Delete confirmation visual alignment */
+.registrar-delete-subject__overlay { background: rgba(5,27,15,.64); }
+.registrar-delete-subject { border-color: #d3e7da; border-radius: 20px; box-shadow: 0 28px 72px rgba(4,37,19,.26); }
+.registrar-delete-subject__header {
+  padding: 21px;
+  background:
+    radial-gradient(circle at 95% 0%,rgba(255,255,255,.12) 0 23%,transparent 23.5%),
+    linear-gradient(110deg,#064d2f,#0f7142 80%,#148c4c);
+  border-bottom-color: #0c663c;
+}
+.registrar-delete-subject__header-icon {
+  color: #fff;
+  background: rgba(255,255,255,.16);
+  border-color: rgba(255,255,255,.25);
+}
+.registrar-delete-subject__header > div > span { color: #ffdfbc; }
+.registrar-delete-subject__header h2 { color: #fff; font-size: 19px; }
+.registrar-delete-subject__close {
+  color: #fff;
+  background: rgba(255,255,255,.12);
+  border-color: rgba(255,255,255,.28);
+}
+.registrar-delete-subject__close:hover:not(:disabled) { color: #09532f; background: #fff; }
+.registrar-delete-subject__body { padding: 21px; background: #fbfdfb; }
+.registrar-delete-subject__subject-card { border-color: #d6e8dc; background: #eef9f2; border-radius: 13px; }
+.registrar-delete-subject__footer { padding: 16px 21px; border-color: #e0eee4; background: #f6fbf8; }
+.registrar-delete-subject__button--danger { background: #b42318; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-delete-subject { color: #eaf4ec; background: #1b2c21; border-color: #41634b; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-delete-subject__body,
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-delete-subject__footer { color: #eaf4ec; background: #1d2f23; border-color: #395841; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-delete-subject__subject-card,
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-delete-subject__units { background: #263c2c; border-color: #46664e; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-delete-subject__subject-card strong,
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-delete-subject__units strong { color: #f3fbf4; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-delete-subject__intro,
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-delete-subject__subject-card > div:nth-child(2) span { color: #c5d5c9; }

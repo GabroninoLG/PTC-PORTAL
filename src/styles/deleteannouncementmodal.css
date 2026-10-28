@@ -368,3 +368,103 @@
     transition-duration: 0.01ms !important;
   }
 }
+
+
+/* ===================================================================
+   ADMIN ANNOUNCEMENT — DELETE CONFIRMATION
+   Scoped to this modal, no changes to shared modal.css or other roles.
+   =================================================================== */
+.delete-announcement-modal-overlay {
+  z-index: 9999;
+  padding: 20px;
+  background: rgba(5, 27, 16, .73);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  animation: none !important;
+}
+.delete-announcement-modal {
+  --dam-text-950: #1a2a21;
+  --dam-text-800: #37473d;
+  --dam-text-600: #607268;
+  --dam-text-500: #76877c;
+  --dam-border: #d9e7dc;
+  width: min(100%, 475px);
+  max-height: min(650px, calc(100dvh - 40px));
+  padding: 25px;
+  border: 1px solid #cfe2d5;
+  border-radius: 19px;
+  background: #ffffff;
+  box-shadow: 0 28px 75px rgba(1, 23, 11, .34);
+  animation: none !important;
+}
+.delete-announcement-modal__header { gap: 14px; }
+.delete-announcement-modal__icon {
+  flex-basis: 49px;
+  width: 49px;
+  height: 49px;
+  border-color: #f1ccc7;
+  border-radius: 14px;
+  color: #bf362b;
+  background: #fff1ef;
+}
+.delete-announcement-modal__eyebrow { color: #0d8350; font-size: 10px; }
+.delete-announcement-modal__heading h2 { font-size: 21px; font-weight: 820; }
+.delete-announcement-modal__content { margin-top: 20px; }
+.delete-announcement-modal__content > p { font-size: 13px; line-height: 1.6; }
+.delete-announcement-modal__announcement {
+  margin-top: 16px; padding: 14px 15px;
+  border-radius: 11px; border-color: #dce9df; background: #f3faf6;
+}
+.delete-announcement-modal__announcement span { font-size: 10px; }
+.delete-announcement-modal__announcement strong { font-size: 12px; }
+.delete-announcement-modal__warning {
+  margin-top: 15px; padding: 13px;
+  border-radius: 11px; border-color: #f1cfca;
+  color: #a72d25; background: #fff5f2;
+}
+.delete-announcement-modal__warning p { font-size: 12px; }
+.delete-announcement-modal__actions { margin-top: 20px; padding-top: 18px; }
+.delete-announcement-modal__cancel,
+.delete-announcement-modal__delete {
+  min-height: 43px; padding: 10px 16px;
+  border-radius: 10px; font-size: 12px;
+}
+.delete-announcement-modal__close { width: 34px; height: 34px; border-radius: 9px; }
+
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, [data-theme="dark"])
+  .delete-announcement-modal-overlay { background: rgba(0, 10, 5, .82); }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, [data-theme="dark"])
+  .delete-announcement-modal {
+  --dam-text-950: #edf8f0;
+  --dam-text-800: #d0e6d6;
+  --dam-text-600: #b6cdbd;
+  --dam-text-500: #9fb7a8;
+  --dam-border: #405a49;
+  color: #edf8f0;
+  border-color: #44604c;
+  background: #1b2d22;
+  box-shadow: 0 28px 65px rgba(0, 0, 0, .48);
+}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, [data-theme="dark"])
+  .delete-announcement-modal__heading h2 { color: #f0faf3; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, [data-theme="dark"])
+  .delete-announcement-modal__eyebrow { color: #a3f3c6; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, [data-theme="dark"])
+  .delete-announcement-modal__announcement { border-color: #406149; background: #24402e; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, [data-theme="dark"])
+  .delete-announcement-modal__announcement strong { color: #e3f5e9; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, [data-theme="dark"])
+  .delete-announcement-modal__warning { color: #ffd7d0; border-color: #754c46; background: #452c29; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, [data-theme="dark"])
+  .delete-announcement-modal__icon { color: #ffb8af; border-color: #754a44; background: #4d2c2b; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, [data-theme="dark"])
+  .delete-announcement-modal__close { color: #d7e9dc; border-color: #47604c; background: #2a3e30; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, [data-theme="dark"])
+  .delete-announcement-modal__cancel { color: #dcf0e2; border-color: #47604c; background: #2a4031; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, [data-theme="dark"])
+  .delete-announcement-modal__delete { color: #fff; border-color: #c44137; background: #b72f26; }
+@media (max-width: 480px) {
+  .delete-announcement-modal-overlay { padding: 12px; }
+  .delete-announcement-modal { padding: 21px 18px; max-height: calc(100dvh - 24px); }
+  .delete-announcement-modal__actions { flex-direction: column-reverse; }
+}

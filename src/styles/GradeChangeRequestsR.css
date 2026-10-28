@@ -838,3 +838,505 @@
     transition-duration: .01ms !important;
   }
 }
+
+/* ============================================================================
+   PTC PORTAL  |  REGISTRAR > DOCUMENTS > GRADE CHANGE REQUEST
+   2026 green dashboard visual language. CSS-only page-scoped refresh.
+   Retains original selectors above: status logic, modal & request flow untouched.
+   ============================================================================ */
+
+/* The dashboard-content's default padding creates the white strip next to the
+   sidebar. Remove it ONLY when the Grade Change Request page is mounted. */
+.dashboard-main:has(> .dashboard-content .registrar-grade-change-page)
+  > .dashboard-content {
+  padding: 0;
+  background: #dcece1;
+  overflow-x: clip;
+}
+/* Hidden site header must not leave an unused white band above this page. */
+.dashboard-main:has(.registrar-grade-change-page)
+  > .header-container:has(.app-header.hide) {
+  height: 0;
+  min-height: 0;
+  border: 0;
+}
+.dashboard-main:has(.registrar-grade-change-page)
+  > .header-container:has(.app-header.show) {
+  height: 58px;
+  min-height: 58px;
+}
+
+.registrar-grade-change-page {
+  --rgc-green-950: #06492d;
+  --rgc-green-900: #075a36;
+  --rgc-green-800: #0d6b40;
+  --rgc-green-700: #0f824c;
+  --rgc-green-600: #199e5e;
+  --rgc-green-100: #e1f5e9;
+  --rgc-green-50: #effaf3;
+  --rgc-text-950: #1b2720;
+  --rgc-text-800: #24352a;
+  --rgc-text-700: #3f5847;
+  --rgc-text-600: #5a7061;
+  --rgc-text-500: #718277;
+  --rgc-border: #dcebe0;
+  --rgc-border-strong: #cbded0;
+  --rgc-surface: #fff;
+  --rgc-bg: #dcece1;
+  width: 100%;
+  min-height: 100%;
+  padding: 24px 26px 44px;
+  overflow-x: clip;
+  background:
+    radial-gradient(circle at 7% 8%, rgba(25, 140, 83, .14), transparent 28%),
+    radial-gradient(circle at 96% 3%, rgba(206, 170, 62, .13), transparent 30%),
+    repeating-linear-gradient(137deg,
+      transparent 0 70px, rgba(255,255,255,.14) 70px 82px,
+      transparent 82px 154px),
+    repeating-linear-gradient(45deg,
+      transparent 0 116px, rgba(34,125,75,.055) 116px 134px,
+      transparent 134px 240px),
+    linear-gradient(180deg, #e4f2e9, #d8eae0);
+}
+
+/* Hero: the same green, rounded title banner shown on Registrar Dashboard. */
+.registrar-grade-change-hero {
+  min-height: 186px;
+  margin-bottom: 16px;
+  padding: 28px 30px;
+  border: 1px solid rgba(5, 87, 48, .22);
+  border-radius: 24px;
+  color: #fff;
+  background:
+    radial-gradient(circle at 82% 0%, rgba(242,255,247,.16) 0 7%, transparent 7.5%),
+    radial-gradient(circle at 106% 110%, rgba(239,255,240,.14) 0 20%, transparent 20.5%),
+    linear-gradient(110deg, #034b2e 0%, #08723e 64%, #29935c 100%);
+  box-shadow: 0 16px 32px rgba(14, 86, 50, .17);
+}
+.registrar-grade-change-hero::before {
+  content: "";
+  position: absolute;
+  right: 8%;
+  top: -95px;
+  width: 245px;
+  height: 245px;
+  border: 48px solid rgba(255,255,255,.065);
+  border-radius: 50%;
+  pointer-events: none;
+}
+.registrar-grade-change-hero::after {
+  top: 28px;
+  right: -95px;
+  width: 270px;
+  height: 270px;
+  border: 1px solid rgba(244,255,245,.18);
+}
+.registrar-grade-change-hero-copy { max-width: 790px; }
+.registrar-grade-change-back {
+  min-height: 32px;
+  margin-bottom: 12px;
+  padding: 6px 11px;
+  border: 1px solid rgba(255,255,255,.23);
+  border-radius: 10px;
+  color: #f2fff6;
+  background: rgba(255,255,255,.13);
+  font-size: 11px;
+}
+.registrar-grade-change-back:hover { border-color: rgba(255,255,255,.46); color: #fff; background: rgba(255,255,255,.2); }
+.registrar-grade-change-eyebrow { color: #f3fff6; font-size: 11px; letter-spacing: .045em; }
+.registrar-grade-change-eyebrow-icon {
+  width: 29px;
+  height: 29px;
+  border: 1px solid rgba(255,255,255,.2);
+  color: #fff;
+  background: rgba(255,255,255,.2);
+}
+.registrar-grade-change-hero h1 { color: #fff; font-size: clamp(26px, 3vw, 36px); font-weight: 800; }
+.registrar-grade-change-hero p { max-width: 800px; color: #e7f8ed; font-size: 13px; line-height: 1.7; }
+.registrar-grade-change-refresh {
+  min-height: 43px;
+  padding: 10px 17px;
+  border-color: rgba(255,255,255,.8);
+  border-radius: 11px;
+  color: #075b36;
+  background: #fff;
+  box-shadow: 0 8px 18px rgba(4,55,28,.1);
+  font-size: 12px;
+}
+.registrar-grade-change-refresh:hover:not(:disabled) {
+  border-color: #fff;
+  color: #074e30;
+  background: #e9fff0;
+  box-shadow: 0 10px 23px rgba(4,55,28,.19);
+}
+
+/* Three existing metrics: green / warm amber / blue, no invented fourth card. */
+.registrar-grade-change-stats {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 17px;
+  padding: 11px;
+  border: 1px solid rgba(255,255,255,.86);
+  border-radius: 23px;
+  background: rgba(255,255,255,.63);
+  box-shadow: 0 12px 28px rgba(18,76,48,.09);
+}
+.registrar-grade-change-stat-card {
+  position: relative;
+  min-height: 108px;
+  padding: 19px 17px;
+  gap: 14px;
+  overflow: hidden;
+  border: 1px solid rgba(235,246,237,.92);
+  border-radius: 17px;
+  background: #edf9f1;
+  box-shadow: 0 5px 13px rgba(25,76,44,.035);
+  isolation: isolate;
+}
+.registrar-grade-change-stat-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 4px;
+  background: #12a45d;
+}
+.registrar-grade-change-stat-card::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  right: -28px;
+  top: -48px;
+  width: 105px;
+  height: 105px;
+  border-radius: 50%;
+  background: rgba(24,143,78,.075);
+  pointer-events: none;
+}
+.registrar-grade-change-stat-card:nth-child(2) { background: #fff8e7; }
+.registrar-grade-change-stat-card:nth-child(3) { background: #eff5ff; }
+.registrar-grade-change-stat-card:nth-child(2)::before { background: #dca10b; }
+.registrar-grade-change-stat-card:nth-child(3)::before { background: #2863f1; }
+.registrar-grade-change-stat-card:nth-child(2)::after { background: rgba(218,164,20,.11); }
+.registrar-grade-change-stat-card:nth-child(3)::after { background: rgba(53,105,230,.09); }
+.registrar-grade-change-stat-icon,
+.registrar-grade-change-stat-icon--primary {
+  position: relative;
+  z-index: 1;
+  flex: 0 0 47px;
+  width: 47px;
+  height: 47px;
+  border: 1px solid transparent;
+  border-radius: 13px;
+  color: #fff;
+  background: linear-gradient(150deg, #0e9653, #035e39);
+  box-shadow: 0 7px 15px rgba(17,107,63,.14);
+}
+.registrar-grade-change-stat-icon svg { display: block; stroke: currentColor; opacity: 1; }
+.registrar-grade-change-stat-card:nth-child(2) .registrar-grade-change-stat-icon {
+  border-color: #f1d690;
+  color: #ad7a00;
+  background: #fff2d0;
+  box-shadow: none;
+}
+.registrar-grade-change-stat-card:nth-child(3) .registrar-grade-change-stat-icon {
+  border-color: #cfddff;
+  color: #2863f1;
+  background: #eaf1ff;
+  box-shadow: none;
+}
+.registrar-grade-change-stat-card small { margin-bottom: 4px; color: #596d60; font-size: 10px; font-weight: 800; }
+.registrar-grade-change-stat-card strong { color: #17251c; font-size: clamp(21px, 2.2vw, 26px); font-weight: 830; }
+.registrar-grade-change-stat-card p { margin-top: 3px; color: #788a7b; font-size: 10px; }
+
+/* Queue directory, filters, status markers. */
+.registrar-grade-change-panel {
+  border: 1px solid rgba(230,242,234,.94);
+  border-radius: 24px;
+  background: #fff;
+  box-shadow: 0 16px 34px rgba(26,74,47,.095);
+}
+.registrar-grade-change-panel-heading {
+  align-items: center;
+  padding: 23px 25px 20px;
+  border-bottom: 1px solid #e3eee7;
+  background: linear-gradient(110deg,#fff 67%,#f1faf5 100%);
+}
+.registrar-grade-change-panel-heading > div > span {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  margin-bottom: 9px;
+  padding: 6px 11px;
+  border-radius: 30px;
+  color: #087146;
+  background: #e7f7ed;
+  font-size: 9.5px;
+}
+.registrar-grade-change-panel-heading h2 { font-size: 22px; font-weight: 800; }
+.registrar-grade-change-panel-heading p { margin-top: 7px; font-size: 11px; line-height: 1.6; }
+.registrar-grade-change-count {
+  padding: 9px 13px;
+  border-color: #cce9d4;
+  border-radius: 12px;
+  background: #effaf2;
+  font-size: 10px;
+}
+.registrar-grade-change-toolbar {
+  gap: 14px;
+  padding: 19px 24px;
+  border-bottom-color: #e8f0ea;
+  background: #fbfdfb;
+}
+.registrar-grade-change-search > span,
+.registrar-grade-change-filter-field > span { color: #506455; font-size: 10px; font-weight: 760; }
+.registrar-grade-change-search input,
+.registrar-grade-change-filter-field select {
+  min-height: 44px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  border-color: #d3e3d7;
+  border-radius: 11px;
+  color: #273c2d;
+  background: #fff;
+  font-size: 12px;
+}
+.registrar-grade-change-search input { padding-left: 35px; }
+.registrar-grade-change-search svg { left: 12px; color: #667f6f; }
+.registrar-grade-change-clear {
+  min-height: 44px;
+  padding: 10px 14px;
+  border-radius: 11px;
+  font-size: 11px;
+}
+.registrar-grade-change-request-list { gap: 17px; padding: 18px 22px 23px; background: #f8fcf9; }
+.registrar-grade-change-card {
+  border-color: #dcebe1;
+  border-radius: 17px;
+  box-shadow: 0 7px 20px rgba(27,75,47,.055);
+}
+.registrar-grade-change-card:hover { border-color: #b8d9c3; box-shadow: 0 11px 25px rgba(27,75,47,.09); }
+.registrar-grade-change-card-header { padding: 17px 19px; background: linear-gradient(110deg,#fff,#f7fcf9); }
+.registrar-grade-change-student-icon { color: #fff; background: #0c7848; border-color: #0c7848; }
+.registrar-grade-change-student strong { font-size: 13px; }
+.registrar-grade-change-student p,
+.registrar-grade-change-student small { font-size: 10px; }
+.registrar-grade-change-status { padding: 7px 11px; font-size: 10px; }
+.registrar-grade-change-context-item { padding: 15px 18px; }
+.registrar-grade-change-context-icon { border-radius: 10px; }
+.registrar-grade-change-context-item small,
+.registrar-grade-change-grade-grid small,
+.registrar-grade-change-reason small,
+.registrar-grade-change-card-footer small,
+.registrar-grade-change-modal-summary small { font-size: 9px; }
+.registrar-grade-change-context-item strong { font-size: 11px; }
+.registrar-grade-change-context-item p { font-size: 9.5px; }
+.registrar-grade-change-comparison { gap: 14px; padding: 16px 18px; background: #fcfefc; }
+.registrar-grade-change-grade-block { border-color: #dce9e0; border-radius: 13px; }
+.registrar-grade-change-grade-block--approved { border-color: #b7e2c7; box-shadow: 0 5px 13px rgba(19,114,63,.055); }
+.registrar-grade-change-grade-block--approved > header { background: #effaf3; }
+.registrar-grade-change-grade-block > header { padding: 12px 13px; }
+.registrar-grade-change-grade-block header strong { font-size: 11px; }
+.registrar-grade-change-grade-grid > div { padding: 11px 12px; }
+.registrar-grade-change-grade-grid strong { font-size: 11px; }
+.registrar-grade-change-reason { padding: 12px 14px; }
+.registrar-grade-change-reason p { font-size: 10px; }
+.registrar-grade-change-review-grid { gap: 11px; padding: 15px 18px; }
+.registrar-grade-change-review-note { padding: 12px; border-radius: 11px; }
+.registrar-grade-change-review-note strong { font-size: 10.5px; }
+.registrar-grade-change-review-note p { font-size: 10px; }
+.registrar-grade-change-completed-note { margin: 0 18px 15px; padding: 12px 14px; }
+.registrar-grade-change-completed-note strong { font-size: 10.5px; }
+.registrar-grade-change-completed-note p { font-size: 10px; }
+.registrar-grade-change-card-footer { min-height: 65px; padding: 12px 18px; border-top: 1px solid #edf3ee; background: #fff; }
+.registrar-grade-change-card-footer > div strong { font-size: 10.5px; }
+.registrar-grade-change-process { min-height: 40px; padding: 10px 14px; border-radius: 10px; font-size: 10.5px; }
+.registrar-grade-change-complete-label { padding: 8px 10px; font-size: 9.5px; }
+.registrar-grade-change-state { margin: 19px; padding: 30px; border-radius: 16px; background: #f4fbf6; }
+.registrar-grade-change-state--error { background: #fff3f2; }
+.registrar-grade-change-state strong { font-size: 12px; }
+.registrar-grade-change-state p { font-size: 10.5px; }
+
+/* Action notice. Preserve the critical green success / rose error distinction. */
+.registrar-grade-change-notice { padding: 14px 16px; border-radius: 13px; }
+.registrar-grade-change-notice strong { font-size: 12px; }
+.registrar-grade-change-notice p { font-size: 10.5px; }
+
+/* Processing dialog with a dark-green title region and clear grade comparison. */
+.registrar-grade-change-modal-backdrop {
+  padding: 16px;
+  background: rgba(4,24,13,.66);
+  backdrop-filter: blur(4px);
+}
+.registrar-grade-change-modal { width: min(730px,100%); border-radius: 20px; border-color: #cce2d3; }
+.registrar-grade-change-modal-header {
+  padding: 22px 23px;
+  border-bottom-color: rgba(255,255,255,.16);
+  background: linear-gradient(115deg,#075031,#0e7b47 72%,#24905b);
+}
+.registrar-grade-change-modal-icon { color: #fff; background: rgba(255,255,255,.18); border-color: rgba(255,255,255,.14); }
+.registrar-grade-change-modal-header small,
+.registrar-grade-change-modal-header h2 { color: #fff; }
+.registrar-grade-change-modal-header h2 { font-size: 20px; }
+.registrar-grade-change-modal-header p { color: #e1f7e8; font-size: 10.5px; line-height: 1.6; }
+.registrar-grade-change-modal-close { color: #fff; border-color: rgba(255,255,255,.3); background: rgba(255,255,255,.14); }
+.registrar-grade-change-modal-close:hover:not(:disabled) { color: #fff; background: rgba(255,255,255,.23); }
+.registrar-grade-change-modal-summary { gap: 10px; padding: 19px 21px 0; }
+.registrar-grade-change-modal-summary > div { padding: 14px; border-color: #d8eadf; border-radius: 12px; background: #f5fbf7; }
+.registrar-grade-change-modal-summary strong { font-size: 11.5px; }
+.registrar-grade-change-modal-summary span { font-size: 9.5px; }
+.registrar-grade-change-modal-warning { margin: 16px 21px 0; padding: 12px 13px; border-radius: 12px; }
+.registrar-grade-change-modal-warning p { font-size: 10px; }
+.registrar-grade-change-modal-field { padding: 19px 21px 22px; }
+.registrar-grade-change-modal-field label { font-size: 11px; }
+.registrar-grade-change-modal-field textarea { min-height: 125px; padding: 13px; border-radius: 11px; font-size: 11px; }
+.registrar-grade-change-modal > footer { gap: 10px; padding: 16px 21px; }
+.registrar-grade-change-modal > footer button { min-height: 42px; padding: 10px 15px; border-radius: 10px; font-size: 10.5px; }
+
+/* Responsive: respect original narrow-screen stacks without clipping content. */
+@media (max-width: 1024px) {
+  .registrar-grade-change-page { padding: 22px 20px 34px; }
+  .registrar-grade-change-hero { min-height: 0; padding: 27px 25px; }
+}
+@media (max-width: 850px) {
+  .registrar-grade-change-stats { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .registrar-grade-change-stat-card:last-child { grid-column: 1 / -1; }
+  .registrar-grade-change-toolbar { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 620px) {
+  .registrar-grade-change-page { padding: 16px 12px 29px; }
+  .registrar-grade-change-hero { padding: 23px 20px; border-radius: 19px; }
+  .registrar-grade-change-hero h1 { font-size: 27px; }
+  .registrar-grade-change-stats { grid-template-columns: 1fr; padding: 9px; border-radius: 18px; }
+  .registrar-grade-change-stat-card:last-child { grid-column: auto; }
+  .registrar-grade-change-stat-card { min-height: 94px; }
+  .registrar-grade-change-panel { border-radius: 19px; }
+  .registrar-grade-change-panel-heading { padding: 20px 17px; }
+  .registrar-grade-change-panel-heading h2 { font-size: 20px; }
+  .registrar-grade-change-toolbar { grid-template-columns: 1fr; padding: 15px; }
+  .registrar-grade-change-request-list { padding: 12px; }
+  .registrar-grade-change-card-header,
+  .registrar-grade-change-context-item { padding: 13px; }
+  .registrar-grade-change-comparison { padding: 12px; }
+  .registrar-grade-change-modal-header { padding: 19px 17px; }
+  .registrar-grade-change-modal-summary { padding: 14px 15px 0; }
+  .registrar-grade-change-modal-field { padding: 16px; }
+  .registrar-grade-change-modal-warning { margin: 12px 15px 0; }
+  .registrar-grade-change-modal > footer { padding: 14px 15px; }
+}
+
+/* Dark mode: charcoal surfaces throughout, especially modal and loading states;
+   no white transition, page-entry animation, or white loading overlay. */
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .dashboard-main:has(.registrar-grade-change-page) > .dashboard-content {
+  background: #111c15;
+}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-grade-change-page {
+  --rgc-text-950: #eff8f1;
+  --rgc-text-800: #e1f0e5;
+  --rgc-text-700: #cadfcf;
+  --rgc-text-600: #bed1c2;
+  --rgc-text-500: #b0c6b6;
+  --rgc-border: #3a5642;
+  --rgc-border-strong: #486651;
+  --rgc-surface: #1d3023;
+  --rgc-bg: #111c15;
+  color: #eff8f1;
+  background: #111c15;
+  background-image: none;
+}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  :is(.registrar-grade-change-stats,.registrar-grade-change-panel) {
+  border-color: #3c5844;
+  background: #1b2c20;
+  box-shadow: 0 12px 24px rgba(0,0,0,.2);
+}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-grade-change-stat-card { border-color: #3a5945; background: #213e2a; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-grade-change-stat-card:nth-child(2) { background: #423720; border-color: #74613d; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-grade-change-stat-card:nth-child(3) { background: #273b52; border-color: #456283; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  :is(.registrar-grade-change-stat-card small,.registrar-grade-change-stat-card p) { color: #b5cebb; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-grade-change-stat-card strong { color: #f5fff6; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  :is(.registrar-grade-change-panel-heading,.registrar-grade-change-toolbar,.registrar-grade-change-request-list,
+      .registrar-grade-change-card,.registrar-grade-change-card-header,.registrar-grade-change-comparison,
+      .registrar-grade-change-card-footer,.registrar-grade-change-modal > footer) {
+  border-color: #395641;
+  background: #1c2c21;
+}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  :is(.registrar-grade-change-card,.registrar-grade-change-grade-block,
+      .registrar-grade-change-review-note,.registrar-grade-change-completed-note,
+      .registrar-grade-change-context-item,.registrar-grade-change-modal-summary > div,
+      .registrar-grade-change-modal-warning,.registrar-grade-change-state,
+      .registrar-grade-change-reason,.registrar-grade-change-grade-grid > div) {
+  border-color: #3e5b47;
+  background: #23372a;
+}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  :is(.registrar-grade-change-grade-block > header,.registrar-grade-change-grade-block--approved > header) {
+  background: #2d4433;
+}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  :is(.registrar-grade-change-panel-heading h2,.registrar-grade-change-student strong,
+      .registrar-grade-change-context-item strong,.registrar-grade-change-grade-grid strong,
+      .registrar-grade-change-grade-block header strong,.registrar-grade-change-card-footer strong,
+      .registrar-grade-change-review-note strong,.registrar-grade-change-modal-summary strong,
+      .registrar-grade-change-modal-field label) { color: #eff8f1; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  :is(.registrar-grade-change-panel-heading p,.registrar-grade-change-student p,
+      .registrar-grade-change-student small,.registrar-grade-change-context-item p,
+      .registrar-grade-change-grade-grid small,.registrar-grade-change-reason p,
+      .registrar-grade-change-review-note p,.registrar-grade-change-modal-summary span,
+      .registrar-grade-change-modal-warning p,.registrar-grade-change-modal-field > div:first-child span) {
+  color: #b5cab9;
+}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  :is(.registrar-grade-change-search input,.registrar-grade-change-filter-field select,
+      .registrar-grade-change-modal-field textarea) {
+  border-color: #4a6753;
+  color: #eef9f1;
+  background: #132418;
+  color-scheme: dark;
+}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-grade-change-search input::placeholder { color: #9db5a4; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  :is(.registrar-grade-change-clear,.registrar-grade-change-modal-close,
+      .registrar-grade-change-modal > footer .cancel) {
+  border-color: #4d7659;
+  color: #def3e4;
+  background: #254330;
+}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-grade-change-modal { border-color: #45634e; background: #1c2d21; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-grade-change-modal-header { background: linear-gradient(110deg,#06472d,#11613d); }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-grade-change-state--error { border-color: #925b53; color: #ffdcd6; background: #452824; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-grade-change-state--error p { color: #f2c4ba; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-grade-change-notice.success { color: #daf5e3; border-color: #47755a; background: #234432; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-grade-change-notice.error { color: #ffdbd6; border-color: #855348; background: #422724; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-grade-change-modal-error { color: #ffd4cc; border-color: #8b524a; background: #492826; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-grade-change-modal-warning { color: #b4e9c9; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-grade-change-hero { color: #fff; }
+
+@media (prefers-reduced-motion: reduce) {
+  .registrar-grade-change-hero,
+  .registrar-grade-change-stat-card,
+  .registrar-grade-change-card,
+  .registrar-grade-change-process,
+  .registrar-grade-change-refresh { transition: none; }
+  .registrar-grade-change-spin,
+  .registrar-grade-change-spinner { animation: none; }
+}

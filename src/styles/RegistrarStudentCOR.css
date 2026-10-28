@@ -1,0 +1,434 @@
+/* ====================================================================
+   PTC PORTAL — REGISTRAR / CERTIFICATE OF REGISTRATION
+   Screen-only interface refresh. The official COR contents and their
+   inline formatting are left intact in StudentCORR.tsx.
+   ==================================================================== */
+
+@media screen {
+  /* Scope the shared layout gutter fix to this specific page. */
+  .dashboard-main:has(> .dashboard-content > .registrar-cor) > .dashboard-content {
+    padding: 0;
+    min-width: 0;
+    overflow-x: clip;
+    background: #e5f0e9;
+  }
+  .dashboard-main:has(.registrar-cor) > .header-container:has(.app-header.hide) {
+    min-height: 0;
+    height: 0;
+    border: 0;
+  }
+
+  .registrar-cor {
+    --rcor-ink: #17261e;
+    --rcor-muted: #607166;
+    --rcor-border: #d5e6db;
+    --rcor-surface: #ffffff;
+    --rcor-green: #096437;
+    --rcor-bg: #e6f1e9;
+    display: grid;
+    align-content: start;
+    gap: 18px;
+    min-width: 0;
+    min-height: 100%;
+    padding: 25px 28px 42px;
+    color: var(--rcor-ink);
+    background-color: var(--rcor-bg);
+    background-image:
+      linear-gradient(135deg, rgba(16, 114, 62, .055) 25%, transparent 25%),
+      linear-gradient(225deg, rgba(16, 114, 62, .055) 25%, transparent 25%),
+      linear-gradient(45deg, rgba(18, 116, 63, .038) 25%, transparent 25%),
+      linear-gradient(315deg, rgba(18, 116, 63, .038) 25%, var(--rcor-bg) 25%);
+    background-position: 0 0, 0 0, 42px 42px, 42px 42px;
+    background-size: 84px 84px;
+    font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
+  .registrar-cor *,
+  .registrar-cor *::before,
+  .registrar-cor *::after { box-sizing: border-box; }
+  .registrar-cor button,
+  .registrar-cor select { font: inherit; }
+  .registrar-cor :is(button, select):focus-visible {
+    outline: 3px solid rgba(30, 165, 96, .38);
+    outline-offset: 3px;
+  }
+
+  /* Hero: matches the green Registrar Dashboard banner. */
+  .registrar-cor__hero {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 18px;
+    min-height: 192px;
+    padding: 27px 30px;
+    border: 1px solid rgba(255, 255, 255, .23);
+    border-radius: 23px;
+    color: #fff;
+    background: linear-gradient(108deg, #064b2d 0%, #086e3c 61%, #218e54 100%);
+    box-shadow: 0 14px 32px rgba(3, 62, 29, .19);
+  }
+  .registrar-cor__hero::before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    right: 7%; top: -125px;
+    width: 278px; height: 278px;
+    border-radius: 50%;
+    border: 55px solid rgba(255,255,255,.09);
+    pointer-events: none;
+  }
+  .registrar-cor__hero::after {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    width: 230px; height: 230px;
+    right: -55px; bottom: -137px;
+    border: 1px solid rgba(255,255,255,.22);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+  .registrar-cor__hero-copy { position: relative; z-index: 1; flex: 1 1 470px; min-width: 0; }
+  .registrar-cor__eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    font-size: 12px;
+    line-height: 1.5;
+    font-weight: 800;
+    letter-spacing: .025em;
+  }
+  .registrar-cor__eyebrow svg {
+    width: 27px; height: 27px;
+    padding: 6px;
+    color: #eefdf2;
+    border: 1px solid rgba(255,255,255,.24);
+    border-radius: 9px;
+    background: rgba(255,255,255,.16);
+  }
+  .registrar-cor__hero h1 {
+    margin: 13px 0 8px;
+    font-size: clamp(26px, 3vw, 38px);
+    line-height: 1.16;
+    font-weight: 800;
+    letter-spacing: -.035em;
+    color: #fff;
+  }
+  .registrar-cor__hero p {
+    max-width: 710px;
+    margin: 0;
+    color: rgba(255,255,255,.9);
+    font-size: 14px;
+    line-height: 1.65;
+  }
+  .registrar-cor__status {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    margin-top: 13px;
+    padding: 6px 10px;
+    border: 1px solid rgba(255,255,255,.25);
+    border-radius: 999px;
+    background: rgba(255,255,255,.14);
+    color: #f0fff3;
+    font-size: 12px;
+    font-weight: 700;
+  }
+  .registrar-cor__hero-actions {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    flex: 0 1 auto;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .registrar-cor__button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 43px;
+    padding: 11px 15px;
+    border: 1px solid transparent;
+    border-radius: 11px;
+    font-size: 13px;
+    font-weight: 750;
+    line-height: 1.1;
+    cursor: pointer;
+    transition: background-color .15s ease, border-color .15s ease, box-shadow .15s ease;
+  }
+  .registrar-cor__button:disabled { opacity: .55; cursor: not-allowed; }
+  .registrar-cor__button--secondary {
+    background: #fff;
+    border-color: rgba(255,255,255,.65);
+    color: #075c35;
+    box-shadow: 0 3px 12px rgba(0,0,0,.08);
+  }
+  .registrar-cor__button--secondary:hover:not(:disabled) { background: #edf9f1; }
+  .registrar-cor__button--primary {
+    background: #dcf8e6;
+    border-color: #dcf8e6;
+    color: #074c2e;
+  }
+  .registrar-cor__button--primary:hover:not(:disabled) { background: #c2efd3; }
+
+  /* Overview; existing COR API fields only, no computed/fake values. */
+  .registrar-cor__summary {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+    padding: 13px;
+    border: 1px solid rgba(255,255,255,.8);
+    border-radius: 24px;
+    background: rgba(255,255,255,.46);
+    box-shadow: 0 8px 25px rgba(16, 70, 41, .08);
+  }
+  .registrar-cor__metric {
+    --accent: #0a9450;
+    --accent-soft: #e1f5e9;
+    --card-bg: #edf9f2;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-width: 0;
+    min-height: 109px;
+    padding: 18px 18px 18px 20px;
+    border: 1px solid rgba(255,255,255,.8);
+    border-radius: 17px;
+    background: var(--card-bg);
+    box-shadow: 0 4px 15px rgba(21,57,33,.045);
+  }
+  .registrar-cor__metric::before {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 4px;
+    background: var(--accent);
+  }
+  .registrar-cor__metric::after {
+    content: "";
+    position: absolute;
+    width: 102px; height: 102px;
+    right: -42px; top: -45px;
+    border-radius: 50%;
+    background: color-mix(in srgb, var(--accent) 9%, transparent);
+    pointer-events: none;
+  }
+  .registrar-cor__metric--gold { --accent: #dfa50a; --accent-soft: #fff5d7; --card-bg: #fff9ea; }
+  .registrar-cor__metric--blue { --accent: #2467e9; --accent-soft: #eaf1ff; --card-bg: #f0f6ff; }
+  .registrar-cor__metric--violet { --accent: #8037e6; --accent-soft: #f0eaff; --card-bg: #faf5ff; }
+  .registrar-cor__metric-icon {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    flex: 0 0 46px;
+    width: 46px; height: 46px;
+    border: 1px solid color-mix(in srgb, var(--accent) 21%, #fff);
+    border-radius: 13px;
+    background: var(--accent-soft);
+    color: var(--accent);
+    box-shadow: 0 5px 14px rgba(14, 57, 34, .06);
+  }
+  .registrar-cor__metric--green .registrar-cor__metric-icon {
+    background: #086b3c;
+    border-color: #086b3c;
+    color: #fff;
+  }
+  .registrar-cor__metric > div { position: relative; z-index: 1; display: grid; min-width: 0; gap: 2px; }
+  .registrar-cor__metric-label { font-size: 10px; font-weight: 800; letter-spacing: .018em; color: #66756d; }
+  .registrar-cor__metric strong {
+    font-size: clamp(18px, 1.7vw, 26px);
+    line-height: 1.18;
+    color: #1c2a20;
+    font-weight: 820;
+    overflow-wrap: anywhere;
+  }
+  .registrar-cor__metric small { font-size: 11px; line-height: 1.4; color: #6f8173; }
+
+  /* Period picker. */
+  .registrar-cor__period-panel {
+    padding: 23px 26px;
+    border: 1px solid var(--rcor-border);
+    border-radius: 20px;
+    background: var(--rcor-surface);
+    box-shadow: 0 8px 22px rgba(19, 69, 36, .055);
+  }
+  .registrar-cor__section-heading { margin-bottom: 18px; }
+  .registrar-cor__section-label {
+    display: inline-flex;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: #e4f5eb;
+    color: #087045;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: .03em;
+  }
+  .registrar-cor__section-heading h2 {
+    margin: 9px 0 4px;
+    color: var(--rcor-ink);
+    font-size: 23px;
+    font-weight: 800;
+  }
+  .registrar-cor__section-heading p {
+    margin: 0;
+    color: var(--rcor-muted);
+    font-size: 13px;
+    line-height: 1.55;
+  }
+  .registrar-cor__period-label {
+    display: grid;
+    gap: 8px;
+    max-width: 450px;
+    color: var(--rcor-ink);
+    font-size: 13px;
+    font-weight: 750;
+  }
+  .registrar-cor__select {
+    display: block;
+    width: 100%;
+    min-height: 45px;
+    padding: 10px 12px;
+    border: 1px solid var(--rcor-border);
+    border-radius: 11px;
+    background: var(--rcor-surface);
+    color: var(--rcor-ink);
+  }
+  .registrar-cor__select:hover:not(:disabled) { border-color: #74b68e; }
+  .registrar-cor__select:disabled { opacity: .6; }
+  .registrar-cor__error {
+    margin-top: 14px;
+    padding: 13px 14px;
+    border: 1px solid #e9b4b2;
+    border-radius: 11px;
+    background: #fff1f0;
+    color: #952f2c;
+    font-size: 13px;
+  }
+
+  /* White, readable official document: decorate only the preview frame.
+     Do not override the inline font sizes, tables, form, or signature rules. */
+  .registrar-cor .registrar-cor__paper {
+    max-width: 100%;
+    border-radius: 12px;
+    outline: 10px solid rgba(255,255,255,.6);
+    box-shadow: 0 14px 34px rgba(16,48,27,.12) !important;
+  }
+  .registrar-cor .cor-table { max-width: 100%; }
+
+  .registrar-cor--state { min-height: 60vh; align-content: center; }
+  .registrar-cor__state-card {
+    max-width: 770px;
+    width: 100%;
+    margin-inline: auto;
+    padding: 29px !important;
+    border-radius: 18px !important;
+    border: 1px solid var(--rcor-border) !important;
+    background: var(--rcor-surface) !important;
+    color: var(--rcor-ink) !important;
+    box-shadow: 0 12px 29px rgba(11,61,34,.07);
+  }
+  .registrar-cor__state-card h1 { margin: 12px 0 6px; font-size: 26px; }
+  .registrar-cor__state-card p { color: var(--rcor-muted); line-height: 1.55; }
+  .registrar-cor__state-card button { margin-top: 8px; }
+
+  @media (max-width: 1230px) {
+    .registrar-cor__summary { grid-template-columns: repeat(2, minmax(0,1fr)); }
+  }
+  @media (max-width: 870px) {
+    .registrar-cor { padding: 18px 17px 32px; }
+    .registrar-cor__hero { padding: 25px 23px; }
+    .registrar-cor__hero-actions { flex-basis: 100%; }
+  }
+  @media (max-width: 580px) {
+    .registrar-cor { padding: 13px 10px 27px; gap: 14px; }
+    .registrar-cor__hero { border-radius: 17px; padding: 23px 19px; }
+    .registrar-cor__hero h1 { font-size: 27px; }
+    .registrar-cor__hero-actions { gap: 7px; }
+    .registrar-cor__button { flex: 1 1 auto; padding: 10px 9px; }
+    .registrar-cor__summary { grid-template-columns: 1fr; gap: 9px; padding: 9px; border-radius: 16px; }
+    .registrar-cor__metric { min-height: 92px; }
+    .registrar-cor__period-panel { padding: 20px 16px; }
+    /* The COR itself is an official fixed-width document; allow horizontal
+       preview scrolling on narrow screens instead of breaking its tables. */
+    .registrar-cor__paper {
+      min-width: 680px;
+      justify-self: start;
+    }
+    .registrar-cor { overflow-x: auto; }
+  }
+
+  /* Dark mode applies only to app chrome. COR paper must remain white. */
+  :is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+    .dashboard-main:has(.registrar-cor) > .dashboard-content { background: #101a14; }
+  :is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+    .registrar-cor {
+      --rcor-ink: #ebf4ec;
+      --rcor-muted: #b2c8b9;
+      --rcor-border: #365443;
+      --rcor-surface: #1e2d23;
+      --rcor-bg: #101a14;
+      background-color: #101a14;
+      background-image:
+        linear-gradient(135deg,rgba(60,135,78,.07) 25%,transparent 25%),
+        linear-gradient(225deg,rgba(60,135,78,.05) 25%,transparent 25%),
+        linear-gradient(45deg,rgba(60,135,78,.05) 25%,transparent 25%),
+        linear-gradient(315deg,rgba(60,135,78,.035) 25%,#101a14 25%);
+    }
+  :is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+    .registrar-cor__summary { background: #182a1f; border-color: #304d39; }
+  :is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+    .registrar-cor__metric { background: #22362a; border-color: #3b5744; }
+  :is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+    .registrar-cor__metric :is(strong,.registrar-cor__metric-label,.registrar-cor__metric-icon) { color: #eaf7ec; }
+  :is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+    .registrar-cor__metric small { color: #acc4b3; }
+  :is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+    .registrar-cor__metric-icon { background: #31513e; border-color: #60856b; }
+  :is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+    .registrar-cor__section-label { background: #244934; color: #baf0d0; }
+  :is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+    .registrar-cor .registrar-cor__paper {
+      color: #111827;
+      background: #fff;
+      outline-color: #2a4032;
+      color-scheme: light;
+    }
+  :is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+    .registrar-cor__state-card .registrar-cor__button--secondary { color: #104d2d; }
+}
+
+/* Print the official COR in the original plain A4 format. No dashboard
+   decoration, sidebar, header, or footer is added to the printed output. */
+@media print {
+  .dashboard-wrapper:has(.registrar-cor) > :not(.dashboard-main) { display: none !important; }
+  .dashboard-main:has(.registrar-cor) > .header-container,
+  .dashboard-main:has(.registrar-cor) > .footer { display: none !important; }
+  .dashboard-main:has(.registrar-cor),
+  .dashboard-main:has(.registrar-cor) > .dashboard-content {
+    display: block !important;
+    width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow: visible !important;
+    height: auto !important;
+  }
+  .registrar-cor { display: block !important; margin: 0 !important; padding: 0 !important; background: white !important; }
+  .registrar-cor__hero,
+  .registrar-cor__summary,
+  .registrar-cor__period-panel,
+  .registrar-cor__state-card { display: none !important; }
+  .registrar-cor__paper {
+    overflow: visible !important;
+    min-width: 0 !important;
+    border-radius: 0 !important;
+    outline: 0 !important;
+    background: white !important;
+  }
+}

@@ -511,3 +511,83 @@
     transition-duration: 0.01ms !important;
   }
 }
+
+/* PTC Portal Registrar Subjects — Add/Edit subject visual alignment */
+.registrar-subject-modal__overlay { background: rgba(5,28,16,.64); }
+.registrar-subject-modal {
+  border: 1px solid #d6e8dc;
+  border-radius: 22px;
+  box-shadow: 0 28px 70px rgba(4,37,19,.28);
+}
+.registrar-subject-modal__header {
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 93% 25%,rgba(255,255,255,.13) 0 18%,transparent 18.4%),
+    linear-gradient(115deg,#064d2f,#0d7441 74%,#188b4c);
+  border-bottom-color: #0b6d3d;
+  padding: 24px 26px;
+}
+.registrar-subject-modal__identity { position: relative; z-index: 1; }
+.registrar-subject-modal__icon {
+  color: #fff;
+  background: rgba(255,255,255,.15);
+  border: 1px solid rgba(255,255,255,.3);
+}
+.registrar-subject-modal__eyebrow { color: #d7f7e3; }
+.registrar-subject-modal__header h2 { color: #fff; font-size: 22px; }
+.registrar-subject-modal__header p { color: rgba(241,255,246,.85); }
+.registrar-subject-modal__close {
+  color: #fff;
+  border: 1px solid rgba(255,255,255,.3);
+  background: rgba(255,255,255,.11);
+  z-index: 1;
+}
+.registrar-subject-modal__close:hover:not(:disabled) { color: #074b2b; background: #eafff1; }
+.registrar-subject-modal__body { background: #fbfdfb; padding: 22px 25px 8px; }
+.registrar-subject-modal__section {
+  padding: 17px;
+  margin-bottom: 14px;
+  border: 1px solid #e3eee6;
+  border-radius: 14px;
+  background: #fff;
+}
+.registrar-subject-modal__section-heading > span { color: #123b26; font-size: 13px; }
+.registrar-subject-modal__field input,
+.registrar-subject-modal__field textarea { border-color: #cbded1; border-radius: 10px; }
+.registrar-subject-modal__field input:focus,
+.registrar-subject-modal__field textarea:focus { border-color: #14844b; box-shadow: 0 0 0 3px rgba(20,132,75,.12); }
+.registrar-subject-modal__load-preview { background: #eef9f2; border-color: #cde7d5; }
+.registrar-subject-modal__footer {
+  padding: 18px 25px;
+  background: #f8fcf9;
+  border-top-color: #dfebe3;
+}
+@media (max-width: 600px) {
+  .registrar-subject-modal__header { padding: 19px; }
+  .registrar-subject-modal__body { padding: 14px 16px 6px; }
+  .registrar-subject-modal__section { padding: 13px; }
+  .registrar-subject-modal__footer { padding: 15px 17px; }
+}
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-subject-modal { color: #eaf5ed; background: #1b2b20; border-color: #42664c; color-scheme: dark; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-subject-modal__body,
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-subject-modal__footer { background: #1c2d21; border-color: #3c5944; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-subject-modal__section { background: #22382a; border-color: #3c5944; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-subject-modal__section-heading > span,
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-subject-modal__field > span { color: #e9f6ec; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-subject-modal__section-heading p { color: #bdd4c2; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-subject-modal__field input,
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-subject-modal__field textarea,
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-subject-modal__number-input { background: #14251a; color: #eaf4ec; border-color: #456b50; }
+:is(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,.dark-mode,.theme-dark)
+  .registrar-subject-modal__load-preview { background: #203d2b; border-color: #3a6347; }

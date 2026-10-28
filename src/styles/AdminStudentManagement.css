@@ -879,3 +879,573 @@
   font-weight: 800;
   line-height: 1;
 }
+
+/* =====================================================================
+   PTC PORTAL — ADMIN / STUDENT MANAGEMENT
+   Registrar-dashboard visual language; scoped to AddEditDrop.tsx only.
+   Existing class names, table interactions, 10-second archive logic and
+   shared sidebar/footer are preserved by this CSS-only update.
+   ===================================================================== */
+
+/* Fill the original dashboard-content gutter on this route only. */
+.dashboard-main:has(> .dashboard-content > .admin-student-management) > .dashboard-content {
+  padding: 0;
+  background: #dbeee1;
+  overflow-x: clip;
+}
+.dashboard-main:has(.admin-student-management) > .header-container:has(.app-header.hide) {
+  height: 0;
+  min-height: 0;
+  border: 0;
+}
+.dashboard-main:has(.admin-student-management) > .header-container:has(.app-header.show) {
+  min-height: 58px;
+  height: 58px;
+}
+.dashboard-main:has(.admin-student-management) .app-header {
+  background: linear-gradient(90deg, #deeee4, #eef7ed);
+  border-bottom-color: #c5dfce;
+}
+
+.admin-student-management {
+  --asm-green-950: #063e28;
+  --asm-green-900: #075431;
+  --asm-green-800: #0a7041;
+  --asm-green-700: #0c824a;
+  --asm-green-600: #13975b;
+  --asm-green-100: #dff6e9;
+  --asm-green-50: #effaf3;
+  --asm-text-950: #17251e;
+  --asm-text-800: #2c4033;
+  --asm-text-700: #496153;
+  --asm-text-600: #607469;
+  --asm-text-500: #76877c;
+  --asm-border: #dce9e0;
+  --asm-border-strong: #c6ddce;
+  --asm-surface: #fff;
+  --asm-bg: #e7f1e9;
+  width: 100%;
+  min-width: 0;
+  min-height: 100%;
+  padding: 27px 27px 42px;
+  color: var(--asm-text-950);
+  background-color: #e6f2e9;
+  background-image:
+    repeating-linear-gradient(135deg,transparent 0 69px,rgba(34,142,90,.045) 69px 85px,transparent 85px 135px),
+    repeating-linear-gradient(45deg,transparent 0 90px,rgba(255,255,255,.36) 90px 104px,transparent 104px 178px),
+    radial-gradient(ellipse at 7% 4%,rgba(41,155,105,.19),transparent 44%),
+    radial-gradient(ellipse at 95% 18%,rgba(212,176,64,.12),transparent 37%),
+    linear-gradient(120deg,#d6eadd,#edf7ee 54%,#d6eadb);
+}
+
+/* Header uses the same hierarchy, green gradient, circular accent as Registrar. */
+.admin-student-management__hero {
+  min-height: 188px;
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin: 0 0 17px;
+  padding: 30px 31px;
+  overflow: hidden;
+  border: 1px solid rgba(221,255,236,.16);
+  border-radius: 23px;
+  background: linear-gradient(108deg,#06482e 0%,#086b3c 55%,#138848 100%);
+  box-shadow: 0 16px 34px rgba(4,71,36,.16);
+}
+.admin-student-management__hero::before {
+  content: "";
+  position: absolute;
+  top: -192px;
+  right: 120px;
+  width: 300px;
+  height: 300px;
+  border: 38px solid rgba(185,240,209,.13);
+  border-radius: 50%;
+  background: rgba(208,249,222,.035);
+  pointer-events: none;
+  z-index: -1;
+}
+.admin-student-management__hero::after {
+  top: -125px;
+  right: -94px;
+  width: 270px;
+  height: 270px;
+  border: 42px solid rgba(207,254,224,.10);
+  z-index: -1;
+}
+.admin-student-management__hero-copy,
+.admin-student-management__add-button {position: relative; z-index: 1;}
+.admin-student-management__hero-copy {max-width: 780px;}
+.admin-student-management__eyebrow {
+  gap: 9px;
+  margin-bottom: 13px;
+  color: #e8fff0;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .07em;
+}
+.admin-student-management__eyebrow > span {
+  width: 30px;
+  height: 30px;
+  color: #f6fff9;
+  border: 1px solid rgba(255,255,255,.24);
+  background: rgba(255,255,255,.16);
+}
+.admin-student-management__hero h1 {
+  color: #fff;
+  font-size: clamp(29px,2.5vw,38px);
+  font-weight: 820;
+  letter-spacing: -.045em;
+}
+.admin-student-management__hero p {
+  max-width: 720px;
+  margin-top: 9px;
+  color: #e1f7e9;
+  font-size: 13px;
+  line-height: 1.65;
+}
+.admin-student-management__add-button {
+  min-height: 46px;
+  padding: 11px 17px;
+  gap: 9px;
+  color: #07653b;
+  border: 1px solid #fff;
+  border-radius: 11px;
+  background: #fff;
+  box-shadow: 0 7px 16px rgba(3,51,27,.12);
+  font-size: 12px;
+  font-weight: 800;
+}
+.admin-student-management__add-button:hover:not(:disabled) {
+  color: #064f2d;
+  background: #e8f8ed;
+  border-color: #e8f8ed;
+  box-shadow: 0 9px 19px rgba(3,51,27,.18);
+}
+
+/* Four existing data-driven metrics, no synthetic numbers added. */
+.admin-student-management__summary {
+  display: grid;
+  grid-template-columns: repeat(4,minmax(0,1fr));
+  gap: 12px;
+  margin-bottom: 19px;
+  padding: 11px;
+  border: 1px solid rgba(255,255,255,.76);
+  border-radius: 23px;
+  background: rgba(255,255,255,.58);
+  box-shadow: 0 10px 25px rgba(10,66,36,.08);
+}
+.admin-student-management__summary article {
+  position: relative;
+  overflow: hidden;
+  min-height: 111px;
+  align-items: center;
+  gap: 12px;
+  padding: 18px 15px;
+  border: 1px solid #deebdf;
+  border-left: 4px solid #0b9953;
+  border-radius: 17px;
+  background: linear-gradient(110deg,#f4fcf7,#e9f8ef);
+  box-shadow: 0 6px 16px rgba(13,69,37,.055);
+}
+.admin-student-management__summary article::after {
+  content: "";
+  position: absolute;
+  top: -55px;
+  right: -28px;
+  width: 112px;
+  height: 112px;
+  border-radius: 50%;
+  background: rgba(13,143,80,.055);
+  pointer-events: none;
+}
+.admin-student-management__summary article:nth-child(2) {
+  border-color: #f1e5c4;
+  border-left-color: #dc9b0c;
+  background: linear-gradient(110deg,#fffaf0,#fff4d9);
+}
+.admin-student-management__summary article:nth-child(2)::after {background: rgba(221,165,39,.095);}
+.admin-student-management__summary article:nth-child(3) {
+  border-color: #d5e5ff;
+  border-left-color: #2563eb;
+  background: linear-gradient(110deg,#f5f9ff,#e9f1ff);
+}
+.admin-student-management__summary article:nth-child(3)::after {background: rgba(41,101,210,.08);}
+.admin-student-management__summary article:nth-child(4) {
+  border-color: #e7ddff;
+  border-left-color: #873cec;
+  background: linear-gradient(110deg,#fbf7ff,#f1e9ff);
+}
+.admin-student-management__summary article:nth-child(4)::after {background: rgba(142,70,215,.08);}
+.admin-student-management__summary-icon {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  flex: 0 0 47px;
+  width: 47px;
+  height: 47px;
+  border: 0;
+  border-radius: 13px;
+  color: #fff;
+  background: linear-gradient(145deg,#0b9955,#065c34);
+  box-shadow: 0 6px 12px rgba(4,100,57,.16);
+}
+.admin-student-management__summary article:nth-child(2) .admin-student-management__summary-icon {
+  color: #a36a00;
+  border: 1px solid #f3d994;
+  background: #fff4d3;
+  box-shadow: none;
+}
+.admin-student-management__summary article:nth-child(3) .admin-student-management__summary-icon {
+  color: #2563eb;
+  border: 1px solid #cfdeff;
+  background: #e9f1ff;
+  box-shadow: none;
+}
+.admin-student-management__summary article:nth-child(4) .admin-student-management__summary-icon {
+  color: #7b35e9;
+  border: 1px solid #e0d2ff;
+  background: #f2ebff;
+  box-shadow: none;
+}
+.admin-student-management__summary article > div {position: relative; z-index: 1; gap: 5px;}
+.admin-student-management__summary small {
+  color: #5f7165;
+  font-size: 10px;
+  font-weight: 790;
+  letter-spacing: .02em;
+  text-transform: uppercase;
+}
+.admin-student-management__summary strong {
+  color: #18271d;
+  font-size: 27px;
+  font-weight: 820;
+}
+
+/* Student records workspace and search controls. */
+.admin-student-management__workspace {
+  border: 1px solid #d9e9df;
+  border-radius: 21px;
+  background: #fff;
+  box-shadow: 0 10px 25px rgba(8,66,36,.07);
+}
+.admin-student-management__workspace-header {
+  gap: 20px;
+  padding: 23px;
+  border-bottom: 1px solid #e5eee8;
+  background: linear-gradient(100deg,#fff 60%,#f3fbf6);
+}
+.admin-student-management__section-kicker {
+  display: table;
+  margin-bottom: 8px;
+  padding: 5px 9px;
+  border-radius: 999px;
+  color: #0a7a43;
+  background: #e6f7ed;
+  font-size: 9px;
+  font-weight: 800;
+}
+.admin-student-management__workspace-header h2 {font-size: 21px; font-weight: 810;}
+.admin-student-management__workspace-header p {font-size: 11px; line-height: 1.6;}
+.admin-student-management__search {flex-basis: min(390px,45%);}
+.admin-student-management__search input {
+  min-height: 44px;
+  border: 1px solid #c8dfce;
+  border-radius: 11px;
+  font-size: 12px;
+  background: #fff;
+}
+.admin-student-management__search input:focus-visible {
+  border-color: #27a15e;
+  outline: 2px solid rgba(53,179,100,.18);
+  outline-offset: 1px;
+}
+.admin-student-management__search > svg {color: #6c8774;}
+.admin-student-management__table-wrap {max-width: 100%; background: #fff;}
+.admin-student-management__table {background: #fff;}
+.admin-student-management__table thead {background: #eef7f0;}
+.admin-student-management__table th {
+  padding: 14px 13px;
+  color: #486a54;
+  border-bottom-color: #d7e7db;
+  font-size: 10px;
+}
+.admin-student-management__table td {
+  padding: 14px 13px;
+  border-bottom-color: #e9f0eb;
+  color: #395547;
+  font-size: 11px;
+}
+.admin-student-management__table tbody tr:nth-child(even) {background: #fcfefd;}
+.admin-student-management__table tbody tr:hover {background: #f1faf4;}
+.admin-student-management__student-id {
+  border-color: #c8e2d0;
+  color: #076c40;
+  background: #eaf8ef;
+  border-radius: 8px;
+  font-weight: 800;
+}
+.admin-student-management__avatar {
+  width: 37px;
+  height: 37px;
+  flex-basis: 37px;
+  color: #fff;
+  border: 0;
+  border-radius: 11px;
+  background: linear-gradient(140deg,#10884e,#065632);
+  box-shadow: 0 4px 9px rgba(11,103,56,.13);
+}
+.admin-student-management__student-cell strong {font-size: 11.5px; color: #253b2d;}
+.admin-student-management__student-cell small {font-size: 10px;}
+.admin-student-management__action {
+  min-height: 35px;
+  gap: 6px;
+  padding: 8px 11px;
+  border-radius: 9px;
+  font-size: 10.5px;
+}
+.admin-student-management__action--edit {background: #e9f8ee; border-color: #b9e0c6; color: #076b3c;}
+.admin-student-management__action--delete {background: #fff2f0; border-color: #f3c5bd; color: #a72d25;}
+.admin-student-management__table-state {
+  min-height: 190px;
+  color: #687e6e;
+  font-size: 12px;
+  background: radial-gradient(circle at center,#f1faf4,#fff 70%);
+}
+.admin-student-management__error {
+  padding: 14px 16px;
+  border-radius: 12px;
+  font-size: 12px;
+}
+
+/* Shared modal is left intact. Scope the visual changes to this exact page. */
+.admin-student-management > .modal-overlay {
+  position: fixed !important;
+  inset: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 100vw !important;
+  height: 100dvh !important;
+  padding: 18px !important;
+  overflow-y: auto;
+  background: rgba(3,24,14,.68) !important;
+  backdrop-filter: blur(4px);
+  z-index: 5000 !important;
+  animation: none !important;
+}
+.admin-student-management > .modal-overlay > .modal-content {
+  position: relative;
+  flex: 0 1 470px;
+  width: min(470px,100%) !important;
+  max-width: 100% !important;
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: calc(100dvh - 36px) !important;
+  padding: 0 !important;
+  overflow-y: auto;
+  border: 1px solid #d6e6dc;
+  border-radius: 20px !important;
+  background: #fff !important;
+  box-shadow: 0 24px 66px rgba(0,27,13,.26);
+  animation: none !important;
+  transform: none !important;
+}
+.admin-student-management > .modal-overlay > .modal-content > .close-btn {
+  position: absolute;
+  z-index: 3;
+  top: 12px;
+  right: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid #dce9e0;
+  border-radius: 9px;
+  color: #42614d;
+  background: #f2faf5;
+  font-size: 13px;
+  line-height: 1;
+}
+.admin-student-management > .modal-overlay > .modal-content > .close-btn:hover {color: #084e2c; background: #dff4e6;}
+.admin-student-management__delete-dialog {
+  width: 100%;
+  max-width: none;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: 48px minmax(0,1fr);
+  gap: 14px;
+  padding: 25px 24px;
+  padding-right: 51px;
+}
+.admin-student-management__delete-icon {
+  width: 48px;
+  height: 48px;
+  border: 1px solid #f3c8bf;
+  border-radius: 13px;
+  color: #b54229;
+  background: #fff1ec;
+}
+.admin-student-management__delete-dialog h2 {margin: 3px 0 9px; color: #1e3024; font-size: 20px;}
+.admin-student-management__delete-dialog p {color: #526458; font-size: 12px; line-height: 1.6;}
+.admin-student-management__delete-dialog p + p {margin-top: 9px;}
+.admin-student-management__archive-countdown {
+  width: 70px;
+  height: 70px;
+  margin-top: 16px;
+  border: 3px solid #f1bdb1;
+  border-radius: 50%;
+  color: #a72d25;
+  background: #fff2ef;
+  font-size: 29px;
+  font-weight: 850;
+  font-variant-numeric: tabular-nums;
+  box-shadow: 0 0 0 6px rgba(252,220,212,.35);
+}
+.admin-student-management__modal-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 5px;
+  padding: 14px 0 0;
+  border-top: 1px solid #e8f0e9;
+}
+.admin-student-management__modal-button {
+  min-height: 39px;
+  padding: 9px 16px;
+  border-radius: 10px;
+  color: #fff;
+  border-color: #0b7944;
+  background: #0c824a;
+  font-size: 11px;
+  font-weight: 790;
+}
+.admin-student-management__modal-button:hover:not(:disabled) {color: #fff; background: #096538;}
+.admin-student-management__modal-button--danger {background: #b42318; border-color: #b42318;}
+.admin-student-management__modal-button--danger:hover:not(:disabled) {background: #922017;}
+
+@media (max-width: 1240px) {
+  .admin-student-management__summary {grid-template-columns: repeat(2,minmax(0,1fr));}
+}
+@media (max-width: 980px) {
+  .admin-student-management {padding: 22px 19px 35px;}
+  .admin-student-management__workspace-header {align-items: stretch; flex-direction: column;}
+  .admin-student-management__search {flex-basis: auto; width: 100%;}
+}
+@media (max-width: 680px) {
+  .admin-student-management {padding: 16px 12px 31px;}
+  .admin-student-management__hero {padding: 24px 19px; align-items: stretch; flex-direction: column; border-radius: 19px;}
+  .admin-student-management__hero h1 {font-size: 30px;}
+  .admin-student-management__hero p {font-size: 12px;}
+  .admin-student-management__add-button {align-self: stretch;}
+  .admin-student-management__workspace-header {padding: 18px;}
+  .admin-student-management__summary {gap: 9px; padding: 9px;}
+  .admin-student-management__summary article {min-height: 98px;}
+}
+@media (max-width: 440px) {
+  .admin-student-management__summary {grid-template-columns: 1fr;}
+  .admin-student-management__delete-dialog {grid-template-columns: 40px minmax(0,1fr); padding: 22px 44px 22px 18px;}
+  .admin-student-management__delete-icon {width: 40px; height: 40px;}
+  .admin-student-management__modal-actions {padding: 13px 0 0;}
+}
+
+/* Charcoal dark-mode rules intentionally do not touch Sidebar or Footer. */
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, [data-theme="dark"])
+  .dashboard-main:has(> .dashboard-content > .admin-student-management) > .dashboard-content {background: #101b16;}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, [data-theme="dark"])
+  .dashboard-main:has(.admin-student-management) .app-header {background: #17291e; border-bottom-color: #354a3b;}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, [data-theme="dark"])
+  .admin-student-management {
+  --asm-text-950: #edf8f0;
+  --asm-text-800: #d7ebdf;
+  --asm-text-700: #c1d8c8;
+  --asm-text-600: #aec5b5;
+  --asm-text-500: #a6bbaa;
+  --asm-border: #355443;
+  --asm-border-strong: #4a6a55;
+  --asm-surface: #1c3024;
+  --asm-green-50: #264332;
+  --asm-green-100: #284f38;
+  color: #edf8f0;
+  background: #101b16;
+  background-image: radial-gradient(ellipse at 80% 4%,rgba(16,116,65,.17),transparent 40%);
+}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, [data-theme="dark"])
+  .admin-student-management__summary {background: rgba(28,48,35,.86); border-color: #305641; box-shadow: none;}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, [data-theme="dark"])
+  .admin-student-management__summary article {background: #1d3b2a; border-color: #336d48; border-left-color: #24b66f;}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, [data-theme="dark"])
+  .admin-student-management__summary article:nth-child(2) {background: #3e3524; border-color: #6f5b33; border-left-color: #ebb94d;}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, [data-theme="dark"])
+  .admin-student-management__summary article:nth-child(3) {background: #223249; border-color: #3d597e; border-left-color: #5b94ff;}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, [data-theme="dark"])
+  .admin-student-management__summary article:nth-child(4) {background: #352840; border-color: #60486f; border-left-color: #c499f9;}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, [data-theme="dark"])
+  .admin-student-management__summary small {color: #cadacb;}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, [data-theme="dark"])
+  .admin-student-management__summary strong {color: #f3fff7;}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, [data-theme="dark"])
+  .admin-student-management__workspace {background: #1b2d22; border-color: #365544; box-shadow: none;}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, [data-theme="dark"])
+  .admin-student-management__workspace-header {background: #22382a; border-bottom-color: #365544;}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, [data-theme="dark"])
+  .admin-student-management__section-kicker {color: #a4f0bf; background: #2d513a;}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, [data-theme="dark"])
+  .admin-student-management__search input,
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, [data-theme="dark"])
+  .admin-student-management__table-wrap,
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, [data-theme="dark"])
+  .admin-student-management__table {color: #e2f1e7; background: #1b2d22; border-color: #41634d;}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, [data-theme="dark"])
+  .admin-student-management__search input::placeholder {color: #9db4a3;}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, [data-theme="dark"])
+  .admin-student-management__table thead {background: #294131;}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, [data-theme="dark"])
+  .admin-student-management__table th {color: #c7e2d0; border-color: #436450;}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, [data-theme="dark"])
+  .admin-student-management__table td {color: #d3e7da; border-color: #365544;}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, [data-theme="dark"])
+  .admin-student-management__table tbody tr,
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, [data-theme="dark"])
+  .admin-student-management__table tbody tr:nth-child(even) {background: #1e3226;}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, [data-theme="dark"])
+  .admin-student-management__table tbody tr:hover {background: #294433;}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, [data-theme="dark"])
+  .admin-student-management__student-cell strong {color: #f0f9f3;}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, [data-theme="dark"])
+  .admin-student-management__student-id {color: #c1f6d4; border-color: #47805b; background: #254c32;}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, [data-theme="dark"])
+  .admin-student-management__action--edit {color: #bbf4ce; border-color: #446c50; background: #294a34;}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, [data-theme="dark"])
+  .admin-student-management__action--delete {color: #ffd1ca; border-color: #8b514b; background: #542e2b;}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, [data-theme="dark"])
+  .admin-student-management__table-state {color: #bdd0c1; background: #1b2d22;}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, [data-theme="dark"])
+  .admin-student-management__error {color: #ffd5cc; border-color: #804a44; background: #3d2525;}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, [data-theme="dark"])
+  .admin-student-management > .modal-overlay {background: rgba(0,5,2,.8) !important;}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, [data-theme="dark"])
+  .admin-student-management > .modal-overlay > .modal-content {color: #eef9f0; border-color: #40634b; background: #1e3024 !important;}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, [data-theme="dark"])
+  .admin-student-management > .modal-overlay > .modal-content > .close-btn {color: #d8f2df; border-color: #4d7159; background: #2d4736;}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, [data-theme="dark"])
+  .admin-student-management__delete-dialog h2 {color: #f3fdf5;}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, [data-theme="dark"])
+  .admin-student-management__delete-dialog p {color: #c6dacf;}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, [data-theme="dark"])
+  .admin-student-management__delete-icon {color: #ffc7b9; border-color: #775149; background: #4b322c;}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, [data-theme="dark"])
+  .admin-student-management__archive-countdown {color: #ffd1c4; border-color: #aa685d; background: #4c302b; box-shadow: 0 0 0 6px rgba(130,69,57,.16);}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark, [data-theme="dark"])
+  .admin-student-management__modal-actions {border-top-color: #41604b;}
+
+@media (prefers-reduced-motion: reduce) {
+  .admin-student-management__hero,
+  .admin-student-management__summary article,
+  .admin-student-management > .modal-overlay,
+  .admin-student-management > .modal-overlay > .modal-content {animation: none !important;}
+}

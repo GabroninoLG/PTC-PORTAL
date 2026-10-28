@@ -1875,3 +1875,597 @@
     grid-template-columns: 1fr;
   }
 }
+
+
+/* ============================================================================
+   PTC PORTAL | REGISTRAR / ACADEMIC RECORDS — GREEN DESIGN REFRESH
+   CSS-only update. The existing academic records, filters, tables, badges and
+   navigation retain their TSX behavior. Shared sidebar/footer are untouched.
+   ============================================================================ */
+
+/* Remove the 20px generic content gutter for this page, without modifying the
+   dimensions or styles of the shared sidebar and footer. */
+.dashboard-main:has(> .dashboard-content > .registrar-academic-record)
+  > .dashboard-content {
+  padding: 0;
+  min-width: 0;
+  overflow-x: clip;
+  background: #e5f0e9;
+}
+
+/* Suppress only the empty header-holder above a hidden app header. */
+.dashboard-main:has(.registrar-academic-record)
+  > .header-container:has(.app-header.hide) {
+  height: 0;
+  min-height: 0;
+  border: 0;
+}
+
+.registrar-academic-record {
+  --rar-green-950: #063c26;
+  --rar-green-900: #075333;
+  --rar-green-800: #106c40;
+  --rar-green-700: #15804a;
+  --rar-text-950: #19251d;
+  --rar-text-800: #303d34;
+  --rar-text-700: #47584c;
+  --rar-text-600: #617268;
+  --rar-text-500: #75867b;
+  --rar-border: #d7e8db;
+  --rar-border-strong: #c6ddcc;
+  --rar-surface: #fff;
+  --rar-bg: #e7f1e9;
+  position: relative;
+  isolation: isolate;
+  min-width: 0;
+  width: 100%;
+  min-height: 100%;
+  padding: 25px 27px 42px;
+  background-color: #e7f1e9;
+  background-image:
+    linear-gradient(135deg, rgba(15, 122, 69, .07) 25%, transparent 25%),
+    linear-gradient(225deg, rgba(15, 122, 69, .055) 25%, transparent 25%),
+    linear-gradient(45deg, rgba(212, 167, 44, .045) 25%, transparent 25%),
+    linear-gradient(315deg, rgba(37, 99, 235, .035) 25%, transparent 25%),
+    radial-gradient(circle at 10% 8%, rgba(21, 148, 82, .17), transparent 27%),
+    radial-gradient(circle at 90% 6%, rgba(212, 167, 44, .12), transparent 24%),
+    linear-gradient(180deg, #eff7f1 0%, #e5f0e8 54%, #dfebe3 100%);
+  background-size: 96px 96px, 96px 96px, 128px 128px, 128px 128px, auto, auto, auto;
+}
+
+.registrar-academic-record::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  top: 13px;
+  left: 13px;
+  right: 13px;
+  height: 380px;
+  border: 1px solid rgba(7, 83, 51, .12);
+  border-radius: 30px;
+  background: linear-gradient(110deg, rgba(255,255,255,.68), rgba(234,247,239,.53));
+  box-shadow: 0 18px 48px rgba(6, 60, 38, .09);
+  pointer-events: none;
+}
+
+/* Green hero / actions */
+.registrar-academic-record__hero {
+  min-height: 184px;
+  margin-bottom: 17px;
+  padding: 29px 31px;
+  border: 0;
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at 83% 18%, rgba(255,255,255,.16) 0 8%, transparent 8.5%),
+    radial-gradient(circle at 94% 56%, rgba(255,255,255,.08) 0 14%, transparent 14.5%),
+    linear-gradient(120deg, #064e30 0%, #0b6d3f 46%, #148346 78%, #259152 100%);
+  box-shadow: 0 17px 38px rgba(6, 65, 39, .22);
+}
+.registrar-academic-record__hero::after {
+  top: -125px;
+  right: -50px;
+  width: 310px;
+  height: 310px;
+  border: 2px solid rgba(255,255,255,.15);
+  box-shadow: 0 0 0 44px rgba(255,255,255,.045), 0 0 0 84px rgba(255,255,255,.025);
+}
+.registrar-academic-record__eyebrow { color: #f4fff8; font-weight: 800; }
+.registrar-academic-record__eyebrow-icon {
+  color: #f4fff8;
+  background: rgba(255,255,255,.17);
+  border: 1px solid rgba(255,255,255,.2);
+}
+.registrar-academic-record__hero h1 {
+  color: #fff;
+  font-size: clamp(27px, 3.1vw, 37px);
+  letter-spacing: -.035em;
+}
+.registrar-academic-record__hero p {
+  color: #e3f5e9;
+  font-size: 13.5px;
+}
+.registrar-academic-record__hero-actions { position: relative; z-index: 1; }
+.registrar-academic-record__hero .registrar-academic-record__button {
+  min-height: 43px;
+  padding: 10px 15px;
+  border-radius: 11px;
+  box-shadow: 0 5px 12px rgba(2,42,25,.10);
+}
+.registrar-academic-record__hero .registrar-academic-record__button--secondary {
+  border-color: rgba(255,255,255,.55);
+  color: #075333;
+  background: #fff;
+}
+.registrar-academic-record__hero .registrar-academic-record__button--primary {
+  border-color: #dff6e4;
+  color: #075333;
+  background: #eaffee;
+}
+.registrar-academic-record__hero .registrar-academic-record__button:hover:not(:disabled) {
+  filter: brightness(.97);
+}
+
+/* Page notice / loading / student identity */
+.registrar-academic-record__notice {
+  margin-bottom: 17px;
+  padding: 15px 18px;
+  border-color: #c9e5d3;
+  border-radius: 16px;
+  background: #f1fbf4;
+  box-shadow: 0 5px 16px rgba(8,68,41,.045);
+}
+.registrar-academic-record__notice-icon {
+  color: #0b7044;
+  background: #daf3e2;
+}
+.registrar-academic-record__student-card,
+.registrar-academic-record__directory,
+.registrar-academic-record__guide,
+.registrar-academic-record__footer-card,
+.registrar-academic-record__loading,
+.registrar-academic-record__error {
+  border: 1px solid #dbe9df;
+  border-radius: 21px;
+  background: #fff;
+  box-shadow: 0 11px 28px rgba(8,63,37,.075);
+}
+.registrar-academic-record__student-card {
+  gap: 18px;
+  margin-bottom: 17px;
+  padding: 21px 23px;
+}
+.registrar-academic-record__avatar {
+  border-color: #effff4;
+  background: linear-gradient(145deg,#107d47,#064729);
+  box-shadow: 0 10px 25px rgba(7,78,45,.21);
+}
+.registrar-academic-record__identity-heading h2 { font-size: clamp(21px, 2.2vw, 28px); }
+.registrar-academic-record__current-info > div {
+  border-color: #dcece0;
+  border-radius: 13px;
+  background: #f3faf5;
+  padding: 14px;
+}
+.registrar-academic-record__current-info strong {
+  overflow-wrap: anywhere;
+  white-space: normal;
+  text-overflow: initial;
+}
+
+/* Four data-backed cards: official records, earned units, PTC passed, credits. */
+.registrar-academic-record__summary-grid { gap: 13px; margin-bottom: 17px; }
+.registrar-academic-record__summary-card {
+  position: relative;
+  overflow: hidden;
+  min-height: 111px;
+  padding: 17px 15px;
+  border: 1px solid #d9eee1;
+  border-left: 4px solid #0b9760;
+  border-radius: 17px;
+  background: #effbf4;
+  box-shadow: 0 7px 17px rgba(27,74,42,.06);
+}
+.registrar-academic-record__summary-card::after {
+  content: "";
+  position: absolute;
+  top: -45px;
+  right: -37px;
+  width: 115px;
+  height: 115px;
+  border-radius: 50%;
+  background: rgba(18,135,77,.065);
+  pointer-events: none;
+}
+.registrar-academic-record__summary-card:nth-child(2) {
+  border-color: #f6eac8;
+  border-left-color: #dea40d;
+  background: #fff9e9;
+}
+.registrar-academic-record__summary-card:nth-child(2)::after { background: rgba(212,167,44,.09); }
+.registrar-academic-record__summary-card:nth-child(3) {
+  border-color: #d7e7ff;
+  border-left-color: #2563eb;
+  background: #f1f7ff;
+}
+.registrar-academic-record__summary-card:nth-child(3)::after { background: rgba(37,99,235,.08); }
+.registrar-academic-record__summary-card:nth-child(4) {
+  border-color: #e8dafa;
+  border-left-color: #7c3aed;
+  background: #faf4ff;
+}
+.registrar-academic-record__summary-card:nth-child(4)::after { background: rgba(124,58,237,.07); }
+.registrar-academic-record__summary-icon {
+  position: relative;
+  z-index: 1;
+  flex: 0 0 44px;
+  width: 44px;
+  height: 44px;
+  border: 1px solid #0d915d;
+  border-radius: 12px;
+  color: #fff;
+  background: #087347;
+  box-shadow: 0 8px 16px rgba(10,97,55,.15);
+}
+.registrar-academic-record__summary-card:nth-child(2) .registrar-academic-record__summary-icon {
+  border-color: #f4d783;
+  color: #9f6500;
+  background: #fff4cf;
+}
+.registrar-academic-record__summary-card:nth-child(3) .registrar-academic-record__summary-icon {
+  border-color: #c9ddff;
+  color: #2563eb;
+  background: #e7f1ff;
+}
+.registrar-academic-record__summary-card:nth-child(4) .registrar-academic-record__summary-icon {
+  border-color: #e0d0ff;
+  color: #7431de;
+  background: #f0e9ff;
+}
+.registrar-academic-record__summary-card > div { position: relative; z-index: 1; }
+.registrar-academic-record__summary-card span:not(.registrar-academic-record__summary-icon) {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: .02em;
+}
+.registrar-academic-record__summary-card strong {
+  font-size: clamp(19px, 1.8vw, 26px);
+  font-weight: 800;
+}
+.registrar-academic-record__summary-card small {
+  font-size: 10px;
+  white-space: normal;
+  line-height: 1.35;
+}
+.registrar-academic-record__attention {
+  margin-bottom: 17px;
+  padding: 16px;
+  border-radius: 16px;
+  border-color: #f0dfb5;
+  background: #fff8e8;
+}
+
+/* Main academic history directory, filters and year/semester tables */
+.registrar-academic-record__directory { margin-bottom: 17px; }
+.registrar-academic-record__directory-heading { padding: 23px 25px 19px; }
+.registrar-academic-record__directory-heading h2 { font-size: 22px; font-weight: 800; }
+.registrar-academic-record__section-kicker { color: #087444; font-size: 10px; }
+.registrar-academic-record__record-count {
+  border-color: #cce8d5;
+  background: #effaf3;
+  padding: 10px 13px;
+}
+.registrar-academic-record__filters {
+  gap: 11px;
+  padding: 17px 24px;
+  background: #f7fbf8;
+  border-block-color: #e0ece3;
+}
+.registrar-academic-record__input-shell,
+.registrar-academic-record__filter-field select {
+  min-height: 43px;
+  border: 1px solid #d4e5d9;
+  border-radius: 11px;
+  background: #fff;
+  color: #253b2d;
+}
+.registrar-academic-record__input-shell:focus-within,
+.registrar-academic-record__filter-field select:focus {
+  outline: 2px solid rgba(21,148,82,.2);
+  outline-offset: 0;
+  border-color: #15804a;
+}
+.registrar-academic-record__clear-button { min-height: 43px; border-radius: 11px; }
+.registrar-academic-record__filter-summary { background: #f5faf6; }
+.registrar-academic-record__year-list { padding: 18px; }
+.registrar-academic-record__year {
+  overflow: hidden;
+  border: 1px solid #d8e8dd;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 5px 18px rgba(8,63,37,.04);
+}
+.registrar-academic-record__year-header {
+  padding: 16px 19px;
+  background: #edf8f0;
+  border-bottom: 1px solid #d9e9dd;
+}
+.registrar-academic-record__year-header h3 { color: #103f28; }
+.registrar-academic-record__year-count { background: #fff; border-color: #cee5d4; }
+.registrar-academic-record__semester-header {
+  padding: 15px 18px;
+  background: #fbfdfb;
+}
+.registrar-academic-record__semester-icon {
+  border: 1px solid #cce8d5;
+  color: #0f7544;
+  background: #e6f7ec;
+}
+.registrar-academic-record__semester-stats > span {
+  border-color: #dcebe0;
+  border-radius: 9px;
+  background: #f5faf6;
+}
+.registrar-academic-record__table-wrap {
+  max-width: 100%;
+  overflow-x: auto;
+  scrollbar-color: #a9cbb4 transparent;
+}
+.registrar-academic-record__table { min-width: 1040px; }
+.registrar-academic-record__table th {
+  color: #4b6955;
+  background: #eff6f1;
+  border-bottom-color: #dbe9df;
+}
+.registrar-academic-record__table td { border-bottom-color: #e8f0eb; }
+.registrar-academic-record__table tbody tr:hover td { background: #f4fbf6; }
+.registrar-academic-record__source-badge,
+.registrar-academic-record__result,
+.registrar-academic-record__subject-status,
+.registrar-academic-record__outcome,
+.registrar-academic-record__review-status { border-radius: 999px; }
+.registrar-academic-record__empty {
+  margin: 16px;
+  border: 1px dashed #c6dece;
+  border-radius: 15px;
+  background: #f7fcf9;
+}
+.registrar-academic-record__empty-icon { color: #106c40; background: #e0f5e8; }
+
+/* Grading guide and lower record action card */
+.registrar-academic-record__guide { padding: 23px 24px; margin-bottom: 16px; }
+.registrar-academic-record__guide-icon,
+.registrar-academic-record__footer-icon {
+  border: 1px solid #cce7d4;
+  border-radius: 12px;
+  color: #0b7545;
+  background: #e5f6eb;
+}
+.registrar-academic-record__guide-grid { gap: 11px; }
+.registrar-academic-record__guide-grid article {
+  border-color: #deebe1;
+  border-radius: 13px;
+  background: #f9fcfa;
+}
+.registrar-academic-record__footer-card {
+  padding: 20px 23px;
+  border-color: #cfe4d6;
+  background: linear-gradient(110deg, #f7fdf9, #eef8f1);
+}
+.registrar-academic-record__actions button {
+  border-radius: 11px;
+  border-color: #bfdec8;
+  background: #fff;
+}
+.registrar-academic-record__actions button:hover { background: #e8f7ed; }
+.registrar-academic-record__loading { padding: 24px; }
+.registrar-academic-record__skeleton { background: #dfece2; }
+.registrar-academic-record__skeleton::after {
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.55), transparent);
+}
+
+/* Keep cards and filters responsive and avoid horizontal page overflow. */
+@media (max-width: 1250px) {
+  .registrar-academic-record__summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 900px) {
+  .registrar-academic-record { padding: 18px 17px 32px; }
+  .registrar-academic-record__hero { padding: 25px 24px; }
+  .registrar-academic-record__student-card { grid-template-columns: 1fr; }
+  .registrar-academic-record__filters { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .registrar-academic-record__search-field { grid-column: 1 / -1; }
+  .registrar-academic-record__clear-button { align-self: end; }
+}
+@media (max-width: 620px) {
+  .registrar-academic-record { padding: 13px 11px 24px; }
+  .registrar-academic-record__hero { padding: 23px 19px; border-radius: 19px; }
+  .registrar-academic-record__hero h1 { font-size: 27px; }
+  .registrar-academic-record__hero-actions { width: 100%; flex-wrap: wrap; }
+  .registrar-academic-record__summary-grid,
+  .registrar-academic-record__current-info,
+  .registrar-academic-record__filters { grid-template-columns: 1fr; }
+  .registrar-academic-record__search-field { grid-column: auto; }
+  .registrar-academic-record__directory-heading { padding: 20px 16px; }
+  .registrar-academic-record__filters { padding: 16px; }
+  .registrar-academic-record__year-list { padding: 11px; }
+  .registrar-academic-record__guide { padding: 18px 15px; }
+  .registrar-academic-record__footer-card { padding: 18px 15px; }
+}
+
+/* Theme applies only when the actual application is in dark mode. */
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .dashboard-main:has(.registrar-academic-record) > .dashboard-content { background: #101a14; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-academic-record {
+  --rar-text-950: #eef7f0;
+  --rar-text-800: #deeee1;
+  --rar-text-700: #c8dbcD;
+  --rar-text-600: #b9cebe;
+  --rar-text-500: #abc4b0;
+  --rar-border: #335441;
+  --rar-border-strong: #42644e;
+  --rar-surface: #1b2c21;
+  --rar-bg: #101a14;
+  color: #e8f5eb;
+  background-color: #101a14;
+  background-image:
+    linear-gradient(135deg, rgba(46,132,79,.09) 25%, transparent 25%),
+    linear-gradient(225deg, rgba(46,132,79,.065) 25%, transparent 25%),
+    linear-gradient(180deg,#17261c,#0f1b13);
+  background-size: 96px 96px, 96px 96px, auto;
+}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-academic-record::before { background: rgba(26,46,32,.55); border-color: #345b41; box-shadow: none; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-academic-record__hero { background: linear-gradient(120deg,#063a25,#095a36 63%,#0b6f43); }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-academic-record__student-card,
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-academic-record__directory,
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-academic-record__guide,
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-academic-record__footer-card,
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-academic-record__loading {
+  background: #1b2b21;
+  border-color: #365441;
+  color: #e5f3e9;
+  box-shadow: 0 8px 22px rgba(0,0,0,.16);
+}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-academic-record__notice { background: #213e2b; border-color: #355d44; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-academic-record__notice strong,
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-academic-record__notice p { color: #def1e2; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-academic-record__current-info > div,
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-academic-record__guide-grid article,
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-academic-record__year { background: #223529; border-color: #385a44; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-academic-record__summary-card { background: #203b2a; border-color:#376a45; border-left-color:#2dd385; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-academic-record__summary-card:nth-child(2) { background: #3b3220; border-color:#706039; border-left-color:#efba34; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-academic-record__summary-card:nth-child(3) { background: #22344a; border-color:#375c82; border-left-color:#6a9df7; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-academic-record__summary-card:nth-child(4) { background: #352843; border-color:#655077; border-left-color:#b58aff; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-academic-record__summary-card strong { color: #f3fcf4; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-academic-record__summary-card span:not(.registrar-academic-record__summary-icon),
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-academic-record__summary-card small { color: #c9d9ce; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-academic-record__attention { background:#453923; border-color:#816a3a; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-academic-record__attention-heading strong,
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-academic-record__attention-heading span { color: #f6dfad; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-academic-record__attention-items > span { background:#322b21; border-color:#86724b; color:#f0d69c; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-academic-record__attention-items strong { color:#ffe0a0; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-academic-record__filters,
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-academic-record__filter-summary { background:#1f3226; border-color:#34513f; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-academic-record__input-shell,
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-academic-record__filter-field select {
+  background:#17271c; border-color:#45634f; color:#f0f7f1;
+}
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-academic-record__input-shell input { color:#f0f7f1; background:transparent; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-academic-record__input-shell input::placeholder { color:#9ab3a1; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-academic-record__year-header { background:#254630; border-color:#3d674b; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-academic-record__year-header h3 { color:#e6f8eb; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-academic-record__year-count,
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-academic-record__semester-header,
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-academic-record__semester-stats > span { background:#233a2a; border-color:#3e6049; color:#dceee0; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-academic-record__table th { background:#264231; color:#d5e9da; border-color:#3c6349; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-academic-record__table td { background:#1b2b21; border-color:#344d3d; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-academic-record__table tbody tr:hover td { background:#294232; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-academic-record__guide-rating--passed { background:#244b32; border-color:#406f50; color:#b8f2cc; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-academic-record__guide-rating--credited { background:#263e58; border-color:#4a6a8d; color:#c6e0ff; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-academic-record__guide-rating--incomplete { background:#514020; border-color:#826a3b; color:#ffe8b7; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-academic-record__guide-rating--failed,
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-academic-record__guide-rating--unofficial-drop { background:#512c2c; border-color:#8a5151; color:#ffd6d6; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-academic-record__record-count { background:#243d2d; border-color:#3c6749; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-academic-record__record-count strong { color:#99e7b6; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-academic-record__empty { background:#1e3325; border-color:#42684d; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-academic-record__footer-units,
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-academic-record__actions button { background:#25402e; border-color:#436b4f; color:#e4f5e8; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-academic-record__skeleton { background:#324b39; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-academic-record__skeleton::after { background:linear-gradient(90deg,transparent,rgba(133,179,145,.13),transparent); }
+
+/* Complete the dark surfaces: never leave a white history-list panel. */
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-academic-record__year-list { background: #16261c; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-academic-record__section-kicker,
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-academic-record__guide-heading > div > span,
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-academic-record__year-header > div > span { color:#8be8ae; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-academic-record__guide-icon,
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-academic-record__semester-icon,
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-academic-record__footer-icon { color:#a5eac0; background:#284f35; border-color:#456e4c; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-academic-record__guide-grid article { background:#22372a; border-color:#3d5b47; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-academic-record__guide-grid strong { color:#e4f5e8; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-academic-record__clear-button,
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-academic-record__empty > button { background:#263d2d; border-color:#4b7156; color:#dff4e5; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-academic-record__source-badge--ptc,
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-academic-record__result--passed { background:#1e5531; border-color:#438455; color:#d1f5da; }
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-academic-record__source-badge--transfer,
+:is(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, .dark-mode, .theme-dark)
+  .registrar-academic-record__result--credited { background:#24436c; border-color:#5075a4; color:#d4e6ff; }
+
+/* No page-entry flash; existing refresh icon animation remains only on demand. */
+@media (prefers-reduced-motion: reduce) {
+  .registrar-academic-record__button,
+  .registrar-academic-record__actions button { transition: none; }
+}
+
+@media print {
+  .registrar-academic-record { padding: 0; background: #fff; color: #111; }
+  .registrar-academic-record::before { display: none; }
+  .registrar-academic-record__hero { box-shadow: none; }
+  .registrar-academic-record__year,
+  .registrar-academic-record__semester,
+  .registrar-academic-record__guide { break-inside: avoid; }
+}
